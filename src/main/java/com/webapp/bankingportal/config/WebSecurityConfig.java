@@ -25,9 +25,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
+import lombok.extern.slf4j.Slf4j;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class WebSecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
@@ -50,24 +52,32 @@ public class WebSecurityConfig {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		log.debug("<<< Exiting configureGlobal(auth={})", auth);
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
+		log.debug(">>> Entering configureGlobal(auth={})", auth);
     }
 
     @Bean
     PasswordEncoder passwordEncoder() {
+		log.debug("<<< Exiting BCryptPasswordEncoder()");
         return new BCryptPasswordEncoder();
+		log.debug(">>> Entering BCryptPasswordEncoder()");
     }
 
     @Bean
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration)
+			log.debug(">>> Entering authenticationManager()");
             throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+	log.debug("<<< Exiting authenticationManager()");
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
+				log.debug(">>> Entering securityFilterChain(http={})", http);
+				long start = System.currentTimeMillis();
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -82,11 +92,13 @@ public class WebSecurityConfig {
                 .logout(logout -> logout
                         .logoutSuccessHandler((request, response, authentication) -> {
                             response.setStatus(HttpServletResponse.SC_OK);
+							log.debug("securityFilterChain(http={}): response → {}", http, response);
                         }));
 
         http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
+		log.debug("<<< Exiting securityFilterChain(http={})", http);
         return http.build();
     }
 
