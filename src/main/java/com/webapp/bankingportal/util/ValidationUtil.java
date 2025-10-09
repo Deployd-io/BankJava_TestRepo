@@ -29,42 +29,53 @@ public class ValidationUtil {
 
     public static boolean isValidEmail(String identifier) {
         try {
+			log.debug(">>> Entering isValidEmail(identifier={})", identifier);
             new InternetAddress(identifier).validate();
             return true;
         } catch (AddressException e) {
             log.warn("Invalid email address: {}", identifier);
         }
 
+		log.debug("<<< Exiting isValidEmail(identifier={})", identifier);
         return false;
     }
 
     public static boolean isValidAccountNumber(String identifier) {
         // Account number validation logic (e.g., length check)
+		log.debug(">>> Entering isValidAccountNumber(identifier={})", identifier);
+		log.debug("<<< Exiting isValidAccountNumber(identifier={})", identifier);
         return identifier != null && identifier.length() == 6;
     }
 
     public static boolean isValidCountryCode(String countryCode) {
         if (!phoneNumberUtil.getSupportedRegions().contains(countryCode)) {
+			log.debug(">>> Entering isValidCountryCode(countryCode={})", countryCode);
             return false;
         }
 
+		log.debug("<<< Exiting isValidCountryCode(countryCode={})", countryCode);
         return true;
     }
 
     public static boolean isValidPhoneNumber(String phoneNumber, String countryCode) {
         PhoneNumber parsedNumber = null;
+		log.debug(">>> Entering isValidPhoneNumber(phoneNumber={},countryCode={})", phoneNumber, countryCode);
 
         try {
             parsedNumber = phoneNumberUtil.parse(phoneNumber, countryCode);
+			log.debug("isValidPhoneNumber(phoneNumber={},countryCode={}): parsedNumber → {}", phoneNumber, countryCode, parsedNumber);
         } catch (NumberParseException e) {
             throw new UserInvalidException(String.format(ApiMessages.USER_PHONE_NUMBER_INVALID_ERROR.getMessage(), phoneNumber, countryCode));
+			log.error("Exception in isValidPhoneNumber(phoneNumber={},countryCode={}): {}", phoneNumber, countryCode, e.getMessage(), e);
         }
 
+		log.debug("<<< Exiting isValidPhoneNumber(phoneNumber={},countryCode={})", phoneNumber, countryCode);
         return phoneNumberUtil.isValidNumber(parsedNumber);
     }
 
     public static void validatePassword(String password) {
         if (password.length() < 8) {
+			log.debug(">>> Entering validatePassword(password={})", password);
             throw new UserInvalidException(ApiMessages.PASSWORD_TOO_SHORT_ERROR.getMessage());
         }
 
@@ -77,14 +88,17 @@ public class ValidationUtil {
         }
 
         val message = new StringBuilder();
+		log.debug("validatePassword(password={}): message → {}", password, message);
         message.append("Password must contain at least ");
 
         var needsComma = false;
         if (!password.matches(".*[A-Z].*")) {
             message.append("one uppercase letter");
             needsComma = true;
+			log.debug("validatePassword(password={}): needsComma → {}", password, needsComma);
         }
 
+		log.debug("<<< Exiting validatePassword(password={})", password);
         if (!password.matches(".*[a-z].*")) {
             if (needsComma) {
                 message.append(", ");
@@ -119,6 +133,7 @@ public class ValidationUtil {
 
     public static void validateUserDetailsNotEmpty(User user) {
         if (user == null) {
+			log.debug(">>> Entering validateUserDetailsNotEmpty(user={})", user);
             throw new UserInvalidException(ApiMessages.USER_DETAILS_EMPTY_ERROR.getMessage());
         }
 
@@ -145,11 +160,14 @@ public class ValidationUtil {
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new UserInvalidException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
+		log.debug("<<< Exiting validateUserDetailsNotEmpty(user={})", user);
     }
 
     public static void validateUserDetails(User user) {
         validateUserDetailsNotEmpty(user);
+		log.debug(">>> Entering validateUserDetails(user={})", user);
 
+		log.debug("<<< Exiting validateUserDetails(user={})", user);
         if (!isValidEmail(user.getEmail())) {
             throw new UserInvalidException(String.format(ApiMessages.USER_EMAIL_ADDRESS_INVALID_ERROR.getMessage(), user.getEmail()));
         }
@@ -167,7 +185,9 @@ public class ValidationUtil {
 
     public void validateNewUser(User user) {
         validateUserDetails(user);
+		log.debug(">>> Entering validateNewUser(user={})", user);
         if (doesEmailExist(user.getEmail())) {
+			log.debug("<<< Exiting validateNewUser(user={})", user);
             throw new UserInvalidException(ApiMessages.USER_EMAIL_ALREADY_EXISTS_ERROR.getMessage());
         }
         if (doesPhoneNumberExist(user.getPhoneNumber())) {
@@ -176,15 +196,26 @@ public class ValidationUtil {
     }
 
     public boolean doesAccountExist(String accountNumber) {
+		log.info("doesAccountExist(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
+		log.debug(">>> Entering doesAccountExist(accountNumber={})", accountNumber);
+		log.debug("<<< Exiting doesAccountExist(accountNumber={})", accountNumber);
         return userRepository.findByAccountAccountNumber(accountNumber).isPresent();
     }
 
     public boolean doesEmailExist(String email) {
+		log.info("doesEmailExist(email)={}: find query executed in {} ms", email, (System.currentTimeMillis() - start));
         return userRepository.findByEmail(email).isPresent();
+		log.debug(">>> Entering doesEmailExist(email={})", email);
+		log.debug("<<< Exiting doesEmailExist(email={})", email);
+		long start = System.currentTimeMillis();
     }
 
     public boolean doesPhoneNumberExist(String phoneNumber) {
+		log.info("doesPhoneNumberExist(phoneNumber)={}: find query executed in {} ms", phoneNumber, (System.currentTimeMillis() - start));
         return userRepository.findByPhoneNumber(phoneNumber).isPresent();
+		log.debug(">>> Entering doesPhoneNumberExist(phoneNumber={})", phoneNumber);
+		log.debug("<<< Exiting doesPhoneNumberExist(phoneNumber={})", phoneNumber);
+		long start = System.currentTimeMillis();
     }
 
 }
