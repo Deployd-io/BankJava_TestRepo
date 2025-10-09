@@ -12,16 +12,22 @@ import org.springframework.context.annotation.Configuration;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableCaching
+@Slf4j
 public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
         val cacheManager = new CaffeineCacheManager();
+		log.debug(">>> Entering CaffeineCacheManager()");
+		log.debug("CaffeineCacheManager(): cacheManager → {}", cacheManager);
         cacheManager.setCacheNames(List.of("otpAttempts")); // Define the cache name
         cacheManager.setCaffeine(caffeineConfig());
+		log.debug(">>> Entering caffeineConfig()");
+		log.debug("<<< Exiting caffeineConfig()");
         return cacheManager;
     }
 
