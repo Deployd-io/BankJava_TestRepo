@@ -13,9 +13,11 @@ import java.io.IOException;
  * This class implements the AuthenticationEntryPoint interface to handle
  * unauthorized access attempts. It is responsible for commencing the
  * authentication scheme and sending the appropriate response when an
+import lombok.extern.slf4j.Slf4j;
  * unauthenticated user tries to access a secured resource.
  */
 @Component
+@Slf4j
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     /**
@@ -35,8 +37,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
+			log.debug(">>> Entering commence()");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		log.debug("commence(): response → {}", response);
         response.getWriter().println("Access Denied !! " + authException.getMessage());
+		log.debug("<<< Exiting commence()");
     }
 
 }
