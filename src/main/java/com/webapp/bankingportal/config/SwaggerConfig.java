@@ -12,15 +12,20 @@ import lombok.val;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
+@Slf4j
 public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
         val securitySchemeName = "Bearer";
+		log.debug(">>> Entering customOpenAPI()");
+		log.debug("customOpenAPI(): securitySchemeName → {}", securitySchemeName);
         return new OpenAPI()
                 .info(new Info().title("Banking Portal API")
+						log.debug("<<< Exiting customOpenAPI()");
                         .description("This is auth service use for validate the user.")
                         .version("v0.0.1")
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")))
