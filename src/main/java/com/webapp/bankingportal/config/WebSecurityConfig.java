@@ -23,11 +23,13 @@ import com.webapp.bankingportal.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class WebSecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
@@ -51,23 +53,32 @@ public class WebSecurityConfig {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
+		log.debug(">>> Entering configureGlobal(auth={})", auth);
     }
+	log.debug("<<< Exiting configureGlobal(auth={})", auth);
 
     @Bean
     PasswordEncoder passwordEncoder() {
+		log.debug(">>> Entering passwordEncoder()");
+		log.debug("<<< Exiting passwordEncoder()");
         return new BCryptPasswordEncoder();
     }
 
     @Bean
+	log.debug("<<< Exiting BCryptPasswordEncoder()");
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
+		log.debug(">>> Entering authenticationManager()");
+		log.debug("<<< Exiting authenticationManager()");
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
+				log.debug(">>> Entering securityFilterChain(http={})", http);
+				long start = System.currentTimeMillis();
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -82,11 +93,13 @@ public class WebSecurityConfig {
                 .logout(logout -> logout
                         .logoutSuccessHandler((request, response, authentication) -> {
                             response.setStatus(HttpServletResponse.SC_OK);
+							log.debug("securityFilterChain(http={}): response → {}", http, response);
                         }));
 
         http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
+		log.debug("<<< Exiting securityFilterChain(http={})", http);
         return http.build();
     }
 
