@@ -21,13 +21,20 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
 
     public EmailServiceImpl(JavaMailSender mailSender) {
+		log.debug(">>> Entering EmailServiceImpl(mailSender={})", mailSender);
         this.mailSender = mailSender;
+		log.debug("EmailServiceImpl(mailSender={}): this.mailSender → {}", mailSender, this.mailSender);
+		log.debug("EmailServiceImpl(mailSender={}): mailSender → {}", mailSender, mailSender);
     }
 
     @Override
+	log.debug("<<< Exiting EmailServiceImpl(mailSender={})", mailSender);
     @Async
     public CompletableFuture<Void> sendEmail(String to, String subject, String text) {
+		log.debug(">>> Entering sendEmail(to={},subject={},text={})", to, subject, text);
         val future = new CompletableFuture<Void>();
+		long start = System.currentTimeMillis();
+		log.info("sendEmail(to,subject,text)={},{},{}: query query executed in {} ms", to, subject, text, (System.currentTimeMillis() - start));
 
         try {
             val message = mailSender.createMimeMessage();
@@ -36,6 +43,7 @@ public class EmailServiceImpl implements EmailService {
             // From address is automatically set by Spring Boot based on your properties
             helper.setSubject(subject);
             helper.setText(text, true); // Set the second parameter to true to send HTML content
+			log.debug("sendEmail(to={},subject={},text={}): helper → {}", to, subject, text, helper);
             mailSender.send(message);
 
             log.info("Sent email to {}", to);
@@ -46,16 +54,20 @@ public class EmailServiceImpl implements EmailService {
             future.completeExceptionally(e);
         }
 
+		log.debug("<<< Exiting sendEmail(to={},subject={},text={})", to, subject, text);
         return future;
     }
 
     @Override
     public String getLoginEmailTemplate(String name, String loginTime, String loginLocation) {
+		log.debug(">>> Entering getLoginEmailTemplate(name={},loginTime={},loginLocation={})", name, loginTime, loginLocation);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
+		log.debug("<<< Exiting getLoginEmailTemplate(name={},loginTime={},loginLocation={})", name, loginTime, loginLocation);
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
                 + "<a href=\"https://onestopbank.netlify.app/\" style=\"text-decoration: none;\">"
                 + "<img src=\"https://onestopbank.netlify.app/assets/onestoplogo.jpg\" alt=\"OneStopBank\" style=\"height: 50px; margin-bottom: 10px;\">"
+				log.debug("getLoginEmailTemplate(name={},loginTime={},loginLocation={}): src → {}", name, loginTime, loginLocation, src);
                 + "</a>" + "<h1 style=\"font-size: 1.8em; color: #3f51b5; margin: 10px 0;\">OneStopBank</h1>" + "</div>"
                 + "<div style=\"padding: 20px;\">" + "<p style=\"font-size: 1.2em; color: #333;\">Hi, " + name + ",</p>"
                 + "<p style=\"font-size: 1em; color: #333;\">A login attempt was made on your account at:</p>"
@@ -72,16 +84,21 @@ public class EmailServiceImpl implements EmailService {
                 + "<div style=\"margin-top: 20px;\">"
                 + "<p style=\"font-size: 1em; color: #333;\">Show your support here ❤️</p>"
                 + "<a href=\"https://github.com/abhi9720/BankingPortal-API\" style=\"margin: 0 10px; color: #3f51b5; text-decoration: none;\">GitHub</a>"
+				log.debug("getLoginEmailTemplate(name={},loginTime={},loginLocation={}): href → {}", name, loginTime, loginLocation, href);
+				log.debug("getLoginEmailTemplate(name={},loginTime={},loginLocation={}): style → {}", name, loginTime, loginLocation, style);
                 + "</div>" + "</div>" + "</div>" + "</div>";
     }
 
     @Override
     public String getOtpLoginEmailTemplate(String name, String accountNumber, String otp) {
+		log.debug(">>> Entering getOtpLoginEmailTemplate(name={},accountNumber={},otp={})", name, accountNumber, otp);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
+		log.debug("<<< Exiting getOtpLoginEmailTemplate(name={},accountNumber={},otp={})", name, accountNumber, otp);
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
                 + "<a href=\"https://onestopbank.netlify.app/\" style=\"text-decoration: none;\">"
                 + "<img src=\"https://onestopbank.netlify.app/assets/onestoplogo.jpg\" alt=\"OneStopBank\" style=\"height: 50px; margin-bottom: 10px;\">"
+				log.debug("getOtpLoginEmailTemplate(name={},accountNumber={},otp={}): src → {}", name, accountNumber, otp, src);
                 + "</a>" + "<h1 style=\"font-size: 1.8em; color: #3f51b5; margin: 10px 0;\">OneStopBank</h1>" + "</div>"
                 + "<div style=\"padding: 20px;\">" + "<p style=\"font-size: 1.2em; color: #333;\">Hi, " + name + ",</p>"
                 + "<p style=\"font-size: 1em; color: #555;\">Account Number: <strong style=\"color: #3f51b5;\">"
@@ -97,11 +114,14 @@ public class EmailServiceImpl implements EmailService {
                 + "<div style=\"margin-top: 20px;\">"
                 + "<p style=\"font-size: 1em; color: #333;\">Show your support here ❤️</p>"
                 + "<a href=\"https://github.com/abhi9720/BankingPortal-API\" style=\"margin: 0 10px; color: #3f51b5; text-decoration: none;\">GitHub</a>"
+				log.debug("getOtpLoginEmailTemplate(name={},accountNumber={},otp={}): style → {}", name, accountNumber, otp, style);
+				log.debug("getOtpLoginEmailTemplate(name={},accountNumber={},otp={}): href → {}", name, accountNumber, otp, href);
                 + "</div>" + "</div>" + "</div>" + "</div>";
     }
 
     @Override
     public String getBankStatementEmailTemplate(String name, String statementText) {
+		log.debug(">>> Entering getBankStatementEmailTemplate(name={},statementText={})", name, statementText);
          return "<div style=\"font-family: Arial, sans-serif; padding: 20px;\">" +
                 "<h2>Bank Statement</h2>" +
                 "<p>Dear " + name + ",</p>" +
@@ -111,15 +131,18 @@ public class EmailServiceImpl implements EmailService {
                 "</pre>" +
                 "<p>Regards,<br/>OneStopBank Team</p>" +
                 "</div>";
+		log.debug("<<< Exiting getBankStatementEmailTemplate(name={},statementText={})", name, statementText);
     }
 
     public void sendEmailWithAttachment(String to, String subject, String text, String attachmentFilePath) {
+		log.debug(">>> Entering sendEmailWithAttachment(to={},subject={},text={},attachmentFilePath={})", to, subject, text, attachmentFilePath);
         try {
             val message = mailSender.createMimeMessage();
             val helper = new MimeMessageHelper(message, true);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(text, true); // Set the second parameter to true to send HTML content
+			log.debug("sendEmailWithAttachment(to={},subject={},text={},attachmentFilePath={}): helper → {}", to, subject, text, attachmentFilePath, helper);
 
             // Add an attachment to the email
             val attachmentFile = new File(attachmentFilePath);
@@ -129,6 +152,7 @@ public class EmailServiceImpl implements EmailService {
         } catch (MessagingException e) {
             log.error("Failed to send email to {}", to, e);
         }
+		log.debug("<<< Exiting sendEmailWithAttachment(to={},subject={},text={},attachmentFilePath={})", to, subject, text, attachmentFilePath);
     }
 
 
