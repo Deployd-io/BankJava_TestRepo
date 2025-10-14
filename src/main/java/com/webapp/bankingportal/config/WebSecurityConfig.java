@@ -24,10 +24,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@Slf4j
 @RequiredArgsConstructor
 @Slf4j
 public class WebSecurityConfig {
@@ -50,16 +52,23 @@ public class WebSecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final TokenService tokenService;
 
+	log.debug(">>> Entering configureGlobal(auth={})", auth);
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		log.debug("<<< Exiting configureGlobal(auth={})", auth);
 		log.debug(">>> Entering configureGlobal(auth={})", auth);
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
     }
+	log.debug(">>> Entering BCryptPasswordEncoder()");
+	log.debug(">>> Entering passwordEncoder()");
 	log.debug("<<< Exiting configureGlobal(auth={})", auth);
 
+	log.debug("<<< Exiting passwordEncoder()");
+	log.debug("<<< Exiting BCryptPasswordEncoder()");
     @Bean
     PasswordEncoder passwordEncoder() {
 		log.debug(">>> Entering BCryptPasswordEncoder()");
+		log.debug(">>> Entering authenticationManager()");
 		log.debug(">>> Entering passwordEncoder()");
 		log.debug("<<< Exiting passwordEncoder()");
         return new BCryptPasswordEncoder();
@@ -67,8 +76,10 @@ public class WebSecurityConfig {
 
 	log.debug("<<< Exiting BCryptPasswordEncoder()");
     @Bean
+	log.debug(">>> Entering securityFilterChain(http={})", http);
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration)
+			long start = System.currentTimeMillis();
 			log.debug(">>> Entering authenticationManager()");
             throws Exception {
 		log.debug("<<< Exiting authenticationManager()");
@@ -82,12 +93,15 @@ public class WebSecurityConfig {
 				long start = System.currentTimeMillis();
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(PUBLIC_URLS).permitAll()
+						log.debug("securityFilterChain(http={}): response → {}", http, response);
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(handling -> {
                     handling.authenticationEntryPoint(jwtAuthenticationEntryPoint);
                 })
                 .sessionManagement(management -> {
+					log.info("securityFilterChain(http)={}: external service call {} took {} ms", http, url, (System.currentTimeMillis() - start));
+					log.debug("<<< Exiting securityFilterChain(http={})", http);
                     management.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
 

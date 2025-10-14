@@ -1,10 +1,14 @@
 package com.webapp.bankingportal.exception;
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 
 public class InvalidOtpException extends RuntimeException {
+log.debug(">>> Entering InvalidOtpException(msg={})", msg);
 
     public InvalidOtpException(String msg) {
+		log.debug("<<< Exiting InvalidOtpException(msg={})", msg);
 		log.debug(">>> Entering InvalidOtpException(msg={})", msg);
         super(msg);
     }

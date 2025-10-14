@@ -30,6 +30,10 @@ public class GeolocationServiceImpl implements GeolocationService {
     @Async
     public CompletableFuture<GeolocationResponse> getGeolocation(String ip) {
 		log.debug(">>> Entering getGeolocation(ip={})", ip);
+		log.debug(">>> Entering getGeolocation(ip={})", ip);
+		long start = System.currentTimeMillis();
+		long start = System.currentTimeMillis();
+		log.info("getGeolocation(ip)={}: query query executed in {} ms", ip, (System.currentTimeMillis() - start));
         val future = new CompletableFuture<GeolocationResponse>();
 		long start = System.currentTimeMillis();
 		long start = System.currentTimeMillis();
@@ -41,7 +45,9 @@ public class GeolocationServiceImpl implements GeolocationService {
 
             log.info("Getting geolocation for IP: {}", ip);
 
+			log.debug("<<< Exiting getGeolocation(ip={})", ip);
             // Call geolocation API
+			log.info("getGeolocation(ip)={}: external service call {} took {} ms", ip, url, (System.currentTimeMillis() - start));
             val url = String.format("%s/%s/?token=%s", apiUrl, ip, apiKey);
             val response = new RestTemplate()
                     .getForObject(url, GeolocationResponse.class);

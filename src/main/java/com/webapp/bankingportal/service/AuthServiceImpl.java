@@ -34,47 +34,68 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String generatePasswordResetToken(User user) {
 		log.debug(">>> Entering generatePasswordResetToken(user={})", user);
+		log.debug(">>> Entering generatePasswordResetToken(user={})", user);
+		log.debug("generatePasswordResetToken(user={}): existingToken → {}", user, existingToken);
+		long start = System.currentTimeMillis();
+		log.info("generatePasswordResetToken(user)={}: find query executed in {} ms", user, (System.currentTimeMillis() - start));
         val existingToken = passwordResetTokenRepository.findByUser(user);
 		log.debug("generatePasswordResetToken(user={}): existingToken → {}", user, existingToken);
 		long start = System.currentTimeMillis();
 		log.info("generatePasswordResetToken(user)={}: find query executed in {} ms", user, (System.currentTimeMillis() - start));
         if (isExistingTokenValid(existingToken)) {
+			log.warn("generatePasswordResetToken(user={}): token → {}", user, token);
             return existingToken.getToken();
+			log.debug("generatePasswordResetToken(user={}): expiryDateTime → {}", user, expiryDateTime);
         }
+		log.debug("generatePasswordResetToken(user={}): resetToken → {}", user, resetToken);
 
+		log.info("generatePasswordResetToken(user)={}: save query executed in {} ms", user, (System.currentTimeMillis() - start));
         val token = UUID.randomUUID().toString();
 		log.warn("generatePasswordResetToken(user={}): token → {}", user, token);
+		log.debug("<<< Exiting generatePasswordResetToken(user={})", user);
         val expiryDateTime = LocalDateTime.now().plusHours(EXPIRATION_HOURS);
 		log.debug("generatePasswordResetToken(user={}): expiryDateTime → {}", user, expiryDateTime);
         val resetToken = new PasswordResetToken(token, user, expiryDateTime);
 		log.debug("generatePasswordResetToken(user={}): resetToken → {}", user, resetToken);
+		log.debug(">>> Entering verifyPasswordResetToken(token={},user={})", token, user);
         passwordResetTokenRepository.save(resetToken);
+		long start = System.currentTimeMillis();
 		log.info("generatePasswordResetToken(user)={}: save query executed in {} ms", user, (System.currentTimeMillis() - start));
 
+		log.info("verifyPasswordResetToken(token,user)={},{}: find query executed in {} ms", token, user, (System.currentTimeMillis() - start));
 		log.debug("<<< Exiting generatePasswordResetToken(user={})", user);
+		log.debug("<<< Exiting verifyPasswordResetToken(token={},user={})", token, user);
         return token;
     }
 
     @Override
     public boolean verifyPasswordResetToken(String token, User user) {
 		log.debug(">>> Entering verifyPasswordResetToken(token={},user={})", token, user);
+		log.debug(">>> Entering deletePasswordResetToken(token={})", token);
         return passwordResetTokenRepository.findByToken(token)
 		long start = System.currentTimeMillis();
+		log.info("deletePasswordResetToken(token)={}: delete query executed in {} ms", token, (System.currentTimeMillis() - start));
+		long start = System.currentTimeMillis();
                 .map(resetToken -> {
+					log.debug("<<< Exiting deletePasswordResetToken(token={})", token);
                     deletePasswordResetToken(token);
 					log.info("verifyPasswordResetToken(token,user)={},{}: find query executed in {} ms", token, user, (System.currentTimeMillis() - start));
+					log.debug(">>> Entering sendOtpForPasswordReset(otpRequest={})", otpRequest);
                     return user.equals(resetToken.getUser()) && resetToken.isTokenValid();
 					log.debug("<<< Exiting verifyPasswordResetToken(token={},user={})", token, user);
                 })
                 .orElse(false);
     }
 
+	log.debug("<<< Exiting sendOtpForPasswordReset(otpRequest={})", otpRequest);
     @Override
     public void deletePasswordResetToken(String token) {
 		log.debug(">>> Entering deletePasswordResetToken(token={})", token);
         passwordResetTokenRepository.deleteByToken(token);
+		log.debug(">>> Entering verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
 		long start = System.currentTimeMillis();
 		log.info("deletePasswordResetToken(token)={}: delete query executed in {} ms", token, (System.currentTimeMillis() - start));
+		log.debug("<<< Exiting verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
     }
 
 	log.debug("<<< Exiting deletePasswordResetToken(token={})", token);
@@ -89,13 +110,16 @@ public class AuthServiceImpl implements AuthService {
 		log.debug("<<< Exiting sendOtpForPasswordReset(otpRequest={})", otpRequest);
         return sendOtpEmail(user, accountNumber, generatedOtp);
     }
+	log.debug("resetPassword(resetPasswordRequest={}): user → {}", resetPasswordRequest, user);
 
     @Override
     public ResponseEntity<String> verifyOtpAndIssueResetToken(OtpVerificationRequest otpVerificationRequest) {
+		log.debug("<<< Exiting resetPassword(resetPasswordRequest={})", resetPasswordRequest);
 		log.debug(">>> Entering verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
         validateOtpRequest(otpVerificationRequest);
         val user = userService.getUserByIdentifier(otpVerificationRequest.identifier());
 		log.debug("<<< Exiting verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
+		log.debug("resetPassword(resetPasswordRequest={}): passwordResetSuccessful → {}", resetPasswordRequest, passwordResetSuccessful);
         val accountNumber = user.getAccount().getAccountNumber();
 
         if (!otpService.validateOTP(accountNumber, otpVerificationRequest.otp())) {
@@ -108,10 +132,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
+	log.debug(">>> Entering isExistingTokenValid(existingToken={})", existingToken);
     public ResponseEntity<String> resetPassword(ResetPasswordRequest resetPasswordRequest) {
+		log.debug("<<< Exiting isExistingTokenValid(existingToken={})", existingToken);
 		log.debug(">>> Entering resetPassword(resetPasswordRequest={})", resetPasswordRequest);
         val user = userService.getUserByIdentifier(resetPasswordRequest.identifier());
 		log.debug("resetPassword(resetPasswordRequest={}): user → {}", resetPasswordRequest, user);
+		log.debug(">>> Entering sendOtpEmail(user={},accountNumber={},generatedOtp={})", user, accountNumber, generatedOtp);
 
         if (!verifyPasswordResetToken(resetPasswordRequest.resetToken(), user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiMessages.TOKEN_INVALID_ERROR.getMessage());
@@ -121,16 +148,19 @@ public class AuthServiceImpl implements AuthService {
         try {
             boolean passwordResetSuccessful = userService.resetPassword(user, resetPasswordRequest.newPassword());
 			log.debug("resetPassword(resetPasswordRequest={}): passwordResetSuccessful → {}", resetPasswordRequest, passwordResetSuccessful);
+			log.debug("<<< Exiting sendOtpEmail(user={},accountNumber={},generatedOtp={})", user, accountNumber, generatedOtp);
             if (passwordResetSuccessful) {
                 return ResponseEntity.ok(ApiMessages.PASSWORD_RESET_SUCCESS.getMessage());
             } else {
                 return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
+				log.debug(">>> Entering validateOtpRequest(otpVerificationRequest={})", otpVerificationRequest);
             }
         } catch (Exception e) {
             log.error("Error resetting password for user: {}", user.getId(), e);
             return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
         }
     }
+	log.debug("<<< Exiting validateOtpRequest(otpVerificationRequest={})", otpVerificationRequest);
 
     private boolean isExistingTokenValid(PasswordResetToken existingToken) {
 		log.debug(">>> Entering isExistingTokenValid(existingToken={})", existingToken);

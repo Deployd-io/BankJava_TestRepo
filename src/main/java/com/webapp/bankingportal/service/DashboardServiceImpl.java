@@ -13,8 +13,10 @@ import com.webapp.bankingportal.util.ApiMessages;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Slf4j
 public class DashboardServiceImpl implements DashboardService {
@@ -23,21 +25,30 @@ public class DashboardServiceImpl implements DashboardService {
 @Autowired
     private final AccountRepository accountRepository;
 
+	log.debug(">>> Entering getUserDetails(accountNumber={})", accountNumber);
     @Override
+	long start = System.currentTimeMillis();
     public UserResponse getUserDetails(String accountNumber) {
 		log.debug(">>> Entering getUserDetails(accountNumber={})", accountNumber);
+		log.info("getUserDetails(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
         val user = userRepository.findByAccountAccountNumber(accountNumber)
 				long start = System.currentTimeMillis();
+				log.debug("<<< Exiting getUserDetails(accountNumber={})", accountNumber);
                 .orElseThrow(() -> new NotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 						log.info("getUserDetails(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
 
+		log.debug(">>> Entering getAccountDetails(accountNumber={})", accountNumber);
 		log.debug("<<< Exiting getUserDetails(accountNumber={})", accountNumber);
+		log.debug("getAccountDetails(accountNumber={}): account → {}", accountNumber, account);
+		long start = System.currentTimeMillis();
+		log.info("getAccountDetails(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
         return new UserResponse(user);
     }
 
     @Override
     public AccountResponse getAccountDetails(String accountNumber) {
+		log.debug("<<< Exiting getAccountDetails(accountNumber={})", accountNumber);
 		log.debug(">>> Entering getAccountDetails(accountNumber={})", accountNumber);
         val account = accountRepository.findByAccountNumber(accountNumber);
 		log.debug("getAccountDetails(accountNumber={}): account → {}", accountNumber, account);

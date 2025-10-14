@@ -13,13 +13,18 @@ import lombok.val;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Configuration
 @Slf4j
 public class SwaggerConfig {
 
+	log.debug(">>> Entering customOpenAPI()");
     @Bean
+	log.debug("customOpenAPI(): securitySchemeName → {}", securitySchemeName);
     public OpenAPI customOpenAPI() {
+		log.debug("<<< Exiting customOpenAPI()");
 		log.debug(">>> Entering customOpenAPI()");
         val securitySchemeName = "Bearer";
 		log.debug("customOpenAPI(): securitySchemeName → {}", securitySchemeName);

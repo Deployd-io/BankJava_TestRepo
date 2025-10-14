@@ -5,14 +5,18 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Configuration
 @Slf4j
 public class CorsConfig implements WebMvcConfigurer {
 
+	log.debug(">>> Entering addCorsMappings(registry={})", registry);
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
 		log.debug(">>> Entering addCorsMappings(registry={})", registry);
+		log.debug("<<< Exiting addCorsMappings(registry={})", registry);
         registry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("*");

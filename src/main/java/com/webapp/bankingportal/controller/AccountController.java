@@ -20,9 +20,11 @@ import com.webapp.bankingportal.util.LoggedinUser;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/account")
+@Slf4j
 @RequiredArgsConstructor
 @Slf4j
 public class AccountController {
@@ -30,25 +32,31 @@ public class AccountController {
     private final AccountService accountService;
     private final TransactionService transactionService;
 
+	log.debug(">>> Entering checkAccountPIN()");
     @GetMapping("/pin/check")
+	log.debug("checkAccountPIN(): isPINValid → {}", isPINValid);
     public ResponseEntity<String> checkAccountPIN() {
 		log.debug(">>> Entering checkAccountPIN()");
         val isPINValid = accountService.isPinCreated(LoggedinUser.getAccountNumber());
 		log.debug("checkAccountPIN(): isPINValid → {}", isPINValid);
+		log.debug("<<< Exiting checkAccountPIN()");
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
 
 		log.debug("<<< Exiting checkAccountPIN()");
+		log.debug(">>> Entering createPIN(pinRequest={})", pinRequest);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/pin/create")
     public ResponseEntity<String> createPIN(@RequestBody PinRequest pinRequest) {
 		log.debug(">>> Entering createPIN(pinRequest={})", pinRequest);
+		log.debug("<<< Exiting createPIN(pinRequest={})", pinRequest);
         accountService.createPin(
                 LoggedinUser.getAccountNumber(),
                 pinRequest.password(),
                 pinRequest.pin());
+				log.debug(">>> Entering updatePIN(pinUpdateRequest={})", pinUpdateRequest);
 
 		log.debug("<<< Exiting createPIN(pinRequest={})", pinRequest);
         return ResponseEntity.ok(ApiMessages.PIN_CREATION_SUCCESS.getMessage());
@@ -56,30 +64,36 @@ public class AccountController {
 
     @PostMapping("/pin/update")
     public ResponseEntity<String> updatePIN(@RequestBody PinUpdateRequest pinUpdateRequest) {
+		log.debug("<<< Exiting updatePIN(pinUpdateRequest={})", pinUpdateRequest);
 		log.debug(">>> Entering updatePIN(pinUpdateRequest={})", pinUpdateRequest);
         accountService.updatePin(
                 LoggedinUser.getAccountNumber(),
                 pinUpdateRequest.oldPin(),
                 pinUpdateRequest.password(),
                 pinUpdateRequest.newPin());
+				log.debug(">>> Entering cashDeposit(amountRequest={})", amountRequest);
 
 		log.debug("<<< Exiting updatePIN(pinUpdateRequest={})", pinUpdateRequest);
         return ResponseEntity.ok(ApiMessages.PIN_UPDATE_SUCCESS.getMessage());
     }
+	log.debug("<<< Exiting cashDeposit(amountRequest={})", amountRequest);
 
     @PostMapping("/deposit")
     public ResponseEntity<String> cashDeposit(@RequestBody AmountRequest amountRequest) {
 		log.debug(">>> Entering cashDeposit(amountRequest={})", amountRequest);
+		log.debug(">>> Entering cashWithdrawal(amountRequest={})", amountRequest);
         accountService.cashDeposit(
                 LoggedinUser.getAccountNumber(),
                 amountRequest.pin(),
                 amountRequest.amount());
 
 		log.debug("<<< Exiting cashDeposit(amountRequest={})", amountRequest);
+		log.debug("<<< Exiting cashWithdrawal(amountRequest={})", amountRequest);
         return ResponseEntity.ok(ApiMessages.CASH_DEPOSIT_SUCCESS.getMessage());
     }
 
     @PostMapping("/withdraw")
+	log.debug(">>> Entering fundTransfer(fundTransferRequest={})", fundTransferRequest);
     public ResponseEntity<String> cashWithdrawal(@RequestBody AmountRequest amountRequest) {
 		log.debug(">>> Entering cashWithdrawal(amountRequest={})", amountRequest);
         accountService.cashWithdrawal(
@@ -87,13 +101,16 @@ public class AccountController {
                 amountRequest.pin(),
                 amountRequest.amount());
 
+		log.debug("<<< Exiting fundTransfer(fundTransferRequest={})", fundTransferRequest);
 		log.debug("<<< Exiting cashWithdrawal(amountRequest={})", amountRequest);
         return ResponseEntity.ok(ApiMessages.CASH_WITHDRAWAL_SUCCESS.getMessage());
     }
 
+	log.debug(">>> Entering getAllTransactionsByAccountNumber()");
     @PostMapping("/fund-transfer")
     public ResponseEntity<String> fundTransfer(@RequestBody FundTransferRequest fundTransferRequest) {
 		log.debug(">>> Entering fundTransfer(fundTransferRequest={})", fundTransferRequest);
+		log.debug("<<< Exiting getAllTransactionsByAccountNumber()");
         accountService.fundTransfer(
                 LoggedinUser.getAccountNumber(),
                 fundTransferRequest.targetAccountNumber(),
