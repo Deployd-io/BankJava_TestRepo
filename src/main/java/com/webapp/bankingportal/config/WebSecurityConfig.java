@@ -23,11 +23,13 @@ import com.webapp.bankingportal.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class WebSecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
@@ -50,11 +52,15 @@ public class WebSecurityConfig {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		log.debug(">>> Entering configureGlobal(auth={})", auth);
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
     }
+	log.debug("<<< Exiting configureGlobal(auth={})", auth);
 
     @Bean
     PasswordEncoder passwordEncoder() {
+		log.debug(">>> Entering passwordEncoder()");
+		log.debug("<<< Exiting passwordEncoder()");
         return new BCryptPasswordEncoder();
     }
 
@@ -62,17 +68,21 @@ public class WebSecurityConfig {
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
+			log.debug(">>> Entering authenticationManager()");
+		log.debug("<<< Exiting authenticationManager()");
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		log.debug(">>> Entering securityFilterChain(http={})", http);
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(handling -> {
+						long start = System.currentTimeMillis();
                     handling.authenticationEntryPoint(jwtAuthenticationEntryPoint);
                 })
                 .sessionManagement(management -> {
