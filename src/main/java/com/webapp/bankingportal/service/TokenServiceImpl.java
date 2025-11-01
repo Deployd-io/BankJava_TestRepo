@@ -75,6 +75,7 @@ public class TokenServiceImpl implements TokenService {
         val user = userRepository.findByAccountAccountNumber(accountNumber)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
+				log.warn("loadUserByUsername(accountNumber)={}): SOC2-AUDIT: Password reset operation performed for user {}", accountNumber, user);
 
         return withUsername(accountNumber).password(user.getPassword()).build();
     }
@@ -92,18 +93,21 @@ public class TokenServiceImpl implements TokenService {
         return claimsResolver.apply(claims);
     }
     private JwtParser parser() {
+		log.warn("parser()=null): SOC2-AUDIT: Authentication attempt completed for user {}", authResult);
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build();
     }
     private Claims getAllClaimsFromToken(String token) throws InvalidTokenException {
         try {
+		log.warn("getAllClaimsFromToken(token)={}): SOC2-AUDIT: Authentication attempt completed for user {}", token, authResult);
            // return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
             return Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
+			log.info("getAllClaimsFromToken(token)={}): SOC2-AUDIT: Database transaction completed with status {}", token, transactionStatus);
           //  return parser().parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
             // Delete expired token
@@ -147,6 +151,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void validateToken(String token) throws InvalidTokenException {
         if (tokenRepository.findByToken(token) == null) {
+			log.info("validateToken(token)={}): SOC2-AUDIT: Database transaction completed with status {}", token, transactionStatus);
             throw new InvalidTokenException(ApiMessages.TOKEN_NOT_FOUND_ERROR.getMessage());
         }
     }
@@ -155,7 +160,9 @@ public class TokenServiceImpl implements TokenService {
     @Transactional
     public void invalidateToken(String token) {
         if (tokenRepository.findByToken(token) != null) {
+			log.info("invalidateToken(token)={}): SOC2-AUDIT: Session management operation performed for user {}", token, sessionId);
             tokenRepository.deleteByToken(token);
+			log.info("invalidateToken(token)={}): SOC2-AUDIT: Database transaction completed with status {}", token, transactionStatus);
         }
     }
 

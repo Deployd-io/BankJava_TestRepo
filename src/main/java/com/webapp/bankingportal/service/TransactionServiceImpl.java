@@ -11,9 +11,11 @@ import com.webapp.bankingportal.repository.TransactionRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -22,6 +24,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<TransactionDTO> getAllTransactionsByAccountNumber(String accountNumber) {
         val transactions = transactionRepository
+				log.info("getAllTransactionsByAccountNumber(accountNumber)={}): SOC2-AUDIT: Database transaction completed with status {}", accountNumber, transactionStatus);
                 .findBySourceAccount_AccountNumberOrTargetAccount_AccountNumber(accountNumber, accountNumber);
 
         val transactionDTOs = transactions.parallelStream()
