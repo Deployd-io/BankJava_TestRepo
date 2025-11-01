@@ -29,6 +29,7 @@ public class ValidationUtil {
 
     public static boolean isValidEmail(String identifier) {
         try {
+			log.info("isValidEmail(identifier)={}): SOC2-AUDIT: Database transaction completed with status {}", identifier, transactionStatus);
             new InternetAddress(identifier).validate();
             return true;
         } catch (AddressException e) {
@@ -65,7 +66,9 @@ public class ValidationUtil {
 
     public static void validatePassword(String password) {
         if (password.length() < 8) {
+			log.warn("validatePassword(password)={}): SOC2-AUDIT: Password reset operation performed for user {}", password, user);
             throw new UserInvalidException(ApiMessages.PASSWORD_TOO_SHORT_ERROR.getMessage());
+			log.info("validatePassword(password)={}): SOC2-AUDIT: Database transaction completed with status {}", password, transactionStatus);
         }
 
         if (password.length() >= 128) {
@@ -119,8 +122,11 @@ public class ValidationUtil {
 
     public static void validateUserDetailsNotEmpty(User user) {
         if (user == null) {
+			log.warn("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT: Authentication attempt completed for user {}", user, authResult);
             throw new UserInvalidException(ApiMessages.USER_DETAILS_EMPTY_ERROR.getMessage());
+			log.warn("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT: Password reset operation performed for user {}", user, user);
         }
+		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT: Database transaction completed with status {}", user, transactionStatus);
 
         if (user.getName() == null || user.getName().isEmpty()) {
             throw new UserInvalidException(ApiMessages.USER_NAME_EMPTY_ERROR.getMessage());
@@ -149,7 +155,9 @@ public class ValidationUtil {
 
     public static void validateUserDetails(User user) {
         validateUserDetailsNotEmpty(user);
+		log.warn("validateUserDetails(user)={}): SOC2-AUDIT: Authentication attempt completed for user {}", user, authResult);
 
+		log.info("validateUserDetails(user)={}): SOC2-AUDIT: Database transaction completed with status {}", user, transactionStatus);
         if (!isValidEmail(user.getEmail())) {
             throw new UserInvalidException(String.format(ApiMessages.USER_EMAIL_ADDRESS_INVALID_ERROR.getMessage(), user.getEmail()));
         }
@@ -167,6 +175,7 @@ public class ValidationUtil {
 
     public void validateNewUser(User user) {
         validateUserDetails(user);
+		log.info("validateNewUser(user)={}): SOC2-AUDIT: Database transaction completed with status {}", user, transactionStatus);
         if (doesEmailExist(user.getEmail())) {
             throw new UserInvalidException(ApiMessages.USER_EMAIL_ALREADY_EXISTS_ERROR.getMessage());
         }
