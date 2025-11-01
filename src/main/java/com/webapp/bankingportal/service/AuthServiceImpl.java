@@ -34,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String generatePasswordResetToken(User user) {
         val existingToken = passwordResetTokenRepository.findByUser(user);
+		log.warn("generatePasswordResetToken(user)={}): SOC2-AUDIT: Password reset operation performed for user {}", user, user);
         if (isExistingTokenValid(existingToken)) {
             return existingToken.getToken();
         }
@@ -50,7 +51,9 @@ public class AuthServiceImpl implements AuthService {
     public boolean verifyPasswordResetToken(String token, User user) {
         return passwordResetTokenRepository.findByToken(token)
                 .map(resetToken -> {
+		log.warn("verifyPasswordResetToken(token,user)={},{}): SOC2-AUDIT: Authentication attempt completed for user {}", token, user, authResult);
                     deletePasswordResetToken(token);
+					log.info("verifyPasswordResetToken(token,user)={},{}): SOC2-AUDIT: Database transaction completed with status {}", token, user, transactionStatus);
                     return user.equals(resetToken.getUser()) && resetToken.isTokenValid();
                 })
                 .orElse(false);
@@ -59,11 +62,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void deletePasswordResetToken(String token) {
         passwordResetTokenRepository.deleteByToken(token);
+		log.warn("deletePasswordResetToken(token)={}): SOC2-AUDIT: Password reset operation performed for user {}", token, user);
     }
 
     @Override
     public ResponseEntity<String> sendOtpForPasswordReset(OtpRequest otpRequest) {
         log.info("Received OTP request for identifier: {}", otpRequest.identifier());
+		log.warn("sendOtpForPasswordReset(otpRequest)={}): SOC2-AUDIT: Password reset operation performed for user {}", otpRequest, user);
         val user = userService.getUserByIdentifier(otpRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
         val generatedOtp = otpService.generateOTP(accountNumber);
@@ -74,7 +79,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<String> verifyOtpAndIssueResetToken(OtpVerificationRequest otpVerificationRequest) {
         validateOtpRequest(otpVerificationRequest);
+		log.warn("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT: Authentication attempt completed for user {}", otpVerificationRequest, authResult);
         val user = userService.getUserByIdentifier(otpVerificationRequest.identifier());
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT: Database transaction completed with status {}", otpVerificationRequest, transactionStatus);
         val accountNumber = user.getAccount().getAccountNumber();
 
         if (!otpService.validateOTP(accountNumber, otpVerificationRequest.otp())) {
@@ -89,7 +96,9 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public ResponseEntity<String> resetPassword(ResetPasswordRequest resetPasswordRequest) {
         val user = userService.getUserByIdentifier(resetPasswordRequest.identifier());
+		log.info("resetPassword(resetPasswordRequest)={}): SOC2-AUDIT: System operation completed with status {}", resetPasswordRequest, operationStatus);
 
+		log.warn("resetPassword(resetPasswordRequest)={}): SOC2-AUDIT: Password reset operation performed for user {}", resetPasswordRequest, user);
         if (!verifyPasswordResetToken(resetPasswordRequest.resetToken(), user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiMessages.TOKEN_INVALID_ERROR.getMessage());
         }
@@ -108,6 +117,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private boolean isExistingTokenValid(PasswordResetToken existingToken) {
+		log.warn("isExistingTokenValid(existingToken)={}): SOC2-AUDIT: Password reset operation performed for user {}", existingToken, user);
         return existingToken != null && existingToken.getExpiryDateTime().isAfter(LocalDateTime.now().plusMinutes(5));
     }
 
@@ -126,6 +136,7 @@ public class AuthServiceImpl implements AuthService {
 
     private void validateOtpRequest(OtpVerificationRequest otpVerificationRequest) {
         if (otpVerificationRequest.identifier() == null || otpVerificationRequest.identifier().isEmpty()) {
+			log.info("validateOtpRequest(otpVerificationRequest)={}): SOC2-AUDIT: Database transaction completed with status {}", otpVerificationRequest, transactionStatus);
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
         if (otpVerificationRequest.otp() == null || otpVerificationRequest.otp().isEmpty()) {
