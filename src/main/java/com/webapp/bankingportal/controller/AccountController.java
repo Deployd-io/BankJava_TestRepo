@@ -19,10 +19,12 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/account")
 @RequiredArgsConstructor
+@Slf4j
 public class AccountController {
 
     private final AccountService accountService;
@@ -31,6 +33,7 @@ public class AccountController {
     @GetMapping("/pin/check")
     public ResponseEntity<String> checkAccountPIN() {
         val isPINValid = accountService.isPinCreated(LoggedinUser.getAccountNumber());
+		log.info("checkAccountPIN()=null): SOC2-AUDIT: Database transaction completed with status {}", transactionStatus);
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
 
@@ -43,6 +46,7 @@ public class AccountController {
                 LoggedinUser.getAccountNumber(),
                 pinRequest.password(),
                 pinRequest.pin());
+				log.warn("createPIN(pinRequest)={}): SOC2-AUDIT: Password reset operation performed for user {}", pinRequest, user);
 
         return ResponseEntity.ok(ApiMessages.PIN_CREATION_SUCCESS.getMessage());
     }
@@ -54,6 +58,7 @@ public class AccountController {
                 pinUpdateRequest.oldPin(),
                 pinUpdateRequest.password(),
                 pinUpdateRequest.newPin());
+				log.warn("updatePIN(pinUpdateRequest)={}): SOC2-AUDIT: Password reset operation performed for user {}", pinUpdateRequest, user);
 
         return ResponseEntity.ok(ApiMessages.PIN_UPDATE_SUCCESS.getMessage());
     }
@@ -85,6 +90,7 @@ public class AccountController {
                 fundTransferRequest.targetAccountNumber(),
                 fundTransferRequest.pin(),
                 fundTransferRequest.amount());
+				log.info("fundTransfer(fundTransferRequest)={}): SOC2-AUDIT: Database transaction completed with status {}", fundTransferRequest, transactionStatus);
 
         return ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
     }
@@ -92,6 +98,7 @@ public class AccountController {
     @GetMapping("/transactions")
     public ResponseEntity<String> getAllTransactionsByAccountNumber() {
         val transactions = transactionService
+				log.info("getAllTransactionsByAccountNumber()=null): SOC2-AUDIT: Database transaction completed with status {}", transactionStatus);
                 .getAllTransactionsByAccountNumber(LoggedinUser.getAccountNumber());
         return ResponseEntity.ok(JsonUtil.toJson(transactions));
     }
