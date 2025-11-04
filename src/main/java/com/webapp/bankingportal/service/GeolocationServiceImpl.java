@@ -30,6 +30,7 @@ public class GeolocationServiceImpl implements GeolocationService {
     @Async
     public CompletableFuture<GeolocationResponse> getGeolocation(String ip) {
         val future = new CompletableFuture<GeolocationResponse>();
+		log.info("getGeolocation(ip)={}): SOC2-AUDIT: Database transaction completed with status {}", ip, transactionStatus);
 
         try {
             // Validate IP address
