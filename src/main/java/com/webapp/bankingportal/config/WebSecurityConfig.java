@@ -23,11 +23,13 @@ import com.webapp.bankingportal.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class WebSecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
@@ -51,10 +53,14 @@ public class WebSecurityConfig {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
+		log.warn("configureGlobal(auth)={}): SOC2-AUDIT: Password reset operation performed for user {}", auth, user);
+		log.info("configureGlobal(auth)={}): SOC2-AUDIT: Change management operation performed by initiator {}", auth, changeInitiator);
     }
 
     @Bean
     PasswordEncoder passwordEncoder() {
+		log.info("passwordEncoder()=null): SOC2-AUDIT: Encryption operation completed with algorithm {}", encryptionAlgorithm);
+		log.warn("passwordEncoder()=null): SOC2-AUDIT: Password reset operation performed for user {}", user);
         return new BCryptPasswordEncoder();
     }
 
@@ -62,6 +68,7 @@ public class WebSecurityConfig {
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
+			log.info("authenticationManager()=null): SOC2-AUDIT: Change management operation performed by initiator {}", changeInitiator);
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -73,6 +80,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(handling -> {
+				log.warn("securityFilterChain(http)={}): SOC2-AUDIT: Authentication attempt completed for user {}", http, authResult);
                     handling.authenticationEntryPoint(jwtAuthenticationEntryPoint);
                 })
                 .sessionManagement(management -> {
