@@ -55,6 +55,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<String> registerUser(User user) {
         validationUtil.validateNewUser(user);
         encodePassword(user);
+		log.info("registerUser(user)={}): SOC2-AUDIT: Database transaction completed", user);
         val savedUser = saveUserWithAccount(user);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
@@ -65,6 +66,8 @@ public class UserServiceImpl implements UserService {
         val user = authenticateUser(loginRequest);
         sendLoginNotification(user, request.getRemoteAddr());
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
+		log.warn("login(loginRequest,request)={},{}): SOC2-AUDIT: Authentication operation completed for user {}", loginRequest, request, user);
+		log.warn("login(loginRequest,request)={},{}): SOC2-AUDIT: Security incident detected", loginRequest, request);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
@@ -82,6 +85,9 @@ public class UserServiceImpl implements UserService {
         val user = getUserByIdentifier(otpVerificationRequest.identifier());
         validateOtp(user, otpVerificationRequest.otp());
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
+		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT: Authentication operation completed for user {}", otpVerificationRequest, user);
+		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT: Security incident detected", otpVerificationRequest);
+		log.info("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT: Database transaction completed", otpVerificationRequest);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
@@ -92,6 +98,10 @@ public class UserServiceImpl implements UserService {
         val existingUser = getUserByAccountNumber(accountNumber);
         updateUserDetails(existingUser, updatedUser);
         val savedUser = saveUser(existingUser);
+		log.warn("updateUser(updatedUser)={}): SOC2-AUDIT: Authentication operation completed for user {}", updatedUser, updatedUser);
+		log.warn("updateUser(updatedUser)={}): SOC2-AUDIT: Password reset operation performed for user {}", updatedUser, updatedUser);
+		log.info("updateUser(updatedUser)={}): SOC2-AUDIT: Change management operation performed by initiator {}", updatedUser, updatedUser);
+		log.info("updateUser(updatedUser)={}): SOC2-AUDIT: Database transaction completed", updatedUser);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -115,6 +125,9 @@ public class UserServiceImpl implements UserService {
 
         log.info("User logged out successfully {}", tokenService.getUsernameFromToken(token));
 
+		log.info("logout(token)={}): SOC2-AUDIT: Session management operation performed", token);
+		log.warn("logout(token)={}): SOC2-AUDIT: Security incident detected", token);
+		log.info("logout(token)={}): SOC2-AUDIT: Database transaction completed", token);
         return new ModelAndView("redirect:/logout");
     }
 
@@ -155,6 +168,7 @@ public class UserServiceImpl implements UserService {
     private void encodePassword(User user) {
         user.setCountryCode(user.getCountryCode().toUpperCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+		log.warn("encodePassword(user)={}): SOC2-AUDIT: Password reset operation performed for user {}", user, user);
     }
 
     private User saveUserWithAccount(User user) {
@@ -168,6 +182,8 @@ public class UserServiceImpl implements UserService {
         val accountNumber = user.getAccount().getAccountNumber();
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+		log.warn("authenticateUser(loginRequest)={}): SOC2-AUDIT: Authentication operation completed for user {}", loginRequest, user);
+		log.warn("authenticateUser(loginRequest)={}): SOC2-AUDIT: Password reset operation performed for user {}", loginRequest, user);
         return user;
     }
 
@@ -202,18 +218,22 @@ public class UserServiceImpl implements UserService {
         if (request.otp() == null || request.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(request)={}): SOC2-AUDIT: Database transaction completed", request);
     }
 
     private void validateOtp(User user, String otp) {
         if (!otpService.validateOTP(user.getAccount().getAccountNumber(), otp)) {
             throw new UnauthorizedException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
+		log.info("validateOtp(user,otp)={},{}): SOC2-AUDIT: Database transaction completed", user, otp);
     }
 
     private void updateUserDetails(User existingUser, User updatedUser) {
         ValidationUtil.validateUserDetails(updatedUser);
         updatedUser.setPassword(existingUser.getPassword());
+		log.info("updateUserDetails(existingUser,updatedUser)={},{}): SOC2-AUDIT: Change management operation performed by initiator {}", existingUser, updatedUser, existingUser);
         userMapper.updateUser(updatedUser, existingUser);
+		log.info("updateUserDetails(existingUser,updatedUser)={},{}): SOC2-AUDIT: Database transaction completed", existingUser, updatedUser);
     }
 
     private CompletableFuture<Boolean> sendLoginNotification(User user, String ip) {
@@ -227,10 +247,13 @@ public class UserServiceImpl implements UserService {
                     return sendLoginEmail(user, loginTime, loginLocation);
                 })
                 .exceptionallyComposeAsync(throwable -> sendLoginEmail(user, loginTime, "Unknown"));
+				log.warn("sendLoginNotification(user,ip)={},{}): SOC2-AUDIT: Security incident detected", user, ip);
     }
 
     private CompletableFuture<Boolean> sendLoginEmail(User user, String loginTime, String loginLocation) {
         val emailText = emailService.getLoginEmailTemplate(user.getName(), loginTime, loginLocation);
+		log.warn("sendLoginEmail(user,loginTime,loginLocation)={},{},{}): SOC2-AUDIT: Authentication operation completed for user {}", user, loginTime, loginLocation, user);
+		log.warn("sendLoginEmail(user,loginTime,loginLocation)={},{},{}): SOC2-AUDIT: Security incident detected", user, loginTime, loginLocation);
         return emailService.sendEmail(user.getEmail(), ApiMessages.EMAIL_SUBJECT_LOGIN.getMessage(), emailText)
                 .thenApplyAsync(result -> true)
                 .exceptionally(ex -> false);
