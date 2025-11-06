@@ -19,10 +19,12 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/account")
 @RequiredArgsConstructor
+@Slf4j
 public class AccountController {
 
     private final AccountService accountService;
@@ -34,6 +36,7 @@ public class AccountController {
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
 
+		log.info("checkAccountPIN()=null): SOC2-AUDIT: Database transaction completed with status {}", response);
         return ResponseEntity.ok(response);
     }
 
@@ -44,6 +47,7 @@ public class AccountController {
                 pinRequest.password(),
                 pinRequest.pin());
 
+		log.warn("createPIN(pinRequest)={}): SOC2-AUDIT: Password reset operation performed", pinRequest);
         return ResponseEntity.ok(ApiMessages.PIN_CREATION_SUCCESS.getMessage());
     }
 
@@ -55,6 +59,8 @@ public class AccountController {
                 pinUpdateRequest.password(),
                 pinUpdateRequest.newPin());
 
+		log.warn("updatePIN(pinUpdateRequest)={}): SOC2-AUDIT: Password reset operation performed", pinUpdateRequest);
+		log.info("updatePIN(pinUpdateRequest)={}): SOC2-AUDIT: Change management operation performed", pinUpdateRequest);
         return ResponseEntity.ok(ApiMessages.PIN_UPDATE_SUCCESS.getMessage());
     }
 
@@ -86,6 +92,7 @@ public class AccountController {
                 fundTransferRequest.pin(),
                 fundTransferRequest.amount());
 
+		log.info("fundTransfer(fundTransferRequest)={}): SOC2-AUDIT: Database transaction completed", fundTransferRequest);
         return ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
     }
 
@@ -93,6 +100,7 @@ public class AccountController {
     public ResponseEntity<String> getAllTransactionsByAccountNumber() {
         val transactions = transactionService
                 .getAllTransactionsByAccountNumber(LoggedinUser.getAccountNumber());
+		log.info("getAllTransactionsByAccountNumber()=null): SOC2-AUDIT: Database transaction completed with status {}", transactions);
         return ResponseEntity.ok(JsonUtil.toJson(transactions));
     }
 
