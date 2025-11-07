@@ -41,6 +41,7 @@ public class GeolocationServiceImpl implements GeolocationService {
             val url = String.format("%s/%s/?token=%s", apiUrl, ip, apiKey);
             val response = new RestTemplate()
                     .getForObject(url, GeolocationResponse.class);
+					log.info("getGeolocation(ip)={}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", ip, response);
 
             if (response == null) {
                 log.error("Failed to get geolocation for IP: {}", ip);
