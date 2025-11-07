@@ -76,6 +76,7 @@ public class TokenServiceImpl implements TokenService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 
+		log.warn("loadUserByUsername(accountNumber)={}): SOC2-AUDIT: Password reset operation performed for user {}", accountNumber, accountNumber);
         return withUsername(accountNumber).password(user.getPassword()).build();
     }
 
@@ -92,6 +93,7 @@ public class TokenServiceImpl implements TokenService {
         return claimsResolver.apply(claims);
     }
     private JwtParser parser() {
+		log.warn("parser()=null): SOC2-AUDIT: Authentication operation completed");
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build();
@@ -149,6 +151,7 @@ public class TokenServiceImpl implements TokenService {
         if (tokenRepository.findByToken(token) == null) {
             throw new InvalidTokenException(ApiMessages.TOKEN_NOT_FOUND_ERROR.getMessage());
         }
+		log.info("validateToken(token)={}): SOC2-AUDIT: Database transaction completed", token);
     }
 
     @Override
@@ -157,6 +160,8 @@ public class TokenServiceImpl implements TokenService {
         if (tokenRepository.findByToken(token) != null) {
             tokenRepository.deleteByToken(token);
         }
+		log.info("invalidateToken(token)={}): SOC2-AUDIT: Session management operation performed", token);
+		log.info("invalidateToken(token)={}): SOC2-AUDIT: Database transaction completed", token);
     }
 
 }
