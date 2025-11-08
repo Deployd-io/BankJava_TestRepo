@@ -5,28 +5,98 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d3a4b5ec-0f58-4f9e-aeba-76e0f82dacda" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/config/CacheConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/config/CacheConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/config/CorsConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/config/CorsConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/config/SwaggerConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/config/SwaggerConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/config/WebSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/config/WebSecurityConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/controller/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/controller/AccountController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/controller/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/controller/DashboardController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/controller/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/controller/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/AccountDoesNotExistException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/AccountDoesNotExistException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/FundTransferException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/FundTransferException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/GeolocationException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/GeolocationException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/InsufficientBalanceException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/InsufficientBalanceException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/InvalidAmountException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/InvalidAmountException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/InvalidOtpException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/InvalidOtpException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/InvalidPinException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/InvalidPinException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/InvalidTokenException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/InvalidTokenException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/NotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/NotFoundException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/UnauthorizedException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/exception/UnauthorizedException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/mapper/TransactionMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/mapper/TransactionMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/security/JwtAuthenticationEntryPoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/security/JwtAuthenticationEntryPoint.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/AccountServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/AccountServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/AuthServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/DashboardServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/DashboardServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/EmailServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/EmailServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/GeolocationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/GeolocationServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/OtpServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/OtpServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/TokenServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/TokenServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/TransactionServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/TransactionServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/service/UserServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/util/LoggedinUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/util/LoggedinUser.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/util/ValidationUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/webapp/bankingportal/util/ValidationUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/bankingportal-0.0.1-SNAPSHOT.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/bankingportal-0.0.1-SNAPSHOT.jar.original" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/controller/UserController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/dto/ErrorResponse.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/dto/GeolocationResponse$City.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/dto/GeolocationResponse$Continent.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/dto/GeolocationResponse$Country.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/dto/GeolocationResponse$Location.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/dto/GeolocationResponse$Postal.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/dto/GeolocationResponse$Subdivision.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/dto/GeolocationResponse$Traits.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/dto/GeolocationResponse.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/dto/LoginRequest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/entity/OtpInfo.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/entity/PasswordResetToken.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/exception/PasswordResetException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/exception/UnauthorizedException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/exception/UserInvalidException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/mapper/TransactionMapper.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/mapper/UserMapper.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/mapper/UserMapperImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/repository/AccountRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/repository/OtpInfoRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/repository/PasswordResetTokenRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/repository/TokenRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/repository/TransactionRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/repository/UserRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/AccountServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/AuthServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/DashboardServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/EmailService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/EmailServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/GeolocationService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/GeolocationServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/OtpService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/OtpServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/TokenServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/TransactionServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/UserService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/service/UserServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/util/ApiMessages.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/util/JsonUtil.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/util/LoggedinUser.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/webapp/bankingportal/util/ValidationUtil.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/cpd.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/maven-archiver/pom.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/pmd.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/pmd/rulesets/braces.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/pmd/rulesets/naming.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/cpd.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/site/pmd.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/webapp/bankingportal/AccountControllerTests.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/webapp/bankingportal/AccountServiceTests.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/webapp/bankingportal/BaseTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/webapp/bankingportal/DashboardControllerTests.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/webapp/bankingportal/DashboardServiceTests.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/webapp/bankingportal/GreenMailJavaMailSender.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/webapp/bankingportal/TestConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/webapp/bankingportal/TokenServiceTests.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/webapp/bankingportal/UserControllerTests.class" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
