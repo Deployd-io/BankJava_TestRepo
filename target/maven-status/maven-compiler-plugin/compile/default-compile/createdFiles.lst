@@ -1,0 +1,4 @@
+com\webapp\bankingportal\config\CacheConfig.class
+com\webapp\bankingportal\config\SwaggerConfig.class
+com\webapp\bankingportal\BankingportalApplication.class
+com\webapp\bankingportal\config\CorsConfig.class
