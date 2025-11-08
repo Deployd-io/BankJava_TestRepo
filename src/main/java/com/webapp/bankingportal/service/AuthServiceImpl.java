@@ -35,21 +35,21 @@ public class AuthServiceImpl implements AuthService {
     public String generatePasswordResetToken(User user) {
 		log.debug(">>> Entering generatePasswordResetToken(user={})", user);
 		long start = System.currentTimeMillis();
+		log.info("generatePasswordResetToken(user)={}: find query executed in {} ms", user, (System.currentTimeMillis() - start));
         val existingToken = passwordResetTokenRepository.findByUser(user);
         if (isExistingTokenValid(existingToken)) {
             return existingToken.getToken();
         }
 		log.debug("generatePasswordResetToken(user={}): existingToken → {}", user, existingToken);
-		log.info("generatePasswordResetToken(user)={}: find query executed in {} ms", user, (System.currentTimeMillis() - start));
 
         val token = UUID.randomUUID().toString();
 		log.warn("generatePasswordResetToken(user={}): token → {}", user, token);
+		log.info("generatePasswordResetToken(user)={}: save query executed in {} ms", user, (System.currentTimeMillis() - start));
         val expiryDateTime = LocalDateTime.now().plusHours(EXPIRATION_HOURS);
 		log.debug("generatePasswordResetToken(user={}): expiryDateTime → {}", user, expiryDateTime);
         val resetToken = new PasswordResetToken(token, user, expiryDateTime);
 		log.debug("generatePasswordResetToken(user={}): resetToken → {}", user, resetToken);
         passwordResetTokenRepository.save(resetToken);
-		log.info("generatePasswordResetToken(user)={}: save query executed in {} ms", user, (System.currentTimeMillis() - start));
 
 		log.debug("<<< Exiting generatePasswordResetToken(user={})", user);
         return token;
@@ -59,12 +59,12 @@ public class AuthServiceImpl implements AuthService {
     public boolean verifyPasswordResetToken(String token, User user) {
 		log.debug(">>> Entering verifyPasswordResetToken(token={},user={})", token, user);
 		long start = System.currentTimeMillis();
+		log.info("verifyPasswordResetToken(token,user)={},{}: find query executed in {} ms", token, user, (System.currentTimeMillis() - start));
         return passwordResetTokenRepository.findByToken(token)
                 .map(resetToken -> {
                     deletePasswordResetToken(token);
                     return user.equals(resetToken.getUser()) && resetToken.isTokenValid();
                 })
-				log.info("verifyPasswordResetToken(token,user)={},{}: find query executed in {} ms", token, user, (System.currentTimeMillis() - start));
                 .orElse(false);
     }
 
@@ -72,8 +72,8 @@ public class AuthServiceImpl implements AuthService {
     public void deletePasswordResetToken(String token) {
 		log.debug(">>> Entering deletePasswordResetToken(token={})", token);
 		long start = System.currentTimeMillis();
-        passwordResetTokenRepository.deleteByToken(token);
 		log.info("deletePasswordResetToken(token)={}: delete query executed in {} ms", token, (System.currentTimeMillis() - start));
+        passwordResetTokenRepository.deleteByToken(token);
 		log.debug("<<< Exiting deletePasswordResetToken(token={})", token);
     }
 

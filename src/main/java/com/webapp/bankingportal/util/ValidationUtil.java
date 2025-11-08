@@ -198,6 +198,7 @@ public class ValidationUtil {
     public boolean doesAccountExist(String accountNumber) {
 		log.debug(">>> Entering doesAccountExist(accountNumber={})", accountNumber);
 		long start = System.currentTimeMillis();
+		log.info("doesAccountExist(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
 		log.debug("<<< Exiting doesAccountExist(accountNumber={})", accountNumber);
         return userRepository.findByAccountAccountNumber(accountNumber).isPresent();
     }
@@ -205,7 +206,9 @@ public class ValidationUtil {
     public boolean doesEmailExist(String email) {
 		log.debug(">>> Entering doesEmailExist(email={})", email);
 		long start = System.currentTimeMillis();
+		log.info("doesEmailExist(email)={}: find query executed in {} ms", email, (System.currentTimeMillis() - start));
 		long start = System.currentTimeMillis();
+		log.info("doesPhoneNumberExist(phoneNumber)={}: find query executed in {} ms", phoneNumber, (System.currentTimeMillis() - start));
 		log.debug("<<< Exiting doesEmailExist(email={})", email);
         return userRepository.findByEmail(email).isPresent();
     }

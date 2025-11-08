@@ -119,6 +119,7 @@ public class UserServiceImpl implements UserService {
     public boolean resetPassword(User user, String newPassword) {
 		log.debug(">>> Entering resetPassword(user={},newPassword={})", user, newPassword);
 		long start = System.currentTimeMillis();
+		log.info("resetPassword(user,newPassword)={},{}: save query executed in {} ms", user, newPassword, (System.currentTimeMillis() - start));
         try {
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
@@ -127,7 +128,6 @@ public class UserServiceImpl implements UserService {
 			log.error("Exception in resetPassword(user={},newPassword={}): {}", user, newPassword, e.getMessage(), e);
             throw new PasswordResetException(ApiMessages.PASSWORD_RESET_FAILURE.getMessage(), e);
         }
-	log.info("resetPassword(user,newPassword)={},{}: save query executed in {} ms", user, newPassword, (System.currentTimeMillis() - start));
     }
 
     @Override
@@ -147,6 +147,7 @@ public class UserServiceImpl implements UserService {
     public User saveUser(User user) {
 		log.debug(">>> Entering saveUser(user={})", user);
 		long start = System.currentTimeMillis();
+		log.info("saveUser(user)={}: save query executed in {} ms", user, (System.currentTimeMillis() - start));
 		log.debug("<<< Exiting saveUser(user={})", user);
         return userRepository.save(user);
     }
@@ -174,6 +175,7 @@ public class UserServiceImpl implements UserService {
     public User getUserByAccountNumber(String accountNo) {
 		log.debug(">>> Entering getUserByAccountNumber(accountNo={})", accountNo);
 		long start = System.currentTimeMillis();
+		log.info("getUserByAccountNumber(accountNo)={}: find query executed in {} ms", accountNo, (System.currentTimeMillis() - start));
 		log.debug("<<< Exiting getUserByAccountNumber(accountNo={})", accountNo);
         return userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
                 () -> new UserInvalidException(
@@ -184,6 +186,7 @@ public class UserServiceImpl implements UserService {
     public User getUserByEmail(String email) {
 		log.debug(">>> Entering getUserByEmail(email={})", email);
 		long start = System.currentTimeMillis();
+		log.info("getUserByEmail(email)={}: find query executed in {} ms", email, (System.currentTimeMillis() - start));
 		log.debug("<<< Exiting getUserByEmail(email={})", email);
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UserInvalidException(String.format(ApiMessages.USER_NOT_FOUND_BY_EMAIL.getMessage(), email)));
