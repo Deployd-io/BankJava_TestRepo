@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class implements the AuthenticationEntryPoint interface to handle
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
  * authentication scheme and sending the appropriate response when an
  * unauthenticated user tries to access a secured resource.
  */
+@Slf4j
 @Component
 @Slf4j
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -35,8 +37,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
      * @throws ServletException If a servlet exception occurs
      */
     @Override
+	log.debug(">>> Entering commence()");
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
+			log.debug("commence(): response → {}", response);
+			log.debug("<<< Exiting commence()");
 			log.debug(">>> Entering commence()");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().println("Access Denied !! " + authException.getMessage());
