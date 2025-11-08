@@ -206,9 +206,6 @@ public class ValidationUtil {
     public boolean doesEmailExist(String email) {
 		log.debug(">>> Entering doesEmailExist(email={})", email);
 		long start = System.currentTimeMillis();
-		log.info("doesEmailExist(email)={}: find query executed in {} ms", email, (System.currentTimeMillis() - start));
-		long start = System.currentTimeMillis();
-		log.info("doesPhoneNumberExist(phoneNumber)={}: find query executed in {} ms", phoneNumber, (System.currentTimeMillis() - start));
 		log.debug("<<< Exiting doesEmailExist(email={})", email);
         return userRepository.findByEmail(email).isPresent();
     }
