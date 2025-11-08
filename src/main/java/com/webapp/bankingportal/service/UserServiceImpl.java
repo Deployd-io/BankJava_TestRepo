@@ -194,9 +194,9 @@ public class UserServiceImpl implements UserService {
 
     private void encodePassword(User user) {
 		log.debug(">>> Entering encodePassword(user={})", user);
-		log.debug("encodePassword(user={}): user → {}", user, user);
         user.setCountryCode(user.getCountryCode().toUpperCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+		log.debug("encodePassword(user={}): user → {}", user, user);
 		log.debug("<<< Exiting encodePassword(user={})", user);
     }
 

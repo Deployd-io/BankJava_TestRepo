@@ -53,13 +53,13 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public boolean isPinCreated(String accountNumber) {
 		log.debug(">>> Entering isPinCreated(accountNumber={})", accountNumber);
-		long start = System.currentTimeMillis();
-		log.info("isPinCreated(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
         val account = accountRepository.findByAccountNumber(accountNumber);
         if (account == null) {
+			log.info("isPinCreated(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
+			log.debug("isPinCreated(accountNumber={}): account → {}", accountNumber, account);
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
-		log.debug("isPinCreated(accountNumber={}): account → {}", accountNumber, account);
+		long start = System.currentTimeMillis();
 
 		log.debug("<<< Exiting isPinCreated(accountNumber={})", accountNumber);
         return account.getPin() != null;
