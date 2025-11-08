@@ -12,9 +12,10 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
+		log.debug(">>> Entering addCorsMappings(registry={})", registry);
         registry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("*");
-				log.info("addCorsMappings(registry)={}): SOC2-AUDIT [CC7.1]: System operation completed", registry);
+				log.debug("<<< Exiting addCorsMappings(registry={})", registry);
     }
 }

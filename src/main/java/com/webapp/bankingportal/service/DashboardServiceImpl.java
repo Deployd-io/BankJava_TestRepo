@@ -12,9 +12,11 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardServiceImpl implements DashboardService {
 @Autowired
     private final UserRepository userRepository;
@@ -23,20 +25,28 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public UserResponse getUserDetails(String accountNumber) {
+		log.debug(">>> Entering getUserDetails(accountNumber={})", accountNumber);
         val user = userRepository.findByAccountAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
+				long start = System.currentTimeMillis();
 
+		log.debug("<<< Exiting getUserDetails(accountNumber={})", accountNumber);
         return new UserResponse(user);
     }
 
     @Override
     public AccountResponse getAccountDetails(String accountNumber) {
+		log.debug(">>> Entering getAccountDetails(accountNumber={})", accountNumber);
         val account = accountRepository.findByAccountNumber(accountNumber);
+		long start = System.currentTimeMillis();
         if (account == null) {
             throw new NotFoundException(String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber));
         }
+		log.debug("getAccountDetails(accountNumber={}): account → {}", accountNumber, account);
+		log.info("getAccountDetails(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
 
+		log.debug("<<< Exiting getAccountDetails(accountNumber={})", accountNumber);
         return new AccountResponse(account);
     }
 

@@ -6,6 +6,7 @@ public class UnauthorizedException extends RuntimeException {
 
     public UnauthorizedException(String message) {
         super(message);
-		log.warn("UnauthorizedException(message)={}): SOC2-AUDIT [CC6.3]: Authorization operation completed", message);
+		log.debug(">>> Entering UnauthorizedException(message={})", message);
+		log.debug("<<< Exiting UnauthorizedException(message={})", message);
     }
 }

@@ -23,15 +23,16 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionDTO> getAllTransactionsByAccountNumber(String accountNumber) {
+		log.debug(">>> Entering getAllTransactionsByAccountNumber(accountNumber={})", accountNumber);
         val transactions = transactionRepository
                 .findBySourceAccount_AccountNumberOrTargetAccount_AccountNumber(accountNumber, accountNumber);
 
+		log.debug("<<< Exiting getAllTransactionsByAccountNumber(accountNumber={})", accountNumber);
         val transactionDTOs = transactions.parallelStream()
                 .map(transactionMapper::toDto)
                 .sorted((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()))
                 .collect(Collectors.toList());
 
-		log.info("getAllTransactionsByAccountNumber(accountNumber)={}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", accountNumber, transactions);
         return transactionDTOs;
     }
 

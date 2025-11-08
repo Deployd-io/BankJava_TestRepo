@@ -21,14 +21,18 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
+		log.debug(">>> Entering cacheManager()");
         val cacheManager = new CaffeineCacheManager();
         cacheManager.setCacheNames(List.of("otpAttempts")); // Define the cache name
+		log.debug("cacheManager(): cacheManager → {}", cacheManager);
         cacheManager.setCaffeine(caffeineConfig());
+		log.debug("<<< Exiting cacheManager()");
         return cacheManager;
     }
 
     public Caffeine<Object, Object> caffeineConfig() {
-		log.warn("caffeineConfig()=null): SOC2-AUDIT [CC7.3]: Security incident detected");
+		log.debug(">>> Entering caffeineConfig()");
+		log.debug("<<< Exiting caffeineConfig()");
         return Caffeine.newBuilder()
                 .expireAfterWrite(15, TimeUnit.MINUTES) // Cache entries expire after 15 minutes
                 .maximumSize(100) // Maximum of 100 entries in the cache

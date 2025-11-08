@@ -11,7 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 public class TransactionMapper {
 
     public TransactionDTO toDto(Transaction transaction) {
-		log.info("toDto(transaction)={}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", transaction, transaction);
+		log.debug(">>> Entering toDto(transaction={})", transaction);
+		log.debug("<<< Exiting toDto(transaction={})", transaction);
         return new TransactionDTO(transaction);
     }
 

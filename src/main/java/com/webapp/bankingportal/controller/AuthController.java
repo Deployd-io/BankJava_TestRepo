@@ -21,22 +21,23 @@ public class AuthController {
 
     @PostMapping("/password-reset/send-otp")
     public ResponseEntity<String> sendOtpForPasswordReset(@RequestBody OtpRequest otpRequest) {
-		log.warn("sendOtpForPasswordReset(otpRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", otpRequest);
+		log.debug(">>> Entering sendOtpForPasswordReset(otpRequest={})", otpRequest);
+		log.debug("<<< Exiting sendOtpForPasswordReset(otpRequest={})", otpRequest);
         return authService.sendOtpForPasswordReset(otpRequest);
     }
 
     @PostMapping("/password-reset/verify-otp")
     public ResponseEntity<String> verifyOtpAndIssueResetToken(
             @RequestBody OtpVerificationRequest otpVerificationRequest) {
-		log.warn("verifyOtpAndIssueResetToken()=null): SOC2-AUDIT [CC6.1]: Authentication operation completed");
-		log.warn("verifyOtpAndIssueResetToken()=null): SOC2-AUDIT [CC6.1]: Password reset operation performed");
-		log.info("verifyOtpAndIssueResetToken()=null): SOC2-AUDIT [CC6.6]: Database transaction completed");
+			log.debug(">>> Entering verifyOtpAndIssueResetToken()");
+		log.debug("<<< Exiting verifyOtpAndIssueResetToken()");
         return authService.verifyOtpAndIssueResetToken(otpVerificationRequest);
     }
 
     @PostMapping("/password-reset")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
-		log.warn("resetPassword(resetPasswordRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", resetPasswordRequest);
+		log.debug(">>> Entering resetPassword(resetPasswordRequest={})", resetPasswordRequest);
+		log.debug("<<< Exiting resetPassword(resetPasswordRequest={})", resetPasswordRequest);
         return authService.resetPassword(resetPasswordRequest);
     }
 

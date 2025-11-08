@@ -32,75 +32,84 @@ public class AccountController {
 
     @GetMapping("/pin/check")
     public ResponseEntity<String> checkAccountPIN() {
+		log.debug(">>> Entering checkAccountPIN()");
         val isPINValid = accountService.isPinCreated(LoggedinUser.getAccountNumber());
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
+				log.debug("checkAccountPIN(): isPINValid → {}", isPINValid);
 
-		log.info("checkAccountPIN()=null): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", response);
+		log.debug("<<< Exiting checkAccountPIN()");
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/pin/create")
     public ResponseEntity<String> createPIN(@RequestBody PinRequest pinRequest) {
+		log.debug(">>> Entering createPIN(pinRequest={})", pinRequest);
         accountService.createPin(
                 LoggedinUser.getAccountNumber(),
                 pinRequest.password(),
                 pinRequest.pin());
+				log.debug("<<< Exiting createPIN(pinRequest={})", pinRequest);
 
-		log.warn("createPIN(pinRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", pinRequest);
         return ResponseEntity.ok(ApiMessages.PIN_CREATION_SUCCESS.getMessage());
     }
 
     @PostMapping("/pin/update")
     public ResponseEntity<String> updatePIN(@RequestBody PinUpdateRequest pinUpdateRequest) {
+		log.debug(">>> Entering updatePIN(pinUpdateRequest={})", pinUpdateRequest);
         accountService.updatePin(
                 LoggedinUser.getAccountNumber(),
                 pinUpdateRequest.oldPin(),
                 pinUpdateRequest.password(),
                 pinUpdateRequest.newPin());
+				log.debug("<<< Exiting updatePIN(pinUpdateRequest={})", pinUpdateRequest);
 
-		log.warn("updatePIN(pinUpdateRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", pinUpdateRequest);
-		log.info("updatePIN(pinUpdateRequest)={}): SOC2-AUDIT [CC8.1]: Change management operation performed", pinUpdateRequest);
         return ResponseEntity.ok(ApiMessages.PIN_UPDATE_SUCCESS.getMessage());
     }
 
     @PostMapping("/deposit")
     public ResponseEntity<String> cashDeposit(@RequestBody AmountRequest amountRequest) {
+		log.debug(">>> Entering cashDeposit(amountRequest={})", amountRequest);
         accountService.cashDeposit(
                 LoggedinUser.getAccountNumber(),
                 amountRequest.pin(),
                 amountRequest.amount());
+				log.debug("<<< Exiting cashDeposit(amountRequest={})", amountRequest);
 
         return ResponseEntity.ok(ApiMessages.CASH_DEPOSIT_SUCCESS.getMessage());
     }
 
     @PostMapping("/withdraw")
     public ResponseEntity<String> cashWithdrawal(@RequestBody AmountRequest amountRequest) {
+		log.debug(">>> Entering cashWithdrawal(amountRequest={})", amountRequest);
         accountService.cashWithdrawal(
                 LoggedinUser.getAccountNumber(),
                 amountRequest.pin(),
                 amountRequest.amount());
+				log.debug("<<< Exiting cashWithdrawal(amountRequest={})", amountRequest);
 
         return ResponseEntity.ok(ApiMessages.CASH_WITHDRAWAL_SUCCESS.getMessage());
     }
 
     @PostMapping("/fund-transfer")
     public ResponseEntity<String> fundTransfer(@RequestBody FundTransferRequest fundTransferRequest) {
+		log.debug(">>> Entering fundTransfer(fundTransferRequest={})", fundTransferRequest);
         accountService.fundTransfer(
                 LoggedinUser.getAccountNumber(),
                 fundTransferRequest.targetAccountNumber(),
                 fundTransferRequest.pin(),
                 fundTransferRequest.amount());
+				log.debug("<<< Exiting fundTransfer(fundTransferRequest={})", fundTransferRequest);
 
-		log.info("fundTransfer(fundTransferRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", fundTransferRequest);
         return ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
     }
 
     @GetMapping("/transactions")
     public ResponseEntity<String> getAllTransactionsByAccountNumber() {
+		log.debug(">>> Entering getAllTransactionsByAccountNumber()");
         val transactions = transactionService
                 .getAllTransactionsByAccountNumber(LoggedinUser.getAccountNumber());
-		log.info("getAllTransactionsByAccountNumber()=null): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", transactions);
+		log.debug("<<< Exiting getAllTransactionsByAccountNumber()");
         return ResponseEntity.ok(JsonUtil.toJson(transactions));
     }
 

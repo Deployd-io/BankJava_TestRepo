@@ -20,10 +20,10 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
+		log.debug(">>> Entering customOpenAPI()");
         val securitySchemeName = "Bearer";
-		log.info("customOpenAPI()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
-		log.info("customOpenAPI()=null): SOC2-AUDIT [CC8.1]: Change management operation performed");
-		log.info("customOpenAPI()=null): SOC2-AUDIT [CC6.6]: Database transaction completed");
+		log.debug("customOpenAPI(): securitySchemeName → {}", securitySchemeName);
+		log.debug("<<< Exiting customOpenAPI()");
         return new OpenAPI()
                 .info(new Info().title("Banking Portal API")
                         .description("This is auth service use for validate the user.")

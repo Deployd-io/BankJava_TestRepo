@@ -37,9 +37,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
+			log.debug(">>> Entering commence()");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().println("Access Denied !! " + authException.getMessage());
-		log.info("commence()=null): SOC2-AUDIT [CC7.1]: System operation completed");
+		log.debug("commence(): response → {}", response);
+		log.debug("<<< Exiting commence()");
     }
 
 }
