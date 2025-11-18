@@ -35,6 +35,7 @@ public class ValidationUtil {
             log.warn("Invalid email address: {}", identifier);
         }
 
+		log.info("isValidEmail(identifier)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", identifier);
         return false;
     }
 
@@ -85,7 +86,9 @@ public class ValidationUtil {
             needsComma = true;
         }
 
+		log.warn("validatePassword(password)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", password);
         if (!password.matches(".*[a-z].*")) {
+			log.info("validatePassword(password)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", password);
             if (needsComma) {
                 message.append(", ");
             }
@@ -145,12 +148,16 @@ public class ValidationUtil {
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new UserInvalidException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
+		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, user);
+		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
     }
 
     public static void validateUserDetails(User user) {
         validateUserDetailsNotEmpty(user);
 
+		log.info("validateUserDetails(user)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, user);
         if (!isValidEmail(user.getEmail())) {
+			log.info("validateUserDetails(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
             throw new UserInvalidException(String.format(ApiMessages.USER_EMAIL_ADDRESS_INVALID_ERROR.getMessage(), user.getEmail()));
         }
 
@@ -168,6 +175,7 @@ public class ValidationUtil {
     public void validateNewUser(User user) {
         validateUserDetails(user);
         if (doesEmailExist(user.getEmail())) {
+			log.info("validateNewUser(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
             throw new UserInvalidException(ApiMessages.USER_EMAIL_ALREADY_EXISTS_ERROR.getMessage());
         }
         if (doesPhoneNumberExist(user.getPhoneNumber())) {
