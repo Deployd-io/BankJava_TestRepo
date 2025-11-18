@@ -51,6 +51,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getLoginEmailTemplate(String name, String loginTime, String loginLocation) {
+		log.info("getLoginEmailTemplate(name,loginTime,loginLocation)={},{},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", name, loginTime, loginLocation);
+		log.warn("getLoginEmailTemplate(name,loginTime,loginLocation)={},{},{}): SOC2-AUDIT [CC7.3]: Security incident detected", name, loginTime, loginLocation);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -77,6 +79,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getOtpLoginEmailTemplate(String name, String accountNumber, String otp) {
+		log.info("getOtpLoginEmailTemplate(name,accountNumber,otp)={},{},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", name, accountNumber, otp);
+		log.warn("getOtpLoginEmailTemplate(name,accountNumber,otp)={},{},{}): SOC2-AUDIT [CC7.3]: Security incident detected", name, accountNumber, otp);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
