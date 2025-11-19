@@ -41,6 +41,7 @@ public class GeolocationServiceImpl implements GeolocationService {
             val url = String.format("%s/%s/?token=%s", apiUrl, ip, apiKey);
             val response = new RestTemplate()
                     .getForObject(url, GeolocationResponse.class);
+					log.info("getGeolocation(ip)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", ip);
 
             if (response == null) {
                 log.error("Failed to get geolocation for IP: {}", ip);

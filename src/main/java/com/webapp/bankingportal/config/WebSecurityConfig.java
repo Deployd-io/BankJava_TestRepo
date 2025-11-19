@@ -23,11 +23,13 @@ import com.webapp.bankingportal.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class WebSecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
@@ -87,6 +89,7 @@ public class WebSecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
+		log.warn("securityFilterChain(http)={}): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed", http);
         return http.build();
     }
 

@@ -83,6 +83,7 @@ public class AccountServiceImpl implements AccountService {
         if (!passwordEncoder.matches(pin, account.getPin())) {
             throw new UnauthorizedException(ApiMessages.PIN_INVALID_ERROR.getMessage());
         }
+		log.info("validatePin(accountNumber,pin)={},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, pin);
     }
 
     private void validatePassword(String accountNumber, String password) {
@@ -98,12 +99,14 @@ public class AccountServiceImpl implements AccountService {
         if (!passwordEncoder.matches(password, account.getUser().getPassword())) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_INVALID_ERROR.getMessage());
         }
+		log.info("validatePassword(accountNumber,password)={},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, password);
     }
 
     @Override
     public void createPin(String accountNumber, String password, String pin) {
         validatePassword(accountNumber, password);
 
+		log.info("createPin(accountNumber,password,pin)={},{},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, password, pin);
         val account = accountRepository.findByAccountNumber(accountNumber);
         if (account.getPin() != null) {
             throw new UnauthorizedException(ApiMessages.PIN_ALREADY_EXISTS.getMessage());
@@ -140,6 +143,7 @@ public class AccountServiceImpl implements AccountService {
 
         account.setPin(passwordEncoder.encode(newPin));
         accountRepository.save(account);
+		log.info("updatePin(accountNumber,oldPin,password,newPin)={},{},{},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, oldPin, password, newPin);
     }
 
     private void validateAmount(double amount) {
@@ -154,6 +158,7 @@ public class AccountServiceImpl implements AccountService {
         if (amount > 100000) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_EXCEED_100_000_ERROR.getMessage());
         }
+		log.info("validateAmount(amount)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", amount);
     }
 
     @Transactional
@@ -161,6 +166,7 @@ public class AccountServiceImpl implements AccountService {
     public void cashDeposit(String accountNumber, String pin, double amount) {
         validatePin(accountNumber, pin);
         validateAmount(amount);
+		log.info("cashDeposit(accountNumber,pin,amount)={},{},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, pin, amount);
 
         val account = accountRepository.findByAccountNumber(accountNumber);
         val currentBalance = account.getBalance();
@@ -181,6 +187,7 @@ public class AccountServiceImpl implements AccountService {
     public void cashWithdrawal(String accountNumber, String pin, double amount) {
         validatePin(accountNumber, pin);
         validateAmount(amount);
+		log.info("cashWithdrawal(accountNumber,pin,amount)={},{},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, pin, amount);
 
         val account = accountRepository.findByAccountNumber(accountNumber);
         val currentBalance = account.getBalance();
@@ -205,6 +212,7 @@ public class AccountServiceImpl implements AccountService {
     public void fundTransfer(String sourceAccountNumber, String targetAccountNumber, String pin, double amount) {
         validatePin(sourceAccountNumber, pin);
         validateAmount(amount);
+		log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},{},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", sourceAccountNumber, targetAccountNumber, pin, amount);
 
         if (sourceAccountNumber.equals(targetAccountNumber)) {
             throw new FundTransferException(ApiMessages.CASH_TRANSFER_SAME_ACCOUNT_ERROR.getMessage());

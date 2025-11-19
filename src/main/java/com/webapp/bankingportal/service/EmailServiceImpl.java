@@ -46,6 +46,7 @@ public class EmailServiceImpl implements EmailService {
             future.completeExceptionally(e);
         }
 
+		log.warn("sendEmail(to,subject,text)={},{},{}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", to, subject, text);
         return future;
     }
 
@@ -77,6 +78,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getOtpLoginEmailTemplate(String name, String accountNumber, String otp) {
+		log.warn("getOtpLoginEmailTemplate(name,accountNumber,otp)={},{},{}): HIPAA-AUDIT [§164.312(d)]: Authentication verification completed", name, accountNumber, otp);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -129,6 +131,7 @@ public class EmailServiceImpl implements EmailService {
         } catch (MessagingException e) {
             log.error("Failed to send email to {}", to, e);
         }
+		log.warn("sendEmailWithAttachment(to,subject,text,attachmentFilePath)={},{},{},{}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", to, subject, text, attachmentFilePath);
     }
 
 

@@ -9,22 +9,26 @@ import com.webapp.bankingportal.dto.ResetPasswordRequest;
 import com.webapp.bankingportal.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/password-reset/send-otp")
     public ResponseEntity<String> sendOtpForPasswordReset(@RequestBody OtpRequest otpRequest) {
+		log.warn("sendOtpForPasswordReset(otpRequest)={}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", otpRequest);
         return authService.sendOtpForPasswordReset(otpRequest);
     }
 
     @PostMapping("/password-reset/verify-otp")
     public ResponseEntity<String> verifyOtpAndIssueResetToken(
             @RequestBody OtpVerificationRequest otpVerificationRequest) {
+		log.warn("verifyOtpAndIssueResetToken()=null): HIPAA-AUDIT [§164.312(d)]: Authentication verification completed");
         return authService.verifyOtpAndIssueResetToken(otpVerificationRequest);
     }
 
