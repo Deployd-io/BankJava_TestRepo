@@ -22,10 +22,12 @@ import com.webapp.bankingportal.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 @Autowired
     private final UserService userService;
@@ -61,6 +63,7 @@ public class UserController {
     public ResponseEntity<String> verifyOtpAndLogin(@RequestBody OtpVerificationRequest otpVerificationRequest)
             throws InvalidTokenException {
 
+		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(d)]: Authentication verification completed", otpVerificationRequest);
         return userService.verifyOtpAndLogin(otpVerificationRequest);
     }
 

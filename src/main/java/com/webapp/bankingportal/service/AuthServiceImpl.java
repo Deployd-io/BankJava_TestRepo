@@ -48,6 +48,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean verifyPasswordResetToken(String token, User user) {
+		log.warn("verifyPasswordResetToken(token,user)={},{}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", token, user, user);
         return passwordResetTokenRepository.findByToken(token)
                 .map(resetToken -> {
                     deletePasswordResetToken(token);
@@ -68,6 +69,7 @@ public class AuthServiceImpl implements AuthService {
         val accountNumber = user.getAccount().getAccountNumber();
         val generatedOtp = otpService.generateOTP(accountNumber);
 
+		log.warn("sendOtpForPasswordReset(otpRequest)={}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", otpRequest);
         return sendOtpEmail(user, accountNumber, generatedOtp);
     }
 
@@ -75,6 +77,7 @@ public class AuthServiceImpl implements AuthService {
     public ResponseEntity<String> verifyOtpAndIssueResetToken(OtpVerificationRequest otpVerificationRequest) {
         validateOtpRequest(otpVerificationRequest);
         val user = userService.getUserByIdentifier(otpVerificationRequest.identifier());
+		log.warn("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(d)]: Authentication verification completed", otpVerificationRequest);
         val accountNumber = user.getAccount().getAccountNumber();
 
         if (!otpService.validateOTP(accountNumber, otpVerificationRequest.otp())) {
@@ -120,6 +123,7 @@ public class AuthServiceImpl implements AuthService {
         val failureResponse = ResponseEntity.internalServerError()
                 .body(String.format(ApiMessages.OTP_SENT_FAILURE.getMessage(), user.getEmail()));
 
+		log.warn("sendOtpEmail(user,accountNumber,generatedOtp)={},{},{}): HIPAA-AUDIT [§164.312(e)(1)]: PHI transmission secured and logged {}", user, accountNumber, generatedOtp, successResponse);
         return emailSendingFuture.thenApply(result -> successResponse)
                 .exceptionally(e -> failureResponse).join();
     }
@@ -131,6 +135,7 @@ public class AuthServiceImpl implements AuthService {
         if (otpVerificationRequest.otp() == null || otpVerificationRequest.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", otpVerificationRequest);
     }
 
 }

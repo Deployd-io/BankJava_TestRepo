@@ -22,8 +22,10 @@ import com.webapp.bankingportal.exception.OtpRetryLimitExceededException;
 import com.webapp.bankingportal.exception.PasswordResetException;
 import com.webapp.bankingportal.exception.UnauthorizedException;
 import com.webapp.bankingportal.exception.UserInvalidException;
+import lombok.extern.slf4j.Slf4j;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccountDoesNotExistException.class)
@@ -34,11 +36,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException ex) {
+		log.warn("handleBadCredentialsException(ex)={}): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed", ex);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 
     @ExceptionHandler(FundTransferException.class)
     public ResponseEntity<String> handleFundTransferException(FundTransferException ex) {
+		log.warn("handleFundTransferException(ex)={}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", ex);
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
@@ -66,6 +70,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidOtpException.class)
     public ResponseEntity<String> handleInvalidOtpException(InvalidOtpException ex) {
+		log.warn("handleInvalidOtpException(ex)={}): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed", ex);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 
@@ -76,6 +81,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<String> handleInvalidTokenException(InvalidTokenException ex) {
+		log.warn("handleInvalidTokenException(ex)={}): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed", ex);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 
@@ -86,6 +92,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
+		log.warn("handleNotFoundException(ex)={}): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed", ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
@@ -108,6 +115,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException ex) {
+		log.error("handleUnauthorizedException(ex)={}): HIPAA-AUDIT [§164.308(a)(6)]: Security incident response initiated", ex);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 

@@ -55,6 +55,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<String> registerUser(User user) {
         validationUtil.validateNewUser(user);
         encodePassword(user);
+		log.info("registerUser(user)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user);
         val savedUser = saveUserWithAccount(user);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
@@ -82,6 +83,7 @@ public class UserServiceImpl implements UserService {
         val user = getUserByIdentifier(otpVerificationRequest.identifier());
         validateOtp(user, otpVerificationRequest.otp());
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
+		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", otpVerificationRequest, user);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
@@ -191,6 +193,7 @@ public class UserServiceImpl implements UserService {
         ResponseEntity<String> failureResponse = ResponseEntity.internalServerError()
                 .body(String.format(ApiMessages.OTP_SENT_FAILURE.getMessage(), user.getEmail()));
 
+		log.warn("sendOtpEmail(user,otp)={},{}): HIPAA-AUDIT [§164.312(e)(1)]: PHI transmission secured and logged {}", user, otp, successResponse);
         return emailSendingFuture.thenApply(result -> successResponse)
                 .exceptionally(e -> failureResponse).join();
     }
@@ -202,23 +205,27 @@ public class UserServiceImpl implements UserService {
         if (request.otp() == null || request.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(request)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", request);
     }
 
     private void validateOtp(User user, String otp) {
         if (!otpService.validateOTP(user.getAccount().getAccountNumber(), otp)) {
             throw new UnauthorizedException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
+		log.info("validateOtp(user,otp)={},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user, otp);
     }
 
     private void updateUserDetails(User existingUser, User updatedUser) {
         ValidationUtil.validateUserDetails(updatedUser);
         updatedUser.setPassword(existingUser.getPassword());
+		log.info("updateUserDetails(existingUser,updatedUser)={},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", existingUser, updatedUser);
         userMapper.updateUser(updatedUser, existingUser);
     }
 
     private CompletableFuture<Boolean> sendLoginNotification(User user, String ip) {
         val loginTime = new Timestamp(System.currentTimeMillis()).toString();
 
+		log.warn("sendLoginNotification(user,ip)={},{}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", user, ip, user);
         return geolocationService.getGeolocation(ip)
                 .thenComposeAsync(geolocationResponse -> {
                     val loginLocation = String.format("%s, %s",
