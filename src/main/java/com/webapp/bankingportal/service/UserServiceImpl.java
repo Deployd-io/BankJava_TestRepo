@@ -53,8 +53,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<String> registerUser(User user) {
+		log.debug(">>> Entering registerUser(user={})", user);
         validationUtil.validateNewUser(user);
         encodePassword(user);
+		log.debug("<<< Exiting registerUser(user={})", user);
         val savedUser = saveUserWithAccount(user);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
@@ -62,45 +64,67 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<String> login(LoginRequest loginRequest, HttpServletRequest request)
             throws InvalidTokenException {
+			log.debug(">>> Entering login(loginRequest={},request={})", loginRequest, request);
         val user = authenticateUser(loginRequest);
+		log.debug("login(loginRequest={},request={}): user → {}", loginRequest, request, user);
         sendLoginNotification(user, request.getRemoteAddr());
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
+		log.warn("login(loginRequest={},request={}): token → {}", loginRequest, request, token);
+		log.debug("<<< Exiting login(loginRequest={},request={})", loginRequest, request);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
     @Override
     public ResponseEntity<String> generateOtp(OtpRequest otpRequest) {
+		log.debug(">>> Entering generateOtp(otpRequest={})", otpRequest);
         val user = getUserByIdentifier(otpRequest.identifier());
+		log.debug("generateOtp(otpRequest={}): user → {}", otpRequest, user);
         val otp = otpService.generateOTP(user.getAccount().getAccountNumber());
+		log.debug("generateOtp(otpRequest={}): otp → {}", otpRequest, otp);
+		log.debug("<<< Exiting generateOtp(otpRequest={})", otpRequest);
         return sendOtpEmail(user, otp);
     }
 
     @Override
     public ResponseEntity<String> verifyOtpAndLogin(OtpVerificationRequest otpVerificationRequest)
             throws InvalidTokenException {
+			log.debug(">>> Entering verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
         validateOtpRequest(otpVerificationRequest);
         val user = getUserByIdentifier(otpVerificationRequest.identifier());
+		log.debug("verifyOtpAndLogin(otpVerificationRequest={}): user → {}", otpVerificationRequest, user);
         validateOtp(user, otpVerificationRequest.otp());
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
+		log.warn("verifyOtpAndLogin(otpVerificationRequest={}): token → {}", otpVerificationRequest, token);
+		log.debug("<<< Exiting verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
     @Override
     public ResponseEntity<String> updateUser(User updatedUser) {
+		log.debug(">>> Entering updateUser(updatedUser={})", updatedUser);
         val accountNumber = LoggedinUser.getAccountNumber();
+		log.debug("updateUser(updatedUser={}): accountNumber → {}", updatedUser, accountNumber);
         authenticateUser(accountNumber, updatedUser.getPassword());
         val existingUser = getUserByAccountNumber(accountNumber);
+		log.debug("updateUser(updatedUser={}): existingUser → {}", updatedUser, existingUser);
         updateUserDetails(existingUser, updatedUser);
         val savedUser = saveUser(existingUser);
+		log.debug("updateUser(updatedUser={}): savedUser → {}", updatedUser, savedUser);
+		log.debug("<<< Exiting updateUser(updatedUser={})", updatedUser);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
     @Override
     @Transactional
     public boolean resetPassword(User user, String newPassword) {
+		log.debug(">>> Entering resetPassword(user={},newPassword={})", user, newPassword);
+		long start = System.currentTimeMillis();
+		log.info("resetPassword(user,newPassword)={},{}: save query executed in {} ms", user, newPassword, (System.currentTimeMillis() - start));
         try {
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
+			log.debug("resetPassword(user={},newPassword={}): user → {}", user, newPassword, user);
+			log.debug("<<< Exiting resetPassword(user={},newPassword={})", user, newPassword);
             return true;
         } catch (Exception e) {
             throw new PasswordResetException(ApiMessages.PASSWORD_RESET_FAILURE.getMessage(), e);
@@ -109,27 +133,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ModelAndView logout(String token) throws InvalidTokenException {
+		log.debug(">>> Entering logout(token={})", token);
         token = token.substring(7);
         tokenService.validateToken(token);
         tokenService.invalidateToken(token);
 
         log.info("User logged out successfully {}", tokenService.getUsernameFromToken(token));
 
+		log.debug("<<< Exiting logout(token={})", token);
         return new ModelAndView("redirect:/logout");
     }
 
     @Override
     public User saveUser(User user) {
+		log.debug(">>> Entering saveUser(user={})", user);
+		long start = System.currentTimeMillis();
+		log.info("saveUser(user)={}: save query executed in {} ms", user, (System.currentTimeMillis() - start));
+		log.debug("<<< Exiting saveUser(user={})", user);
         return userRepository.save(user);
     }
 
     @Override
     public User getUserByIdentifier(String identifier) {
+		log.debug(">>> Entering getUserByIdentifier(identifier={})", identifier);
         User user = null;
 
+		log.debug("getUserByIdentifier(identifier={}): user → {}", identifier, user);
         if (validationUtil.doesEmailExist(identifier)) {
             user = getUserByEmail(identifier);
         } else if (validationUtil.doesAccountExist(identifier)) {
+			log.debug("<<< Exiting getUserByIdentifier(identifier={})", identifier);
             user = getUserByAccountNumber(identifier);
         } else {
             throw new UserInvalidException(
@@ -141,6 +174,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByAccountNumber(String accountNo) {
+		log.debug(">>> Entering getUserByAccountNumber(accountNo={})", accountNo);
+		long start = System.currentTimeMillis();
+		log.info("getUserByAccountNumber(accountNo)={}: find query executed in {} ms", accountNo, (System.currentTimeMillis() - start));
+		log.debug("<<< Exiting getUserByAccountNumber(accountNo={})", accountNo);
         return userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
                 () -> new UserInvalidException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNo)));
@@ -148,26 +185,40 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
+		log.debug(">>> Entering getUserByEmail(email={})", email);
+		long start = System.currentTimeMillis();
+		log.info("getUserByEmail(email)={}: find query executed in {} ms", email, (System.currentTimeMillis() - start));
+		log.debug("<<< Exiting getUserByEmail(email={})", email);
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UserInvalidException(String.format(ApiMessages.USER_NOT_FOUND_BY_EMAIL.getMessage(), email)));
     }
 
     private void encodePassword(User user) {
+		log.debug(">>> Entering encodePassword(user={})", user);
         user.setCountryCode(user.getCountryCode().toUpperCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+		log.debug("encodePassword(user={}): user → {}", user, user);
+		log.debug("<<< Exiting encodePassword(user={})", user);
     }
 
     private User saveUserWithAccount(User user) {
+		log.debug(">>> Entering saveUserWithAccount(user={})", user);
         val savedUser = saveUser(user);
+		log.debug("saveUserWithAccount(user={}): savedUser → {}", user, savedUser);
         savedUser.setAccount(accountService.createAccount(savedUser));
+		log.debug("<<< Exiting saveUserWithAccount(user={})", user);
         return saveUser(savedUser);
     }
 
     private User authenticateUser(LoginRequest loginRequest) {
+		log.debug(">>> Entering authenticateUser(loginRequest={})", loginRequest);
         val user = getUserByIdentifier(loginRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
+		log.debug("authenticateUser(loginRequest={}): user → {}", loginRequest, user);
+		log.debug("authenticateUser(loginRequest={}): accountNumber → {}", loginRequest, accountNumber);
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+		log.debug("<<< Exiting authenticateUser(loginRequest={})", loginRequest);
         return user;
     }
 
@@ -176,16 +227,22 @@ public class UserServiceImpl implements UserService {
     }
 
     private String generateAndSaveToken(String accountNumber) throws InvalidTokenException {
+		log.debug(">>> Entering generateAndSaveToken(accountNumber={})", accountNumber);
+		log.warn("generateAndSaveToken(accountNumber={}): token → {}", accountNumber, token);
         val userDetails = userDetailsService.loadUserByUsername(accountNumber);
+		log.debug("generateAndSaveToken(accountNumber={}): userDetails → {}", accountNumber, userDetails);
         val token = tokenService.generateToken(userDetails);
         tokenService.saveToken(token);
+		log.debug("<<< Exiting generateAndSaveToken(accountNumber={})", accountNumber);
         return token;
     }
 
     private ResponseEntity<String> sendOtpEmail(User user, String otp) {
+		log.debug(">>> Entering sendOtpEmail(user={},otp={})", user, otp);
         val emailSendingFuture = otpService.sendOTPByEmail(
                 user.getEmail(), user.getName(), user.getAccount().getAccountNumber(), otp);
 
+		log.debug("<<< Exiting sendOtpEmail(user={},otp={})", user, otp);
         ResponseEntity<String> successResponse = ResponseEntity
                 .ok(String.format(ApiMessages.OTP_SENT_SUCCESS.getMessage(), user.getEmail()));
         ResponseEntity<String> failureResponse = ResponseEntity.internalServerError()
@@ -196,12 +253,14 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateOtpRequest(OtpVerificationRequest request) {
+		log.debug(">>> Entering validateOtpRequest(request={})", request);
         if (request.identifier() == null || request.identifier().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
         if (request.otp() == null || request.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.debug("<<< Exiting validateOtpRequest(request={})", request);
     }
 
     private void validateOtp(User user, String otp) {
@@ -211,14 +270,19 @@ public class UserServiceImpl implements UserService {
     }
 
     private void updateUserDetails(User existingUser, User updatedUser) {
+		log.debug(">>> Entering updateUserDetails(existingUser={},updatedUser={})", existingUser, updatedUser);
         ValidationUtil.validateUserDetails(updatedUser);
         updatedUser.setPassword(existingUser.getPassword());
+		log.debug("<<< Exiting updateUserDetails(existingUser={},updatedUser={})", existingUser, updatedUser);
         userMapper.updateUser(updatedUser, existingUser);
     }
 
     private CompletableFuture<Boolean> sendLoginNotification(User user, String ip) {
+		log.debug(">>> Entering sendLoginNotification(user={},ip={})", user, ip);
         val loginTime = new Timestamp(System.currentTimeMillis()).toString();
+		log.debug("sendLoginNotification(user={},ip={}): loginTime → {}", user, ip, loginTime);
 
+		log.debug("<<< Exiting sendLoginNotification(user={},ip={})", user, ip);
         return geolocationService.getGeolocation(ip)
                 .thenComposeAsync(geolocationResponse -> {
                     val loginLocation = String.format("%s, %s",
@@ -230,7 +294,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private CompletableFuture<Boolean> sendLoginEmail(User user, String loginTime, String loginLocation) {
+		log.debug(">>> Entering sendLoginEmail(user={},loginTime={},loginLocation={})", user, loginTime, loginLocation);
         val emailText = emailService.getLoginEmailTemplate(user.getName(), loginTime, loginLocation);
+		log.debug("sendLoginEmail(user={},loginTime={},loginLocation={}): emailText → {}", user, loginTime, loginLocation, emailText);
+		log.debug("<<< Exiting sendLoginEmail(user={},loginTime={},loginLocation={})", user, loginTime, loginLocation);
         return emailService.sendEmail(user.getEmail(), ApiMessages.EMAIL_SUBJECT_LOGIN.getMessage(), emailText)
                 .thenApplyAsync(result -> true)
                 .exceptionally(ex -> false);
