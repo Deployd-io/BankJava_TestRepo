@@ -22,10 +22,12 @@ import com.webapp.bankingportal.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 @Autowired
     private final UserService userService;
@@ -34,11 +36,15 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
+		log.debug(">>> Entering registerUser(user={})", user);
         ResponseEntity<String> response = userService.registerUser(user);
+		log.debug("registerUser(user={}): response → {}", user, response);
 
         // Only send email if registration succeeded
         if (response.getStatusCode().is2xxSuccessful()) {
+			log.debug("<<< Exiting registerUser(user={})", user);
             String emailBody = emailService.getBankStatementEmailTemplate(user.getName(), "Welcome! Your account is created.");
+			log.debug("registerUser(user={}): emailBody → {}", user, emailBody);
             emailService.sendEmail(user.getEmail(), "Welcome to OneStopBank", emailBody);
         }
 
@@ -48,24 +54,32 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request)
             throws InvalidTokenException {
+			log.debug(">>> Entering login(loginRequest={},request={})", loginRequest, request);
 
+		log.debug("<<< Exiting login(loginRequest={},request={})", loginRequest, request);
         return userService.login(loginRequest, request);
     }
 
     @PostMapping("/generate-otp")
     public ResponseEntity<String> generateOtp(@RequestBody OtpRequest otpRequest) {
+		log.debug(">>> Entering generateOtp(otpRequest={})", otpRequest);
+		log.debug("<<< Exiting generateOtp(otpRequest={})", otpRequest);
         return userService.generateOtp(otpRequest);
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<String> verifyOtpAndLogin(@RequestBody OtpVerificationRequest otpVerificationRequest)
             throws InvalidTokenException {
+			log.debug(">>> Entering verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
 
+		log.debug("<<< Exiting verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
         return userService.verifyOtpAndLogin(otpVerificationRequest);
     }
 
     @PostMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody User user) {
+		log.debug(">>> Entering updateUser(user={})", user);
+		log.debug("<<< Exiting updateUser(user={})", user);
         return userService.updateUser(user);
     }
 
