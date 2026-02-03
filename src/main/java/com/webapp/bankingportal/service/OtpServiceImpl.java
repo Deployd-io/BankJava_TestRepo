@@ -18,9 +18,11 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OtpServiceImpl implements OtpService {
 
     public static final int OTP_ATTEMPTS_LIMIT = 3;
@@ -66,6 +68,7 @@ public class OtpServiceImpl implements OtpService {
         }
 
         val now = LocalDateTime.now();
+		log.info("validateOtpWithinRetryLimit(otpInfo)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpInfo);
 
         if (otpLimitReachedTime == null) {
             otpLimitReachedTime = now;
@@ -146,6 +149,7 @@ public class OtpServiceImpl implements OtpService {
     @Override
     public CompletableFuture<Void> sendOTPByEmail(String email, String name, String accountNumber, String otp) {
         val emailText = emailService.getOtpLoginEmailTemplate(name, "xxx" + accountNumber.substring(3), otp);
+		log.info("sendOTPByEmail(email,name,accountNumber,otp)={},{},{},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", email, name, accountNumber, "****");
         return emailService.sendEmail(email, ApiMessages.EMAIL_SUBJECT_OTP.getMessage(), emailText);
     }
 
@@ -156,6 +160,7 @@ public class OtpServiceImpl implements OtpService {
             throw new InvalidOtpException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
 
+		log.info("validateOTP(accountNumber,otp)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
         return !isOtpExpired(otpInfo);
     }
 
