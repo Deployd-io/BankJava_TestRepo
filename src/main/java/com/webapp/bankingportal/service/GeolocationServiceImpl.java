@@ -59,6 +59,7 @@ public class GeolocationServiceImpl implements GeolocationService {
             future.completeExceptionally(e);
         }
 
+		log.info("getGeolocation(ip)={}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", ip, response);
         return future;
     }
 
