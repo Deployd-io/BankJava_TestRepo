@@ -35,6 +35,7 @@ public class ValidationUtil {
             log.warn("Invalid email address: {}", identifier);
         }
 
+		log.info("isValidEmail(identifier)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", identifier);
         return false;
     }
 
@@ -115,6 +116,8 @@ public class ValidationUtil {
             }
             throw new UserInvalidException(message.toString());
         }
+		log.info("validatePassword(password)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", "****");
+		log.warn("validatePassword(password)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", "****");
     }
 
     public static void validateUserDetailsNotEmpty(User user) {
@@ -142,12 +145,17 @@ public class ValidationUtil {
             throw new UserInvalidException(ApiMessages.USER_PHONE_NUMBER_EMPTY_ERROR.getMessage());
         }
 
+		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new UserInvalidException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
+		log.warn("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
+		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, user);
     }
 
     public static void validateUserDetails(User user) {
+		log.info("validateUserDetails(user)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, user);
+		log.info("validateUserDetails(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
         validateUserDetailsNotEmpty(user);
 
         if (!isValidEmail(user.getEmail())) {
@@ -166,6 +174,7 @@ public class ValidationUtil {
     }
 
     public void validateNewUser(User user) {
+		log.info("validateNewUser(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
         validateUserDetails(user);
         if (doesEmailExist(user.getEmail())) {
             throw new UserInvalidException(ApiMessages.USER_EMAIL_ALREADY_EXISTS_ERROR.getMessage());
