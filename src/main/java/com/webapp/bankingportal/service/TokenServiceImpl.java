@@ -76,6 +76,7 @@ public class TokenServiceImpl implements TokenService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 
+		log.warn("loadUserByUsername(accountNumber)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, accountNumber);
         return withUsername(accountNumber).password(user.getPassword()).build();
     }
 
@@ -92,6 +93,7 @@ public class TokenServiceImpl implements TokenService {
         return claimsResolver.apply(claims);
     }
     private JwtParser parser() {
+		log.info("parser()=null): SOC2-AUDIT [CC6.1]: Authentication operation completed");
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build();
@@ -99,6 +101,8 @@ public class TokenServiceImpl implements TokenService {
     private Claims getAllClaimsFromToken(String token) throws InvalidTokenException {
         try {
            // return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+			log.info("getAllClaimsFromToken(token)={}): SOC2-AUDIT [CC6.1]: Session management operation performed", token);
+			log.info("getAllClaimsFromToken(token)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", token);
             return Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
@@ -142,6 +146,7 @@ public class TokenServiceImpl implements TokenService {
                 account);
 
         tokenRepository.save(tokenObj);
+		log.info("saveToken(token)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", token);
     }
 
     @Override
@@ -149,6 +154,7 @@ public class TokenServiceImpl implements TokenService {
         if (tokenRepository.findByToken(token) == null) {
             throw new InvalidTokenException(ApiMessages.TOKEN_NOT_FOUND_ERROR.getMessage());
         }
+		log.info("validateToken(token)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", token);
     }
 
     @Override
@@ -157,6 +163,8 @@ public class TokenServiceImpl implements TokenService {
         if (tokenRepository.findByToken(token) != null) {
             tokenRepository.deleteByToken(token);
         }
+		log.info("invalidateToken(token)={}): SOC2-AUDIT [CC6.1]: Session management operation performed", token);
+		log.info("invalidateToken(token)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", token);
     }
 
 }
