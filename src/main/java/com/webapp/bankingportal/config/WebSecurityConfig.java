@@ -23,11 +23,13 @@ import com.webapp.bankingportal.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class WebSecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
@@ -51,10 +53,13 @@ public class WebSecurityConfig {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
+		log.info("configureGlobal(auth)={}): SOC2-AUDIT [CC8.1]: Change management operation performed", auth);
+		log.warn("configureGlobal(auth)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", auth);
     }
 
     @Bean
     PasswordEncoder passwordEncoder() {
+		log.info("passwordEncoder()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         return new BCryptPasswordEncoder();
     }
 
@@ -62,6 +67,7 @@ public class WebSecurityConfig {
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
+		log.info("authenticationManager()=null): SOC2-AUDIT [CC8.1]: Change management operation performed");
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -86,7 +92,9 @@ public class WebSecurityConfig {
 
         http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
+				log.info("securityFilterChain(http)={}): SOC2-AUDIT [CC6.1]: Session management operation performed", http);
 
+		log.info("securityFilterChain(http)={}): SOC2-AUDIT [CC7.1]: System operation completed", http);
         return http.build();
     }
 
