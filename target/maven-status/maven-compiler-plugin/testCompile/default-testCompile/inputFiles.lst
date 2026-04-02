@@ -1,0 +1,9 @@
+/root/logrite/scans/jayant/src/test/java/com/webapp/bankingportal/AccountControllerTests.java
+/root/logrite/scans/jayant/src/test/java/com/webapp/bankingportal/AccountServiceTests.java
+/root/logrite/scans/jayant/src/test/java/com/webapp/bankingportal/BaseTest.java
+/root/logrite/scans/jayant/src/test/java/com/webapp/bankingportal/DashboardControllerTests.java
+/root/logrite/scans/jayant/src/test/java/com/webapp/bankingportal/DashboardServiceTests.java
+/root/logrite/scans/jayant/src/test/java/com/webapp/bankingportal/GreenMailJavaMailSender.java
+/root/logrite/scans/jayant/src/test/java/com/webapp/bankingportal/TestConfig.java
+/root/logrite/scans/jayant/src/test/java/com/webapp/bankingportal/TokenServiceTests.java
+/root/logrite/scans/jayant/src/test/java/com/webapp/bankingportal/UserControllerTests.java
