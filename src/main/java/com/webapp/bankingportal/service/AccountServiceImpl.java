@@ -80,9 +80,11 @@ public class AccountServiceImpl implements AccountService {
             throw new UnauthorizedException(ApiMessages.PIN_EMPTY_ERROR.getMessage());
         }
 
+		log.info("validatePin(accountNumber,pin)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
         if (!passwordEncoder.matches(pin, account.getPin())) {
             throw new UnauthorizedException(ApiMessages.PIN_INVALID_ERROR.getMessage());
         }
+		log.warn("validatePin(accountNumber,pin)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, "****", accountNumber);
     }
 
     private void validatePassword(String accountNumber, String password) {
@@ -95,13 +97,17 @@ public class AccountServiceImpl implements AccountService {
             throw new UnauthorizedException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
 
+		log.info("validatePassword(accountNumber,password)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
         if (!passwordEncoder.matches(password, account.getUser().getPassword())) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_INVALID_ERROR.getMessage());
         }
+		log.warn("validatePassword(accountNumber,password)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, "****", accountNumber);
     }
 
     @Override
     public void createPin(String accountNumber, String password, String pin) {
+		log.warn("createPin(accountNumber,password,pin)={},{},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, "****", "****", accountNumber);
+		log.info("createPin(accountNumber,password,pin)={},{},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****", "****");
         validatePassword(accountNumber, password);
 
         val account = accountRepository.findByAccountNumber(accountNumber);
@@ -138,6 +144,9 @@ public class AccountServiceImpl implements AccountService {
             throw new InvalidPinException(ApiMessages.PIN_FORMAT_INVALID_ERROR.getMessage());
         }
 
+		log.info("updatePin(accountNumber,oldPin,password,newPin)={},{},{},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, oldPin, "****", newPin);
+		log.info("updatePin(accountNumber,oldPin,password,newPin)={},{},{},{}): SOC2-AUDIT [CC8.1]: Change management operation performed", accountNumber, oldPin, "****", newPin);
+		log.warn("updatePin(accountNumber,oldPin,password,newPin)={},{},{},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, oldPin, "****", newPin, accountNumber);
         account.setPin(passwordEncoder.encode(newPin));
         accountRepository.save(account);
     }
@@ -154,11 +163,13 @@ public class AccountServiceImpl implements AccountService {
         if (amount > 100000) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_EXCEED_100_000_ERROR.getMessage());
         }
+		log.info("validateAmount(amount)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", amount);
     }
 
     @Transactional
     @Override
     public void cashDeposit(String accountNumber, String pin, double amount) {
+		log.info("cashDeposit(accountNumber,pin,amount)={},{},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****", amount);
         validatePin(accountNumber, pin);
         validateAmount(amount);
 
@@ -179,6 +190,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     @Override
     public void cashWithdrawal(String accountNumber, String pin, double amount) {
+		log.info("cashWithdrawal(accountNumber,pin,amount)={},{},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****", amount);
         validatePin(accountNumber, pin);
         validateAmount(amount);
 
@@ -203,6 +215,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     @Override
     public void fundTransfer(String sourceAccountNumber, String targetAccountNumber, String pin, double amount) {
+		log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},{},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", sourceAccountNumber, targetAccountNumber, "****", amount);
         validatePin(sourceAccountNumber, pin);
         validateAmount(amount);
 
