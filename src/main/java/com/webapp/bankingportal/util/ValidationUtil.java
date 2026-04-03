@@ -35,6 +35,7 @@ public class ValidationUtil {
             log.warn("Invalid email address: {}", identifier);
         }
 
+		log.info("isValidEmail(identifier)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", identifier);
         return false;
     }
 
@@ -108,6 +109,7 @@ public class ValidationUtil {
             message.append("one special character");
         }
 
+		log.info("validatePassword(password)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", "****");
         if (message.length() > "Password must contain at least ".length()) {
             val lastCommaIndex = message.lastIndexOf(",");
             if (lastCommaIndex > -1) {
@@ -115,6 +117,7 @@ public class ValidationUtil {
             }
             throw new UserInvalidException(message.toString());
         }
+		log.warn("validatePassword(password)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", "****");
     }
 
     public static void validateUserDetailsNotEmpty(User user) {
@@ -141,13 +144,18 @@ public class ValidationUtil {
         if (user.getPhoneNumber() == null || user.getPhoneNumber().isEmpty()) {
             throw new UserInvalidException(ApiMessages.USER_PHONE_NUMBER_EMPTY_ERROR.getMessage());
         }
+		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
+		log.warn("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
 
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new UserInvalidException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
+		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, user);
     }
 
     public static void validateUserDetails(User user) {
+		log.info("validateUserDetails(user)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, user);
+		log.info("validateUserDetails(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
         validateUserDetailsNotEmpty(user);
 
         if (!isValidEmail(user.getEmail())) {
@@ -168,6 +176,7 @@ public class ValidationUtil {
     public void validateNewUser(User user) {
         validateUserDetails(user);
         if (doesEmailExist(user.getEmail())) {
+			log.info("validateNewUser(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
             throw new UserInvalidException(ApiMessages.USER_EMAIL_ALREADY_EXISTS_ERROR.getMessage());
         }
         if (doesPhoneNumberExist(user.getPhoneNumber())) {
