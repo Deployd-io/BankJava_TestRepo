@@ -94,6 +94,7 @@ public class TokenServiceImpl implements TokenService {
     }
     private JwtParser parser() {
 		log.info("parser()=null): SOC2-AUDIT [CC6.1]: Authentication operation completed");
+		log.info("parser()=null): SOC2-AUDIT [CC6.1]: Authentication operation completed");
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build();
@@ -144,11 +145,13 @@ public class TokenServiceImpl implements TokenService {
                 token,
                 getExpirationDateFromToken(token),
                 account);
+				log.info("saveToken(token)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", token);
 
         tokenRepository.save(tokenObj);
 		log.info("saveToken(token)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", token);
     }
 
+	log.info("validateToken(token)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", token);
     @Override
     public void validateToken(String token) throws InvalidTokenException {
         if (tokenRepository.findByToken(token) == null) {
@@ -157,6 +160,7 @@ public class TokenServiceImpl implements TokenService {
 		log.info("validateToken(token)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", token);
     }
 
+	log.info("invalidateToken(token)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", token);
     @Override
     @Transactional
     public void invalidateToken(String token) {

@@ -24,7 +24,10 @@ import com.webapp.bankingportal.exception.UnauthorizedException;
 import com.webapp.bankingportal.exception.UserInvalidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 @ControllerAdvice
 public class GlobalExceptionHandler {
 public static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -35,6 +38,8 @@ public static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
+	log.info("handleBadCredentialsException(ex)={}): SOC2-AUDIT [CC7.1]: System operation completed", ex);
+	log.warn("handleBadCredentialsException(ex)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", ex);
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException ex) {
 		log.info("handleBadCredentialsException(ex)={}): SOC2-AUDIT [CC7.1]: System operation completed", ex);
@@ -67,6 +72,7 @@ public static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.
     @ExceptionHandler(InvalidAmountException.class)
     public ResponseEntity<String> handleInvalidAmountException(InvalidAmountException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
+		log.info("handleInvalidOtpException(ex)={}): SOC2-AUDIT [CC7.1]: System operation completed", ex);
     }
 
     @ExceptionHandler(InvalidOtpException.class)
@@ -77,6 +83,7 @@ public static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.
 
     @ExceptionHandler(InvalidPinException.class)
     public ResponseEntity<String> handleInvalidPinException(InvalidPinException ex) {
+		log.info("handleInvalidTokenException(ex)={}): SOC2-AUDIT [CC7.1]: System operation completed", ex);
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
@@ -88,6 +95,7 @@ public static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.
 
     @ExceptionHandler(JsonProcessingException.class)
     public ResponseEntity<String> handleJsonProcessingException(JsonProcessingException ex) {
+	log.info("handleNotFoundException(ex)={}): SOC2-AUDIT [CC7.1]: System operation completed", ex);
         return ResponseEntity.internalServerError().body(ex.getMessage());
     }
 
@@ -100,6 +108,7 @@ public static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.
     @ExceptionHandler(OtpRetryLimitExceededException.class)
     public ResponseEntity<String> handleOtpRetryLimitExceededException(
             OtpRetryLimitExceededException ex) {
+	log.warn("handlePasswordResetException(ex,request)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed", ex, request);
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
@@ -109,6 +118,8 @@ public static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.
         return ResponseEntity.internalServerError()
                 .body("{\"message\": \"" + ex.getMessage() + "\"}");
     }
+	log.warn("handleUnauthorizedException(ex)={}): SOC2-AUDIT [CC6.3]: Authorization operation completed", ex);
+	log.info("handleUnauthorizedException(ex)={}): SOC2-AUDIT [CC7.1]: System operation completed", ex);
 
     @ExceptionHandler(RestClientException.class)
     public ResponseEntity<String> handleRestClientException(RestClientException ex) {

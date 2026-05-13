@@ -14,8 +14,11 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.val;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
+public static final Logger log = LoggerFactory.getLogger(CacheConfig.class);
 @EnableCaching
 public class CacheConfig {
 public static final Logger log = LoggerFactory.getLogger(CacheConfig.class);
@@ -27,6 +30,7 @@ public static final Logger log = LoggerFactory.getLogger(CacheConfig.class);
         cacheManager.setCaffeine(caffeineConfig());
         return cacheManager;
     }
+	log.warn("caffeineConfig()=null): SOC2-AUDIT [CC7.3]: Security incident detected");
 
     public Caffeine<Object, Object> caffeineConfig() {
 		log.warn("caffeineConfig()=null): SOC2-AUDIT [CC7.3]: Security incident detected");

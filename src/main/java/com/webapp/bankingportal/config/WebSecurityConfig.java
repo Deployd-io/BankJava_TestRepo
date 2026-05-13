@@ -25,10 +25,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class);
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class);
@@ -51,11 +54,15 @@ public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final TokenService tokenService;
 
+	log.info("configureGlobal(auth)={}): SOC2-AUDIT [CC8.1]: Change management operation performed", auth);
+	log.warn("configureGlobal(auth)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", auth);
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
 		log.info("configureGlobal(auth)={}): SOC2-AUDIT [CC8.1]: Change management operation performed", auth);
 		log.warn("configureGlobal(auth)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", auth);
+		log.info("passwordEncoder()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
+		log.warn("passwordEncoder()=null): SOC2-AUDIT [CC6.1]: Password reset operation performed");
     }
 
     @Bean
@@ -85,6 +92,10 @@ public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class
                 })
                 .sessionManagement(management -> {
                     management.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+					log.info("securityFilterChain(http)={}): SOC2-AUDIT [CC6.1]: Session management operation performed", http);
+					log.warn("securityFilterChain(http)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", http);
+					log.info("securityFilterChain(http)={}): SOC2-AUDIT [CC7.1]: System operation completed", http);
+					log.info("securityFilterChain(http)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed", http);
                 })
 
                 .logout(logout -> logout

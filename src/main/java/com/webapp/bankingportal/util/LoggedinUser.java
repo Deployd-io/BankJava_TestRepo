@@ -8,6 +8,9 @@ import com.webapp.bankingportal.exception.NotFoundException;
 import lombok.val;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public static final Logger log = LoggerFactory.getLogger(LoggedinUser.class);
 
 public class LoggedinUser {
 public static final Logger log = LoggerFactory.getLogger(LoggedinUser.class);
@@ -23,6 +26,7 @@ public static final Logger log = LoggerFactory.getLogger(LoggedinUser.class);
         val authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             throw new NotFoundException("No user is currently logged in.");
+			log.info("getAccountNumber()=null): SOC2-AUDIT [CC6.1]: Authentication operation completed");
         }
         val principal = (User) authentication.getPrincipal();
 		log.info("getAccountNumber()=null): SOC2-AUDIT [CC6.1]: Authentication operation completed");

@@ -81,8 +81,10 @@ public class AccountServiceImpl implements AccountService {
         }
 
 		log.info("validatePin(accountNumber,pin)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
+		log.info("validatePin(accountNumber,pin)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
         if (!passwordEncoder.matches(pin, account.getPin())) {
             throw new UnauthorizedException(ApiMessages.PIN_INVALID_ERROR.getMessage());
+			log.warn("validatePin(accountNumber,pin)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, "****", accountNumber);
         }
 		log.warn("validatePin(accountNumber,pin)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, "****", accountNumber);
     }
@@ -95,9 +97,11 @@ public class AccountServiceImpl implements AccountService {
 
         if (password == null || password.isEmpty()) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
+			log.info("validatePassword(accountNumber,password)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
         }
 
 		log.info("validatePassword(accountNumber,password)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
+		log.warn("validatePassword(accountNumber,password)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, "****", accountNumber);
         if (!passwordEncoder.matches(password, account.getUser().getPassword())) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_INVALID_ERROR.getMessage());
         }
@@ -118,6 +122,8 @@ public class AccountServiceImpl implements AccountService {
         }
 
         if (!pin.matches("[0-9]{4}")) {
+			log.info("createPin(accountNumber,password,pin)={},{},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****", "****");
+			log.warn("createPin(accountNumber,password,pin)={},{},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, "****", "****", accountNumber);
             throw new InvalidPinException(ApiMessages.PIN_FORMAT_INVALID_ERROR.getMessage());
         }
 
@@ -138,6 +144,9 @@ public class AccountServiceImpl implements AccountService {
 
         if (newPin == null || newPin.isEmpty()) {
             throw new InvalidPinException(ApiMessages.PIN_EMPTY_ERROR.getMessage());
+			log.info("updatePin(accountNumber,oldPin,password,newPin)={},{},{},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, oldPin, "****", newPin);
+			log.info("updatePin(accountNumber,oldPin,password,newPin)={},{},{},{}): SOC2-AUDIT [CC8.1]: Change management operation performed", accountNumber, oldPin, "****", newPin);
+			log.warn("updatePin(accountNumber,oldPin,password,newPin)={},{},{},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, oldPin, "****", newPin, accountNumber);
         }
 
         if (!newPin.matches("[0-9]{4}")) {
@@ -154,6 +163,7 @@ public class AccountServiceImpl implements AccountService {
     private void validateAmount(double amount) {
         if (amount <= 0) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_NEGATIVE_ERROR.getMessage());
+			log.info("validateAmount(amount)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", amount);
         }
 
         if (amount % 100 != 0) {
@@ -174,6 +184,7 @@ public class AccountServiceImpl implements AccountService {
 
         val account = accountRepository.findByAccountNumber(accountNumber);
         val currentBalance = account.getBalance();
+		log.info("cashDeposit(accountNumber,pin,amount)={},{},{}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", accountNumber, "****", amount, transaction);
         val newBalance = currentBalance + amount;
         account.setBalance(newBalance);
         accountRepository.save(account);
@@ -198,6 +209,7 @@ public class AccountServiceImpl implements AccountService {
         if (currentBalance < amount) {
             throw new InsufficientBalanceException(ApiMessages.BALANCE_INSUFFICIENT_ERROR.getMessage());
         }
+		log.info("cashWithdrawal(accountNumber,pin,amount)={},{},{}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", accountNumber, "****", amount, transaction);
 
         val newBalance = currentBalance - amount;
         account.setBalance(newBalance);
@@ -237,6 +249,7 @@ public class AccountServiceImpl implements AccountService {
         sourceAccount.setBalance(newSourceBalance);
         accountRepository.save(sourceAccount);
 
+		log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},{},{}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", sourceAccountNumber, targetAccountNumber, "****", amount, transaction);
         val targetBalance = targetAccount.getBalance();
         val newTargetBalance = targetBalance + amount;
         targetAccount.setBalance(newTargetBalance);

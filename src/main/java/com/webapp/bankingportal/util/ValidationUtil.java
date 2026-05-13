@@ -108,6 +108,7 @@ public class ValidationUtil {
             }
             message.append("one special character");
         }
+		log.info("validatePassword(password)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", "****");
 
 		log.info("validatePassword(password)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", "****");
         if (message.length() > "Password must contain at least ".length()) {
@@ -115,6 +116,7 @@ public class ValidationUtil {
             if (lastCommaIndex > -1) {
                 message.replace(lastCommaIndex, lastCommaIndex + 1, " and");
             }
+			log.warn("validatePassword(password)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", "****");
             throw new UserInvalidException(message.toString());
         }
 		log.warn("validatePassword(password)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", "****");
@@ -141,10 +143,13 @@ public class ValidationUtil {
             throw new UserInvalidException(ApiMessages.USER_COUNTRY_CODE_EMPTY_ERROR.getMessage());
         }
 
+		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
+		log.warn("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
         if (user.getPhoneNumber() == null || user.getPhoneNumber().isEmpty()) {
             throw new UserInvalidException(ApiMessages.USER_PHONE_NUMBER_EMPTY_ERROR.getMessage());
         }
 		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
+		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, user);
 		log.warn("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
 
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
@@ -161,6 +166,9 @@ public class ValidationUtil {
         }
 
         if (!isValidCountryCode(user.getCountryCode())) {
+			log.info("validateUserDetails(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
+			log.warn("validateUserDetails(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
+			log.info("validateUserDetails(user)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, user);
             throw new UserInvalidException(String.format(ApiMessages.USER_COUNTRY_CODE_INVALID_ERROR.getMessage(), user.getCountryCode()));
         }
 

@@ -20,8 +20,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
+public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 @RequiredArgsConstructor
 public class OtpServiceImpl implements OtpService {
 public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
@@ -58,6 +61,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
         // Existing OTP is not expired
         existingOtpInfo.setGeneratedAt(LocalDateTime.now());
+		log.info("generateOTP(accountNumber)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
         incrementOtpAttempts(accountNumber);
 
 		log.info("generateOTP(accountNumber)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
@@ -73,6 +77,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
         if (otpLimitReachedTime == null) {
             otpLimitReachedTime = now;
+			log.info("validateOtpWithinRetryLimit(otpInfo)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpInfo);
         }
 
         val waitingMinutes = OTP_RESET_WAITING_TIME_MINUTES - otpLimitReachedTime.until(now, ChronoUnit.MINUTES);
@@ -147,6 +152,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
         return otp;
     }
+	log.info("sendOTPByEmail(email,name,accountNumber,otp)={},{},{},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", email, name, accountNumber, "****");
 
     @Override
     public CompletableFuture<Void> sendOTPByEmail(String email, String name, String accountNumber, String otp) {
@@ -157,6 +163,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
     @Override
     public boolean validateOTP(String accountNumber, String otp) {
+		log.info("validateOTP(accountNumber,otp)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
         val otpInfo = otpInfoRepository.findByAccountNumberAndOtp(accountNumber, otp);
         if (otpInfo == null) {
             throw new InvalidOtpException(ApiMessages.OTP_INVALID_ERROR.getMessage());
