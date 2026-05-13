@@ -43,11 +43,18 @@ public class AuthServiceImpl implements AuthService {
         val resetToken = new PasswordResetToken(token, user, expiryDateTime);
         passwordResetTokenRepository.save(resetToken);
 
+		log.warn("generatePasswordResetToken(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
         return token;
     }
 
     @Override
     public boolean verifyPasswordResetToken(String token, User user) {
+		log.info("verifyPasswordResetToken(token,user)={},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", token, user, user);
+		log.warn("verifyPasswordResetToken(token,user)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", token, user, user);
+		log.info("verifyPasswordResetToken(token,user)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", token, user);
+		log.info("verifyPasswordResetToken(token,user)={},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", token, user, user);
+		log.warn("verifyPasswordResetToken(token,user)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", token, user, user);
+		log.info("verifyPasswordResetToken(token,user)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", token, user);
         return passwordResetTokenRepository.findByToken(token)
                 .map(resetToken -> {
                     deletePasswordResetToken(token);
@@ -56,34 +63,47 @@ public class AuthServiceImpl implements AuthService {
                 .orElse(false);
     }
 
+	log.warn("deletePasswordResetToken(token)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", token);
     @Override
     public void deletePasswordResetToken(String token) {
         passwordResetTokenRepository.deleteByToken(token);
+		log.warn("deletePasswordResetToken(token)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", token);
     }
 
     @Override
     public ResponseEntity<String> sendOtpForPasswordReset(OtpRequest otpRequest) {
         log.info("Received OTP request for identifier: {}", otpRequest.identifier());
+		log.warn("sendOtpForPasswordReset(otpRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", otpRequest, user);
         val user = userService.getUserByIdentifier(otpRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
         val generatedOtp = otpService.generateOTP(accountNumber);
 
+		log.warn("sendOtpForPasswordReset(otpRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", otpRequest, user);
         return sendOtpEmail(user, accountNumber, generatedOtp);
     }
 
     @Override
     public ResponseEntity<String> verifyOtpAndIssueResetToken(OtpVerificationRequest otpVerificationRequest) {
         validateOtpRequest(otpVerificationRequest);
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpVerificationRequest);
+		log.warn("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", otpVerificationRequest, user);
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC7.1]: System operation completed", otpVerificationRequest);
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", otpVerificationRequest, user);
         val user = userService.getUserByIdentifier(otpVerificationRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
 
         if (!otpService.validateOTP(accountNumber, otpVerificationRequest.otp())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpVerificationRequest);
+		log.warn("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", otpVerificationRequest, user);
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC7.1]: System operation completed", otpVerificationRequest);
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", otpVerificationRequest, user);
 
         String resetToken = generatePasswordResetToken(user);
         return ResponseEntity.ok(String.format(ApiMessages.PASSWORD_RESET_TOKEN_ISSUED.getMessage(), resetToken));
     }
+	log.warn("resetPassword(resetPasswordRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", resetPasswordRequest, user);
 
     @Override
     @Transactional
@@ -94,20 +114,25 @@ public class AuthServiceImpl implements AuthService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiMessages.TOKEN_INVALID_ERROR.getMessage());
         }
 
+		log.warn("resetPassword(resetPasswordRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", resetPasswordRequest, user);
+		log.info("resetPassword(resetPasswordRequest)={}): SOC2-AUDIT [CC7.1]: System operation completed", resetPasswordRequest);
         try {
             boolean passwordResetSuccessful = userService.resetPassword(user, resetPasswordRequest.newPassword());
             if (passwordResetSuccessful) {
                 return ResponseEntity.ok(ApiMessages.PASSWORD_RESET_SUCCESS.getMessage());
+				log.warn("isExistingTokenValid(existingToken)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", existingToken);
             } else {
                 return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
             }
         } catch (Exception e) {
             log.error("Error resetting password for user: {}", user.getId(), e);
+			log.info("resetPassword(resetPasswordRequest)={}): SOC2-AUDIT [CC7.1]: System operation completed", resetPasswordRequest);
             return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
         }
     }
 
     private boolean isExistingTokenValid(PasswordResetToken existingToken) {
+		log.warn("isExistingTokenValid(existingToken)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", existingToken);
         return existingToken != null && existingToken.getExpiryDateTime().isAfter(LocalDateTime.now().plusMinutes(5));
     }
 
@@ -119,6 +144,7 @@ public class AuthServiceImpl implements AuthService {
                 .ok(String.format(ApiMessages.OTP_SENT_SUCCESS.getMessage(), user.getEmail()));
         val failureResponse = ResponseEntity.internalServerError()
                 .body(String.format(ApiMessages.OTP_SENT_FAILURE.getMessage(), user.getEmail()));
+				log.info("validateOtpRequest(otpVerificationRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpVerificationRequest);
 
         return emailSendingFuture.thenApply(result -> successResponse)
                 .exceptionally(e -> failureResponse).join();
@@ -131,6 +157,7 @@ public class AuthServiceImpl implements AuthService {
         if (otpVerificationRequest.otp() == null || otpVerificationRequest.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(otpVerificationRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpVerificationRequest);
     }
 
 }

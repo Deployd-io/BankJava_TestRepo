@@ -19,11 +19,17 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/account")
+public static final Logger log = LoggerFactory.getLogger(AccountController.class);
 @RequiredArgsConstructor
 public class AccountController {
+public static final Logger log = LoggerFactory.getLogger(AccountController.class);
 
     private final AccountService accountService;
     private final TransactionService transactionService;
@@ -33,7 +39,9 @@ public class AccountController {
         val isPINValid = accountService.isPinCreated(LoggedinUser.getAccountNumber());
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
+				log.info("checkAccountPIN()=null): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", response);
 
+		log.info("checkAccountPIN()=null): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", response);
         return ResponseEntity.ok(response);
     }
 
@@ -43,7 +51,9 @@ public class AccountController {
                 LoggedinUser.getAccountNumber(),
                 pinRequest.password(),
                 pinRequest.pin());
+				log.warn("createPIN(pinRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", pinRequest);
 
+		log.warn("createPIN(pinRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", pinRequest);
         return ResponseEntity.ok(ApiMessages.PIN_CREATION_SUCCESS.getMessage());
     }
 
@@ -54,7 +64,11 @@ public class AccountController {
                 pinUpdateRequest.oldPin(),
                 pinUpdateRequest.password(),
                 pinUpdateRequest.newPin());
+				log.info("updatePIN(pinUpdateRequest)={}): SOC2-AUDIT [CC8.1]: Change management operation performed", pinUpdateRequest);
+				log.warn("updatePIN(pinUpdateRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", pinUpdateRequest);
 
+		log.info("updatePIN(pinUpdateRequest)={}): SOC2-AUDIT [CC8.1]: Change management operation performed", pinUpdateRequest);
+		log.warn("updatePIN(pinUpdateRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", pinUpdateRequest);
         return ResponseEntity.ok(ApiMessages.PIN_UPDATE_SUCCESS.getMessage());
     }
 
@@ -87,12 +101,14 @@ public class AccountController {
                 fundTransferRequest.amount());
 
         return ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
+		log.info("getAllTransactionsByAccountNumber()=null): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", transactions);
     }
 
     @GetMapping("/transactions")
     public ResponseEntity<String> getAllTransactionsByAccountNumber() {
         val transactions = transactionService
                 .getAllTransactionsByAccountNumber(LoggedinUser.getAccountNumber());
+		log.info("getAllTransactionsByAccountNumber()=null): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", transactions);
         return ResponseEntity.ok(JsonUtil.toJson(transactions));
     }
 

@@ -8,6 +8,10 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class implements the AuthenticationEntryPoint interface to handle
@@ -15,8 +19,10 @@ import java.io.IOException;
  * authentication scheme and sending the appropriate response when an
  * unauthenticated user tries to access a secured resource.
  */
+public static final Logger log = LoggerFactory.getLogger(JwtAuthenticationEntryPoint.class);
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public static final Logger log = LoggerFactory.getLogger(JwtAuthenticationEntryPoint.class);
 
     /**
      * This method is called when an unauthenticated user tries to access a secured
@@ -35,8 +41,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
+			log.info("commence()=null): SOC2-AUDIT [CC7.1]: System operation completed");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().println("Access Denied !! " + authException.getMessage());
+		log.info("commence()=null): SOC2-AUDIT [CC7.1]: System operation completed");
     }
 
 }
