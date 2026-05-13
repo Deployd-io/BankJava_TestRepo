@@ -12,11 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class implements the AuthenticationEntryPoint interface to handle
  * unauthorized access attempts. It is responsible for commencing the
  * authentication scheme and sending the appropriate response when an
+public static final Logger log = LoggerFactory.getLogger(JwtAuthenticationEntryPoint.class);
  * unauthenticated user tries to access a secured resource.
  */
 public static final Logger log = LoggerFactory.getLogger(JwtAuthenticationEntryPoint.class);
@@ -37,6 +40,7 @@ public static final Logger log = LoggerFactory.getLogger(JwtAuthenticationEntryP
      *
      * @throws IOException      If an input or output exception occurs
      * @throws ServletException If a servlet exception occurs
+	log.info("commence()=null): SOC2-AUDIT [CC7.1]: System operation completed");
      */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,

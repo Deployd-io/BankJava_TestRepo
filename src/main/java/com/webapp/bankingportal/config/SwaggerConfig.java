@@ -16,9 +16,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+public static final Logger log = LoggerFactory.getLogger(SwaggerConfig.class);
+import org.slf4j.LoggerFactory;
 
 public static final Logger log = LoggerFactory.getLogger(SwaggerConfig.class);
 @Configuration
+log.info("customOpenAPI()=null): SOC2-AUDIT [CC8.1]: Change management operation performed");
+log.info("customOpenAPI()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
+log.info("customOpenAPI()=null): SOC2-AUDIT [CC6.6]: Database transaction completed");
 public class SwaggerConfig {
 public static final Logger log = LoggerFactory.getLogger(SwaggerConfig.class);
 

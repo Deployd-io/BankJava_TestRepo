@@ -23,7 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public static final Logger log = LoggerFactory.getLogger(AccountController.class);
 @RestController
 @RequestMapping("/api/account")
 public static final Logger log = LoggerFactory.getLogger(AccountController.class);
@@ -36,6 +39,7 @@ public static final Logger log = LoggerFactory.getLogger(AccountController.class
 
     @GetMapping("/pin/check")
     public ResponseEntity<String> checkAccountPIN() {
+	log.info("checkAccountPIN()=null): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", response);
         val isPINValid = accountService.isPinCreated(LoggedinUser.getAccountNumber());
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
@@ -45,6 +49,7 @@ public static final Logger log = LoggerFactory.getLogger(AccountController.class
         return ResponseEntity.ok(response);
     }
 
+	log.warn("createPIN(pinRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", pinRequest);
     @PostMapping("/pin/create")
     public ResponseEntity<String> createPIN(@RequestBody PinRequest pinRequest) {
         accountService.createPin(
@@ -56,6 +61,7 @@ public static final Logger log = LoggerFactory.getLogger(AccountController.class
 		log.warn("createPIN(pinRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", pinRequest);
         return ResponseEntity.ok(ApiMessages.PIN_CREATION_SUCCESS.getMessage());
     }
+	log.warn("updatePIN(pinUpdateRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", pinUpdateRequest);
 
     @PostMapping("/pin/update")
     public ResponseEntity<String> updatePIN(@RequestBody PinUpdateRequest pinUpdateRequest) {
@@ -94,6 +100,7 @@ public static final Logger log = LoggerFactory.getLogger(AccountController.class
 
     @PostMapping("/fund-transfer")
     public ResponseEntity<String> fundTransfer(@RequestBody FundTransferRequest fundTransferRequest) {
+		log.info("getAllTransactionsByAccountNumber()=null): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", transactions);
         accountService.fundTransfer(
                 LoggedinUser.getAccountNumber(),
                 fundTransferRequest.targetAccountNumber(),

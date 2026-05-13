@@ -27,8 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
+public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class);
 @EnableWebSecurity
 @EnableMethodSecurity
 public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class);
@@ -51,11 +54,15 @@ public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class
     };
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+	log.info("configureGlobal(auth)={}): SOC2-AUDIT [CC8.1]: Change management operation performed", auth);
+	log.warn("configureGlobal(auth)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", auth);
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final TokenService tokenService;
 
 	log.info("configureGlobal(auth)={}): SOC2-AUDIT [CC8.1]: Change management operation performed", auth);
 	log.warn("configureGlobal(auth)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", auth);
+	log.info("passwordEncoder()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
+	log.warn("passwordEncoder()=null): SOC2-AUDIT [CC6.1]: Password reset operation performed");
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
@@ -63,6 +70,7 @@ public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class
 		log.warn("configureGlobal(auth)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", auth);
 		log.info("passwordEncoder()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
 		log.warn("passwordEncoder()=null): SOC2-AUDIT [CC6.1]: Password reset operation performed");
+		log.info("authenticationManager()=null): SOC2-AUDIT [CC8.1]: Change management operation performed");
     }
 
     @Bean
@@ -88,6 +96,10 @@ public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(handling -> {
+						log.info("securityFilterChain(http)={}): SOC2-AUDIT [CC6.1]: Session management operation performed", http);
+						log.warn("securityFilterChain(http)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", http);
+						log.info("securityFilterChain(http)={}): SOC2-AUDIT [CC7.1]: System operation completed", http);
+						log.info("securityFilterChain(http)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed", http);
                     handling.authenticationEntryPoint(jwtAuthenticationEntryPoint);
                 })
                 .sessionManagement(management -> {

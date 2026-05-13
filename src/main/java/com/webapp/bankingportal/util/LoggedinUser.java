@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 public static final Logger log = LoggerFactory.getLogger(LoggedinUser.class);
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public static final Logger log = LoggerFactory.getLogger(LoggedinUser.class);
 
 public class LoggedinUser {
 public static final Logger log = LoggerFactory.getLogger(LoggedinUser.class);
@@ -23,6 +26,7 @@ public static final Logger log = LoggerFactory.getLogger(LoggedinUser.class);
      * @throws NotFoundException If there is no user logged in.
      */
     public static String getAccountNumber() {
+		log.info("getAccountNumber()=null): SOC2-AUDIT [CC6.1]: Authentication operation completed");
         val authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             throw new NotFoundException("No user is currently logged in.");

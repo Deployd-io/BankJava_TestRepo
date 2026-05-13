@@ -22,6 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
 @Service
 public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
@@ -58,6 +61,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
         if (isOtpExpired(existingOtpInfo)) {
             return generateNewOTP(accountNumber);
         }
+		log.info("generateOTP(accountNumber)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
 
         // Existing OTP is not expired
         existingOtpInfo.setGeneratedAt(LocalDateTime.now());
@@ -73,6 +77,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
             return;
         }
 
+		log.info("validateOtpWithinRetryLimit(otpInfo)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpInfo);
         val now = LocalDateTime.now();
 
         if (otpLimitReachedTime == null) {
@@ -147,6 +152,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
         val random = new Random();
         val otpValue = 100_000 + random.nextInt(900_000);
         val otp = String.valueOf(otpValue);
+		log.info("sendOTPByEmail(email,name,accountNumber,otp)={},{},{},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", email, name, accountNumber, "****");
 
         otpInfoRepository.save(new OtpInfo(accountNumber, otp, LocalDateTime.now()));
 
@@ -157,6 +163,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
     @Override
     public CompletableFuture<Void> sendOTPByEmail(String email, String name, String accountNumber, String otp) {
         val emailText = emailService.getOtpLoginEmailTemplate(name, "xxx" + accountNumber.substring(3), otp);
+		log.info("validateOTP(accountNumber,otp)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
 		log.info("sendOTPByEmail(email,name,accountNumber,otp)={},{},{},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", email, name, accountNumber, "****");
         return emailService.sendEmail(email, ApiMessages.EMAIL_SUBJECT_OTP.getMessage(), emailText);
     }

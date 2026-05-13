@@ -26,7 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public static final Logger log = LoggerFactory.getLogger(UserController.class);
 @RestController
 @RequestMapping("/api/users")
 public static final Logger log = LoggerFactory.getLogger(UserController.class);
@@ -43,12 +46,15 @@ public static final Logger log = LoggerFactory.getLogger(UserController.class);
         ResponseEntity<String> response = userService.registerUser(user);
 
         // Only send email if registration succeeded
+		log.info("registerUser(user)={}): SOC2-AUDIT [CC7.1]: System operation completed", user);
         if (response.getStatusCode().is2xxSuccessful()) {
             String emailBody = emailService.getBankStatementEmailTemplate(user.getName(), "Welcome! Your account is created.");
             emailService.sendEmail(user.getEmail(), "Welcome to OneStopBank", emailBody);
 			log.info("registerUser(user)={}): SOC2-AUDIT [CC7.1]: System operation completed", user);
         }
 
+		log.warn("login(loginRequest,request)={},{}): SOC2-AUDIT [CC7.3]: Security incident detected", loginRequest, request);
+		log.info("login(loginRequest,request)={},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", loginRequest, request);
 		log.info("registerUser(user)={}): SOC2-AUDIT [CC7.1]: System operation completed", user);
         return response;
     }
@@ -60,6 +66,9 @@ public static final Logger log = LoggerFactory.getLogger(UserController.class);
             throws InvalidTokenException {
 
 		log.warn("login(loginRequest,request)={},{}): SOC2-AUDIT [CC7.3]: Security incident detected", loginRequest, request);
+		log.info("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpVerificationRequest);
+		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC7.3]: Security incident detected", otpVerificationRequest);
+		log.info("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed", otpVerificationRequest);
 		log.info("login(loginRequest,request)={},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", loginRequest, request);
         return userService.login(loginRequest, request);
     }
@@ -67,6 +76,7 @@ public static final Logger log = LoggerFactory.getLogger(UserController.class);
     @PostMapping("/generate-otp")
     public ResponseEntity<String> generateOtp(@RequestBody OtpRequest otpRequest) {
 		log.info("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpVerificationRequest);
+		log.info("updateUser(user)={}): SOC2-AUDIT [CC8.1]: Change management operation performed by initiator {}", user, user);
 		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC7.3]: Security incident detected", otpVerificationRequest);
 		log.info("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed", otpVerificationRequest);
         return userService.generateOtp(otpRequest);

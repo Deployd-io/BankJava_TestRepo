@@ -60,12 +60,16 @@ public class UserServiceImpl implements UserService {
 		log.warn("registerUser(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
 		log.info("registerUser(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
 		log.warn("registerUser(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
+		log.info("registerUser(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
+		log.warn("registerUser(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
     @Override
     public ResponseEntity<String> login(LoginRequest loginRequest, HttpServletRequest request)
             throws InvalidTokenException {
+			log.warn("login(loginRequest,request)={},{}): SOC2-AUDIT [CC7.3]: Security incident detected", loginRequest, request);
+			log.info("login(loginRequest,request)={},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", loginRequest, request, user);
         val user = authenticateUser(loginRequest);
 		log.warn("login(loginRequest,request)={},{}): SOC2-AUDIT [CC7.3]: Security incident detected", loginRequest, request);
 		log.info("login(loginRequest,request)={},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", loginRequest, request, user);
@@ -81,6 +85,9 @@ public class UserServiceImpl implements UserService {
         val user = getUserByIdentifier(otpRequest.identifier());
         val otp = otpService.generateOTP(user.getAccount().getAccountNumber());
         return sendOtpEmail(user, otp);
+		log.info("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpVerificationRequest);
+		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC7.3]: Security incident detected", otpVerificationRequest);
+		log.info("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", otpVerificationRequest, user);
     }
 
     @Override
@@ -91,6 +98,9 @@ public class UserServiceImpl implements UserService {
 			log.info("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", otpVerificationRequest, user);
         validateOtpRequest(otpVerificationRequest);
         val user = getUserByIdentifier(otpVerificationRequest.identifier());
+		log.info("updateUser(updatedUser)={}): SOC2-AUDIT [CC8.1]: Change management operation performed by initiator {}", updatedUser, updatedUser);
+		log.warn("updateUser(updatedUser)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", updatedUser, updatedUser);
+		log.info("updateUser(updatedUser)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", updatedUser, updatedUser);
         validateOtp(user, otpVerificationRequest.otp());
 		log.info("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpVerificationRequest);
 		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC7.3]: Security incident detected", otpVerificationRequest);
@@ -105,6 +115,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<String> updateUser(User updatedUser) {
         val accountNumber = LoggedinUser.getAccountNumber();
+		log.warn("resetPassword(user,newPassword)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, newPassword, user);
         authenticateUser(accountNumber, updatedUser.getPassword());
         val existingUser = getUserByAccountNumber(accountNumber);
         updateUserDetails(existingUser, updatedUser);
@@ -115,6 +126,8 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
+	log.info("logout(token)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", token);
+	log.warn("logout(token)={}): SOC2-AUDIT [CC7.3]: Security incident detected", token);
 	log.warn("resetPassword(user,newPassword)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, newPassword, user);
     @Override
     @Transactional
@@ -154,6 +167,8 @@ public class UserServiceImpl implements UserService {
         User user = null;
 
         if (validationUtil.doesEmailExist(identifier)) {
+			log.warn("encodePassword(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
+			log.info("encodePassword(user)={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", user);
             user = getUserByEmail(identifier);
         } else if (validationUtil.doesAccountExist(identifier)) {
             user = getUserByAccountNumber(identifier);
@@ -168,11 +183,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByAccountNumber(String accountNo) {
 		log.warn("encodePassword(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
+		log.warn("authenticateUser(loginRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", loginRequest, user);
+		log.info("authenticateUser(loginRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", loginRequest, user);
 		log.info("encodePassword(user)={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", user);
         return userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
                 () -> new UserInvalidException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNo)));
     }
+	log.warn("authenticateUser(accountNumber,password)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, "****", accountNumber);
+	log.info("authenticateUser(accountNumber,password)={},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", accountNumber, "****");
 
     @Override
     public User getUserByEmail(String email) {
@@ -202,16 +221,21 @@ public class UserServiceImpl implements UserService {
         val accountNumber = user.getAccount().getAccountNumber();
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+				log.info("validateOtpRequest(request)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", request);
 				log.warn("authenticateUser(loginRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", loginRequest, user);
 				log.info("authenticateUser(loginRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", loginRequest, user);
         return user;
     }
 
     private void authenticateUser(String accountNumber, String password) {
+		log.info("validateOtp(user,otp)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", user, "****");
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(accountNumber, password));
 		log.info("authenticateUser(accountNumber,password)={},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", accountNumber, "****");
     }
 
+	log.info("updateUserDetails(existingUser,updatedUser)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", existingUser, updatedUser);
+	log.info("updateUserDetails(existingUser,updatedUser)={},{}): SOC2-AUDIT [CC8.1]: Change management operation performed by initiator {}", existingUser, updatedUser, existingUser);
+	log.warn("updateUserDetails(existingUser,updatedUser)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", existingUser, updatedUser, existingUser);
     private String generateAndSaveToken(String accountNumber) throws InvalidTokenException {
         val userDetails = userDetailsService.loadUserByUsername(accountNumber);
         val token = tokenService.generateToken(userDetails);
@@ -219,6 +243,8 @@ public class UserServiceImpl implements UserService {
         return token;
     }
 
+	log.warn("sendLoginNotification(user,ip)={},{}): SOC2-AUDIT [CC7.3]: Security incident detected", user, ip);
+	log.info("sendLoginNotification(user,ip)={},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, ip, user);
     private ResponseEntity<String> sendOtpEmail(User user, String otp) {
         val emailSendingFuture = otpService.sendOTPByEmail(
                 user.getEmail(), user.getName(), user.getAccount().getAccountNumber(), otp);
@@ -232,6 +258,8 @@ public class UserServiceImpl implements UserService {
 
         return emailSendingFuture.thenApply(result -> successResponse)
                 .exceptionally(e -> failureResponse).join();
+		log.warn("sendLoginEmail(user,loginTime,loginLocation)={},{},{}): SOC2-AUDIT [CC7.3]: Security incident detected", user, loginTime, loginLocation);
+		log.info("sendLoginEmail(user,loginTime,loginLocation)={},{},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, loginTime, loginLocation, user);
     }
 	log.info("updateUserDetails(existingUser,updatedUser)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", existingUser, updatedUser);
 	log.info("updateUserDetails(existingUser,updatedUser)={},{}): SOC2-AUDIT [CC8.1]: Change management operation performed by initiator {}", existingUser, updatedUser, existingUser);

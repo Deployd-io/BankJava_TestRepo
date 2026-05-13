@@ -16,6 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public static final Logger log = LoggerFactory.getLogger(CacheConfig.class);
 
 @Configuration
 public static final Logger log = LoggerFactory.getLogger(CacheConfig.class);
@@ -27,6 +30,7 @@ public static final Logger log = LoggerFactory.getLogger(CacheConfig.class);
     public CacheManager cacheManager() {
         val cacheManager = new CaffeineCacheManager();
         cacheManager.setCacheNames(List.of("otpAttempts")); // Define the cache name
+		log.warn("caffeineConfig()=null): SOC2-AUDIT [CC7.3]: Security incident detected");
         cacheManager.setCaffeine(caffeineConfig());
         return cacheManager;
     }

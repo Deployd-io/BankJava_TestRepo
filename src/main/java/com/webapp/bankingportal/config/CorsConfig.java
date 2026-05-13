@@ -8,11 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+public static final Logger log = LoggerFactory.getLogger(CorsConfig.class);
+import org.slf4j.LoggerFactory;
 
 public static final Logger log = LoggerFactory.getLogger(CorsConfig.class);
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 public static final Logger log = LoggerFactory.getLogger(CorsConfig.class);
+log.info("addCorsMappings(registry)={}): SOC2-AUDIT [CC7.1]: System operation completed", registry);
 
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
