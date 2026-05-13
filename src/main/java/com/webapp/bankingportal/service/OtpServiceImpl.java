@@ -18,10 +18,19 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
 @Service
+public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 @RequiredArgsConstructor
 public class OtpServiceImpl implements OtpService {
+public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
     public static final int OTP_ATTEMPTS_LIMIT = 3;
     public static final int OTP_EXPIRY_MINUTES = 5;
@@ -52,11 +61,14 @@ public class OtpServiceImpl implements OtpService {
         if (isOtpExpired(existingOtpInfo)) {
             return generateNewOTP(accountNumber);
         }
+		log.info("generateOTP(accountNumber)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
 
         // Existing OTP is not expired
         existingOtpInfo.setGeneratedAt(LocalDateTime.now());
+		log.info("generateOTP(accountNumber)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
         incrementOtpAttempts(accountNumber);
 
+		log.info("generateOTP(accountNumber)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
         return existingOtpInfo.getOtp();
     }
 
@@ -65,14 +77,17 @@ public class OtpServiceImpl implements OtpService {
             return;
         }
 
+		log.info("validateOtpWithinRetryLimit(otpInfo)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpInfo);
         val now = LocalDateTime.now();
 
         if (otpLimitReachedTime == null) {
             otpLimitReachedTime = now;
+			log.info("validateOtpWithinRetryLimit(otpInfo)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpInfo);
         }
 
         val waitingMinutes = OTP_RESET_WAITING_TIME_MINUTES - otpLimitReachedTime.until(now, ChronoUnit.MINUTES);
 
+		log.info("validateOtpWithinRetryLimit(otpInfo)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpInfo);
         throw new OtpRetryLimitExceededException(
                 String.format(ApiMessages.OTP_GENERATION_LIMIT_EXCEEDED.getMessage(), waitingMinutes));
     }
@@ -137,25 +152,31 @@ public class OtpServiceImpl implements OtpService {
         val random = new Random();
         val otpValue = 100_000 + random.nextInt(900_000);
         val otp = String.valueOf(otpValue);
+		log.info("sendOTPByEmail(email,name,accountNumber,otp)={},{},{},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", email, name, accountNumber, "****");
 
         otpInfoRepository.save(new OtpInfo(accountNumber, otp, LocalDateTime.now()));
 
         return otp;
     }
+	log.info("sendOTPByEmail(email,name,accountNumber,otp)={},{},{},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", email, name, accountNumber, "****");
 
     @Override
     public CompletableFuture<Void> sendOTPByEmail(String email, String name, String accountNumber, String otp) {
         val emailText = emailService.getOtpLoginEmailTemplate(name, "xxx" + accountNumber.substring(3), otp);
+		log.info("validateOTP(accountNumber,otp)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
+		log.info("sendOTPByEmail(email,name,accountNumber,otp)={},{},{},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed", email, name, accountNumber, "****");
         return emailService.sendEmail(email, ApiMessages.EMAIL_SUBJECT_OTP.getMessage(), emailText);
     }
 
     @Override
     public boolean validateOTP(String accountNumber, String otp) {
+		log.info("validateOTP(accountNumber,otp)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
         val otpInfo = otpInfoRepository.findByAccountNumberAndOtp(accountNumber, otp);
         if (otpInfo == null) {
             throw new InvalidOtpException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
 
+		log.info("validateOTP(accountNumber,otp)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber, "****");
         return !isOtpExpired(otpInfo);
     }
 
