@@ -57,6 +57,7 @@ public class UserServiceImpl implements UserService {
         validationUtil.validateNewUser(user);
         encodePassword(user);
         val savedUser = saveUserWithAccount(user);
+		log.debug("<<< Exiting registerUser(user={})", user);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -69,6 +70,7 @@ public class UserServiceImpl implements UserService {
 		log.debug("login(loginRequest={},request={}): user → {}", loginRequest, request, user);
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
 		log.warn("login(loginRequest={},request={}): token → {}", loginRequest, request, token);
+		log.debug("<<< Exiting login(loginRequest={},request={})", loginRequest, request);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
@@ -78,6 +80,7 @@ public class UserServiceImpl implements UserService {
         val user = getUserByIdentifier(otpRequest.identifier());
         val otp = otpService.generateOTP(user.getAccount().getAccountNumber());
 		log.debug("generateOtp(otpRequest={}): user → {}", otpRequest, user);
+		log.debug("<<< Exiting generateOtp(otpRequest={})", otpRequest);
         return sendOtpEmail(user, otp);
     }
 
@@ -91,6 +94,7 @@ public class UserServiceImpl implements UserService {
 		log.debug("verifyOtpAndLogin(otpVerificationRequest={}): user → {}", otpVerificationRequest, user);
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
 		log.warn("verifyOtpAndLogin(otpVerificationRequest={}): token → {}", otpVerificationRequest, token);
+		log.debug("<<< Exiting verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
@@ -104,6 +108,7 @@ public class UserServiceImpl implements UserService {
         updateUserDetails(existingUser, updatedUser);
 		log.debug("updateUser(updatedUser={}): existingUser → {}", updatedUser, existingUser);
         val savedUser = saveUser(existingUser);
+		log.debug("<<< Exiting updateUser(updatedUser={})", updatedUser);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -114,7 +119,9 @@ public class UserServiceImpl implements UserService {
         try {
             user.setPassword(passwordEncoder.encode(newPassword));
 			log.debug("resetPassword(user={},newPassword={}): user → {}", user, newPassword, user);
+			log.debug("resetPassword(user={},newPassword={}): user → {}", user, newPassword, user);
             userRepository.save(user);
+			log.debug("<<< Exiting resetPassword(user={},newPassword={})", user, newPassword);
             return true;
         } catch (Exception e) {
             throw new PasswordResetException(ApiMessages.PASSWORD_RESET_FAILURE.getMessage(), e);
@@ -130,12 +137,14 @@ public class UserServiceImpl implements UserService {
 
         log.info("User logged out successfully {}", tokenService.getUsernameFromToken(token));
 
+		log.debug("<<< Exiting logout(token={})", token);
         return new ModelAndView("redirect:/logout");
     }
 
     @Override
     public User saveUser(User user) {
 		log.debug(">>> Entering saveUser(user={})", user);
+		log.debug("<<< Exiting saveUser(user={})", user);
         return userRepository.save(user);
     }
 
@@ -154,12 +163,14 @@ public class UserServiceImpl implements UserService {
                     String.format(ApiMessages.USER_NOT_FOUND_BY_IDENTIFIER.getMessage(), identifier));
         }
 
+		log.debug("<<< Exiting getUserByIdentifier(identifier={})", identifier);
         return user;
     }
 
     @Override
     public User getUserByAccountNumber(String accountNo) {
 		log.debug(">>> Entering getUserByAccountNumber(accountNo={})", accountNo);
+		log.debug("<<< Exiting getUserByAccountNumber(accountNo={})", accountNo);
         return userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
                 () -> new UserInvalidException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNo)));
@@ -176,14 +187,17 @@ public class UserServiceImpl implements UserService {
     private void encodePassword(User user) {
 		log.debug(">>> Entering encodePassword(user={})", user);
         user.setCountryCode(user.getCountryCode().toUpperCase());
+		log.debug("encodePassword(user={}): user → {}", user, user);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 		log.debug("encodePassword(user={}): user → {}", user, user);
+		log.debug("<<< Exiting encodePassword(user={})", user);
     }
 
     private User saveUserWithAccount(User user) {
 		log.debug(">>> Entering saveUserWithAccount(user={})", user);
         val savedUser = saveUser(user);
         savedUser.setAccount(accountService.createAccount(savedUser));
+		log.debug("saveUserWithAccount(user={}): savedUser → {}", user, savedUser);
 		log.debug("saveUserWithAccount(user={}): savedUser → {}", user, savedUser);
 		log.debug("<<< Exiting saveUserWithAccount(user={})", user);
         return saveUser(savedUser);
@@ -197,11 +211,13 @@ public class UserServiceImpl implements UserService {
 		log.debug("authenticateUser(loginRequest={}): accountNumber → {}", loginRequest, accountNumber);
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+		log.debug(">>> Entering authenticateUser(accountNumber={},password={})", accountNumber, "****");
         return user;
     }
 
     private void authenticateUser(String accountNumber, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(accountNumber, password));
+		log.debug("<<< Exiting authenticateUser(loginRequest={})", loginRequest);
     }
 
     private String generateAndSaveToken(String accountNumber) throws InvalidTokenException {
@@ -242,16 +258,20 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateOtp(User user, String otp) {
+		log.debug(">>> Entering validateOtp(user={},otp={})", user, "****");
         if (!otpService.validateOTP(user.getAccount().getAccountNumber(), otp)) {
             throw new UnauthorizedException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
+		log.debug("<<< Exiting validateOtp(user={},otp={})", user, "****");
     }
 
     private void updateUserDetails(User existingUser, User updatedUser) {
 		log.debug(">>> Entering updateUserDetails(existingUser={},updatedUser={})", existingUser, updatedUser);
         ValidationUtil.validateUserDetails(updatedUser);
         updatedUser.setPassword(existingUser.getPassword());
+		log.debug("updateUserDetails(existingUser={},updatedUser={}): updatedUser → {}", existingUser, updatedUser, updatedUser);
         userMapper.updateUser(updatedUser, existingUser);
+		log.debug("<<< Exiting updateUserDetails(existingUser={},updatedUser={})", existingUser, updatedUser);
     }
 
     private CompletableFuture<Boolean> sendLoginNotification(User user, String ip) {

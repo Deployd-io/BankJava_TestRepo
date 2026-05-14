@@ -62,6 +62,7 @@ public class OtpServiceImpl implements OtpService {
         // Existing OTP is not expired
         existingOtpInfo.setGeneratedAt(LocalDateTime.now());
 		log.debug("generateOTP(accountNumber={}): existingOtpInfo → {}", accountNumber, existingOtpInfo);
+		log.debug("generateOTP(accountNumber={}): existingOtpInfo → {}", accountNumber, existingOtpInfo);
         incrementOtpAttempts(accountNumber);
 
 		log.debug("<<< Exiting generateOTP(accountNumber={})", accountNumber);
@@ -79,6 +80,7 @@ public class OtpServiceImpl implements OtpService {
 		log.debug("validateOtpWithinRetryLimit(otpInfo={}): now → {}", otpInfo, now);
         if (otpLimitReachedTime == null) {
             otpLimitReachedTime = now;
+			log.debug("validateOtpWithinRetryLimit(otpInfo={}): otpLimitReachedTime → {}", otpInfo, otpLimitReachedTime);
 			log.debug("validateOtpWithinRetryLimit(otpInfo={}): otpLimitReachedTime → {}", otpInfo, otpLimitReachedTime);
         }
 
@@ -136,6 +138,7 @@ public class OtpServiceImpl implements OtpService {
     private void resetOtpAttempts(String accountNumber) {
 		log.debug(">>> Entering resetOtpAttempts(accountNumber={})", accountNumber);
         otpLimitReachedTime = null;
+		log.debug("resetOtpAttempts(accountNumber={}): otpLimitReachedTime → {}", accountNumber, otpLimitReachedTime);
         val cache = cacheManager.getCache("otpAttempts");
 		log.debug("resetOtpAttempts(accountNumber={}): otpLimitReachedTime → {}", accountNumber, otpLimitReachedTime);
 		log.debug("resetOtpAttempts(accountNumber={}): cache → {}", accountNumber, cache);
@@ -172,6 +175,7 @@ public class OtpServiceImpl implements OtpService {
 
         otpInfoRepository.save(new OtpInfo(accountNumber, otp, LocalDateTime.now()));
 
+		log.debug("<<< Exiting generateNewOTP(accountNumber={})", accountNumber);
         return otp;
     }
 
@@ -180,6 +184,7 @@ public class OtpServiceImpl implements OtpService {
 		log.debug(">>> Entering sendOTPByEmail(email={},name={},accountNumber={},otp={})", email, name, accountNumber, "****");
         val emailText = emailService.getOtpLoginEmailTemplate(name, "xxx" + accountNumber.substring(3), otp);
 		log.debug("sendOTPByEmail(email={},name={},accountNumber={},otp={}): emailText → {}", email, name, accountNumber, "****", emailText);
+		log.debug("<<< Exiting sendOTPByEmail(email={},name={},accountNumber={},otp={})", email, name, accountNumber, "****");
         return emailService.sendEmail(email, ApiMessages.EMAIL_SUBJECT_OTP.getMessage(), emailText);
     }
 

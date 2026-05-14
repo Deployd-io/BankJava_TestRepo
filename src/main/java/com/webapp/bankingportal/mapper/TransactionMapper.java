@@ -12,6 +12,7 @@ public class TransactionMapper {
 
     public TransactionDTO toDto(Transaction transaction) {
 		log.debug(">>> Entering toDto(transaction={})", transaction);
+		log.debug("<<< Exiting toDto(transaction={})", transaction);
         return new TransactionDTO(transaction);
     }
 

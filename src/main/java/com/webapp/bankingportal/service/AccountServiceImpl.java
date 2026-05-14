@@ -40,11 +40,15 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account createAccount(User user) {
 		log.debug(">>> Entering createAccount(user={})", user);
+		long start = System.currentTimeMillis();
         val account = new Account();
         account.setAccountNumber(generateUniqueAccountNumber());
 		log.debug("createAccount(user={}): account → {}", user, account);
+		log.info("createAccount(user)={}: save query executed in {} ms", user, (System.currentTimeMillis() - start));
+		log.debug("createAccount(user={}): account → {}", user, account);
         account.setBalance(0.0);
         account.setUser(user);
+		log.debug("<<< Exiting createAccount(user={})", user);
         return accountRepository.save(account);
     }
 
@@ -67,6 +71,7 @@ public class AccountServiceImpl implements AccountService {
         do {
             // Generate a UUID as the account number
             accountNumber = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 6);
+			log.debug("generateUniqueAccountNumber(): accountNumber → {}", accountNumber);
 			log.debug("generateUniqueAccountNumber(): accountNumber → {}", accountNumber);
         } while (accountRepository.findByAccountNumber(accountNumber) != null);
 
@@ -120,9 +125,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void createPin(String accountNumber, String password, String pin) {
 		log.debug(">>> Entering createPin(accountNumber={},password={},pin={})", accountNumber, "****", "****");
+		long start = System.currentTimeMillis();
         validatePassword(accountNumber, password);
 
         val account = accountRepository.findByAccountNumber(accountNumber);
+		log.info("createPin(accountNumber,password,pin)={},{},{}: find query executed in {} ms", accountNumber, "****", "****", (System.currentTimeMillis() - start));
         if (account.getPin() != null) {
             throw new UnauthorizedException(ApiMessages.PIN_ALREADY_EXISTS.getMessage());
         }
@@ -136,7 +143,10 @@ public class AccountServiceImpl implements AccountService {
         }
 
         account.setPin(passwordEncoder.encode(pin));
+		log.debug("createPin(accountNumber={},password={},pin={}): account → {}", accountNumber, "****", "****", account);
+		log.info("createPin(accountNumber,password,pin)={},{},{}: save query executed in {} ms", accountNumber, "****", "****", (System.currentTimeMillis() - start));
         accountRepository.save(account);
+		log.debug("<<< Exiting createPin(accountNumber={},password={},pin={})", accountNumber, "****", "****");
     }
 
     @Override
@@ -160,6 +170,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         account.setPin(passwordEncoder.encode(newPin));
+		log.debug("updatePin(accountNumber={},oldPin={},password={},newPin={}): account → {}", accountNumber, oldPin, "****", newPin, account);
 		log.debug("updatePin(accountNumber={},oldPin={},password={},newPin={}): account → {}", accountNumber, oldPin, "****", newPin, account);
         accountRepository.save(account);
 		log.info("updatePin(accountNumber,oldPin,password,newPin)={},{},{},{}: save query executed in {} ms", accountNumber, oldPin, "****", newPin, (System.currentTimeMillis() - start));
@@ -186,31 +197,39 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void cashDeposit(String accountNumber, String pin, double amount) {
 		log.debug(">>> Entering cashDeposit(accountNumber={},pin={},amount={})", accountNumber, "****", amount);
+		long start = System.currentTimeMillis();
         validatePin(accountNumber, pin);
         validateAmount(amount);
 
         val account = accountRepository.findByAccountNumber(accountNumber);
+		log.info("cashDeposit(accountNumber,pin,amount)={},{},{}: find query executed in {} ms", accountNumber, "****", amount, (System.currentTimeMillis() - start));
         val currentBalance = account.getBalance();
         val newBalance = currentBalance + amount;
         account.setBalance(newBalance);
+		log.debug("cashDeposit(accountNumber={},pin={},amount={}): account → {}", accountNumber, "****", amount, account);
+		log.info("cashDeposit(accountNumber,pin,amount)={},{},{}: save query executed in {} ms", accountNumber, "****", amount, (System.currentTimeMillis() - start));
         accountRepository.save(account);
 
         val transaction = new Transaction();
         transaction.setAmount(amount);
+		log.debug("cashDeposit(accountNumber={},pin={},amount={}): transaction → {}", accountNumber, "****", amount, transaction);
         transaction.setTransactionType(TransactionType.CASH_DEPOSIT);
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
         transactionRepository.save(transaction);
+		log.debug("<<< Exiting cashDeposit(accountNumber={},pin={},amount={})", accountNumber, "****", amount);
     }
 
     @Transactional
     @Override
     public void cashWithdrawal(String accountNumber, String pin, double amount) {
 		log.debug(">>> Entering cashWithdrawal(accountNumber={},pin={},amount={})", accountNumber, "****", amount);
+		long start = System.currentTimeMillis();
         validatePin(accountNumber, pin);
         validateAmount(amount);
 
         val account = accountRepository.findByAccountNumber(accountNumber);
+		log.info("cashWithdrawal(accountNumber,pin,amount)={},{},{}: find query executed in {} ms", accountNumber, "****", amount, (System.currentTimeMillis() - start));
         val currentBalance = account.getBalance();
         if (currentBalance < amount) {
             throw new InsufficientBalanceException(ApiMessages.BALANCE_INSUFFICIENT_ERROR.getMessage());
@@ -218,20 +237,25 @@ public class AccountServiceImpl implements AccountService {
 
         val newBalance = currentBalance - amount;
         account.setBalance(newBalance);
+		log.debug("cashWithdrawal(accountNumber={},pin={},amount={}): account → {}", accountNumber, "****", amount, account);
+		log.info("cashWithdrawal(accountNumber,pin,amount)={},{},{}: save query executed in {} ms", accountNumber, "****", amount, (System.currentTimeMillis() - start));
         accountRepository.save(account);
 
         val transaction = new Transaction();
         transaction.setAmount(amount);
+		log.debug("cashWithdrawal(accountNumber={},pin={},amount={}): transaction → {}", accountNumber, "****", amount, transaction);
         transaction.setTransactionType(TransactionType.CASH_WITHDRAWAL);
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
         transactionRepository.save(transaction);
+		log.debug("<<< Exiting cashWithdrawal(accountNumber={},pin={},amount={})", accountNumber, "****", amount);
     }
 
     @Transactional
     @Override
     public void fundTransfer(String sourceAccountNumber, String targetAccountNumber, String pin, double amount) {
 		log.debug(">>> Entering fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin={},amount={})", sourceAccountNumber, targetAccountNumber, "****", amount);
+		long start = System.currentTimeMillis();
         validatePin(sourceAccountNumber, pin);
         validateAmount(amount);
 
@@ -240,6 +264,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         val targetAccount = accountRepository.findByAccountNumber(targetAccountNumber);
+		log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},{},{}: find query executed in {} ms", sourceAccountNumber, targetAccountNumber, "****", amount, (System.currentTimeMillis() - start));
         if (targetAccount == null) {
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
@@ -252,20 +277,25 @@ public class AccountServiceImpl implements AccountService {
 
         val newSourceBalance = sourceBalance - amount;
         sourceAccount.setBalance(newSourceBalance);
+		log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin={},amount={}): sourceAccount → {}", sourceAccountNumber, targetAccountNumber, "****", amount, sourceAccount);
+		log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},{},{}: save query executed in {} ms", sourceAccountNumber, targetAccountNumber, "****", amount, (System.currentTimeMillis() - start));
         accountRepository.save(sourceAccount);
 
         val targetBalance = targetAccount.getBalance();
         val newTargetBalance = targetBalance + amount;
         targetAccount.setBalance(newTargetBalance);
+		log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin={},amount={}): targetAccount → {}", sourceAccountNumber, targetAccountNumber, "****", amount, targetAccount);
         accountRepository.save(targetAccount);
 
         val transaction = new Transaction();
         transaction.setAmount(amount);
+		log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin={},amount={}): transaction → {}", sourceAccountNumber, targetAccountNumber, "****", amount, transaction);
         transaction.setTransactionType(TransactionType.CASH_TRANSFER);
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(sourceAccount);
         transaction.setTargetAccount(targetAccount);
         transactionRepository.save(transaction);
+		log.debug("<<< Exiting fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin={},amount={})", sourceAccountNumber, targetAccountNumber, "****", amount);
     }
 
 }

@@ -45,6 +45,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String getUsernameFromToken(String token) throws InvalidTokenException {
 		log.debug(">>> Entering getUsernameFromToken(token={})", token);
+		log.debug("<<< Exiting getUsernameFromToken(token={})", token);
         return getClaimFromToken(token, Claims::getSubject);
     }
 
@@ -59,6 +60,8 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String generateToken(UserDetails userDetails, Date expiry) {
         log.info("Generating token for user: " + userDetails.getUsername());
+		log.debug("<<< Exiting generateToken(userDetails={},expiry={})", userDetails, expiry);
+		log.debug("<<< Exiting generateToken(userDetails={})", userDetails);
         return doGenerateToken(userDetails, expiry);
     }
     private Key key() {
@@ -69,6 +72,7 @@ public class TokenServiceImpl implements TokenService {
     }
     private String doGenerateToken(UserDetails userDetails, Date expiry) {
 		log.debug(">>> Entering doGenerateToken(userDetails={},expiry={})", userDetails, expiry);
+		log.debug("<<< Exiting doGenerateToken(userDetails={},expiry={})", userDetails, expiry);
         return Jwts.builder().setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(expiry)
@@ -82,6 +86,7 @@ public class TokenServiceImpl implements TokenService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 
+		log.debug("<<< Exiting loadUserByUsername(accountNumber={})", accountNumber);
         return withUsername(accountNumber).password(user.getPassword()).build();
     }
 
@@ -110,6 +115,7 @@ public class TokenServiceImpl implements TokenService {
 		log.debug(">>> Entering getAllClaimsFromToken(token={})", token);
         try {
            // return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+			log.debug("<<< Exiting getAllClaimsFromToken(token={})", token);
             return Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()

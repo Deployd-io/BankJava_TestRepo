@@ -165,6 +165,7 @@ public class ValidationUtil {
     }
 
     public static void validateUserDetails(User user) {
+		log.debug(">>> Entering validateUserDetails(user={})", user);
         validateUserDetailsNotEmpty(user);
 
         if (!isValidEmail(user.getEmail())) {
@@ -180,6 +181,7 @@ public class ValidationUtil {
         }
 
         validatePassword(user.getPassword());
+		log.debug("<<< Exiting validateUserDetails(user={})", user);
     }
 
     public void validateNewUser(User user) {
@@ -191,20 +193,24 @@ public class ValidationUtil {
         if (doesPhoneNumberExist(user.getPhoneNumber())) {
             throw new UserInvalidException(ApiMessages.USER_PHONE_NUMBER_ALREADY_EXISTS_ERROR.getMessage());
         }
+		log.debug("<<< Exiting validateNewUser(user={})", user);
     }
 
     public boolean doesAccountExist(String accountNumber) {
 		log.debug(">>> Entering doesAccountExist(accountNumber={})", accountNumber);
+		log.debug("<<< Exiting doesAccountExist(accountNumber={})", accountNumber);
         return userRepository.findByAccountAccountNumber(accountNumber).isPresent();
     }
 
     public boolean doesEmailExist(String email) {
 		log.debug(">>> Entering doesEmailExist(email={})", email);
+		log.debug("<<< Exiting doesEmailExist(email={})", email);
         return userRepository.findByEmail(email).isPresent();
     }
 
     public boolean doesPhoneNumberExist(String phoneNumber) {
 		log.debug(">>> Entering doesPhoneNumberExist(phoneNumber={})", phoneNumber);
+		log.debug("<<< Exiting doesPhoneNumberExist(phoneNumber={})", phoneNumber);
         return userRepository.findByPhoneNumber(phoneNumber).isPresent();
     }
 

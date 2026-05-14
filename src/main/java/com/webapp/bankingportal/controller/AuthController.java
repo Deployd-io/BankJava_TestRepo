@@ -22,6 +22,7 @@ public class AuthController {
     @PostMapping("/password-reset/send-otp")
     public ResponseEntity<String> sendOtpForPasswordReset(@RequestBody OtpRequest otpRequest) {
 		log.debug(">>> Entering sendOtpForPasswordReset(otpRequest={})", otpRequest);
+		log.debug("<<< Exiting sendOtpForPasswordReset(otpRequest={})", otpRequest);
         return authService.sendOtpForPasswordReset(otpRequest);
     }
 
@@ -29,12 +30,14 @@ public class AuthController {
     public ResponseEntity<String> verifyOtpAndIssueResetToken(
             @RequestBody OtpVerificationRequest otpVerificationRequest) {
 			log.debug(">>> Entering verifyOtpAndIssueResetToken()");
+		log.debug("<<< Exiting verifyOtpAndIssueResetToken()");
         return authService.verifyOtpAndIssueResetToken(otpVerificationRequest);
     }
 
     @PostMapping("/password-reset")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
 		log.debug(">>> Entering resetPassword(resetPasswordRequest={})", resetPasswordRequest);
+		log.debug("<<< Exiting resetPassword(resetPasswordRequest={})", resetPasswordRequest);
         return authService.resetPassword(resetPasswordRequest);
     }
 
