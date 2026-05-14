@@ -7,5 +7,6 @@ public class InvalidPinException extends RuntimeException {
     public InvalidPinException(String message) {
         super(message);
 		log.debug(">>> Entering InvalidPinException(message={})", message);
+		log.debug("<<< Exiting InvalidPinException(message={})", message);
     }
 }

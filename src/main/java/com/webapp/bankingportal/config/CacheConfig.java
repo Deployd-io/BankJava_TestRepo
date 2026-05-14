@@ -25,6 +25,7 @@ public class CacheConfig {
         val cacheManager = new CaffeineCacheManager();
         cacheManager.setCacheNames(List.of("otpAttempts")); // Define the cache name
 		log.debug("cacheManager(): cacheManager → {}", cacheManager);
+		log.debug("cacheManager(): cacheManager → {}", cacheManager);
         cacheManager.setCaffeine(caffeineConfig());
 		log.debug("<<< Exiting cacheManager()");
         return cacheManager;

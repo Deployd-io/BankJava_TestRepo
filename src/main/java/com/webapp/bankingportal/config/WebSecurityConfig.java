@@ -54,11 +54,13 @@ public class WebSecurityConfig {
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		log.debug(">>> Entering configureGlobal(auth={})", auth);
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
+		log.debug("<<< Exiting configureGlobal(auth={})", auth);
     }
 
     @Bean
     PasswordEncoder passwordEncoder() {
 		log.debug(">>> Entering passwordEncoder()");
+		log.debug("<<< Exiting passwordEncoder()");
         return new BCryptPasswordEncoder();
     }
 
@@ -67,6 +69,7 @@ public class WebSecurityConfig {
             AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
 			log.debug(">>> Entering authenticationManager()");
+		log.debug("<<< Exiting authenticationManager()");
         return authenticationConfiguration.getAuthenticationManager();
     }
 

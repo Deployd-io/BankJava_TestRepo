@@ -32,6 +32,7 @@ public class DashboardServiceImpl implements DashboardService {
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 						log.info("getUserDetails(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
 
+		log.debug("<<< Exiting getUserDetails(accountNumber={})", accountNumber);
         return new UserResponse(user);
     }
 

@@ -40,6 +40,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 			log.debug(">>> Entering commence()");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		log.debug("commence(): response → {}", response);
+		log.debug("commence(): response → {}", response);
         response.getWriter().println("Access Denied !! " + authException.getMessage());
 		log.debug("<<< Exiting commence()");
     }

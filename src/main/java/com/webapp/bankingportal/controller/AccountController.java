@@ -37,7 +37,9 @@ public class AccountController {
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
 				log.debug("checkAccountPIN(): isPINValid → {}", isPINValid);
+				log.debug("checkAccountPIN(): isPINValid → {}", isPINValid);
 
+		log.debug("<<< Exiting checkAccountPIN()");
         return ResponseEntity.ok(response);
     }
 
@@ -49,6 +51,7 @@ public class AccountController {
                 pinRequest.password(),
                 pinRequest.pin());
 
+		log.debug("<<< Exiting createPIN(pinRequest={})", pinRequest);
         return ResponseEntity.ok(ApiMessages.PIN_CREATION_SUCCESS.getMessage());
     }
 
@@ -61,6 +64,7 @@ public class AccountController {
                 pinUpdateRequest.password(),
                 pinUpdateRequest.newPin());
 
+		log.debug("<<< Exiting updatePIN(pinUpdateRequest={})", pinUpdateRequest);
         return ResponseEntity.ok(ApiMessages.PIN_UPDATE_SUCCESS.getMessage());
     }
 
@@ -72,6 +76,7 @@ public class AccountController {
                 amountRequest.pin(),
                 amountRequest.amount());
 
+		log.debug("<<< Exiting cashDeposit(amountRequest={})", amountRequest);
         return ResponseEntity.ok(ApiMessages.CASH_DEPOSIT_SUCCESS.getMessage());
     }
 
@@ -83,6 +88,7 @@ public class AccountController {
                 amountRequest.pin(),
                 amountRequest.amount());
 
+		log.debug("<<< Exiting cashWithdrawal(amountRequest={})", amountRequest);
         return ResponseEntity.ok(ApiMessages.CASH_WITHDRAWAL_SUCCESS.getMessage());
     }
 
@@ -95,6 +101,7 @@ public class AccountController {
                 fundTransferRequest.pin(),
                 fundTransferRequest.amount());
 
+		log.debug("<<< Exiting fundTransfer(fundTransferRequest={})", fundTransferRequest);
         return ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
     }
 

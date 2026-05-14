@@ -50,12 +50,14 @@ public class AuthServiceImpl implements AuthService {
         passwordResetTokenRepository.save(resetToken);
 
 		log.debug("generatePasswordResetToken(user={}): resetToken → {}", user, resetToken);
+		log.debug("<<< Exiting generatePasswordResetToken(user={})", user);
         return token;
     }
 
     @Override
     public boolean verifyPasswordResetToken(String token, User user) {
 		log.debug(">>> Entering verifyPasswordResetToken(token={},user={})", token, user);
+		log.debug("<<< Exiting verifyPasswordResetToken(token={},user={})", token, user);
         return passwordResetTokenRepository.findByToken(token)
                 .map(resetToken -> {
                     deletePasswordResetToken(token);
@@ -68,6 +70,7 @@ public class AuthServiceImpl implements AuthService {
     public void deletePasswordResetToken(String token) {
 		log.debug(">>> Entering deletePasswordResetToken(token={})", token);
         passwordResetTokenRepository.deleteByToken(token);
+		log.debug("<<< Exiting deletePasswordResetToken(token={})", token);
     }
 
     @Override
@@ -78,6 +81,7 @@ public class AuthServiceImpl implements AuthService {
         val accountNumber = user.getAccount().getAccountNumber();
         val generatedOtp = otpService.generateOTP(accountNumber);
 
+		log.debug("<<< Exiting sendOtpForPasswordReset(otpRequest={})", otpRequest);
         return sendOtpEmail(user, accountNumber, generatedOtp);
     }
 
@@ -93,6 +97,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String resetToken = generatePasswordResetToken(user);
+		log.debug("<<< Exiting verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
         return ResponseEntity.ok(String.format(ApiMessages.PASSWORD_RESET_TOKEN_ISSUED.getMessage(), resetToken));
     }
 

@@ -23,6 +23,7 @@ public class LoggedinUser {
         val authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
 			log.debug("getAccountNumber(): authentication → {}", authentication);
+			log.debug("getAccountNumber(): authentication → {}", authentication);
             throw new NotFoundException("No user is currently logged in.");
         }
         val principal = (User) authentication.getPrincipal();

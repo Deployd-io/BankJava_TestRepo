@@ -47,6 +47,7 @@ public class UserController {
 			log.debug("registerUser(user={}): emailBody → {}", user, emailBody);
         }
 
+		log.debug("<<< Exiting registerUser(user={})", user);
         return response;
     }
 
@@ -62,6 +63,7 @@ public class UserController {
     @PostMapping("/generate-otp")
     public ResponseEntity<String> generateOtp(@RequestBody OtpRequest otpRequest) {
 		log.debug(">>> Entering generateOtp(otpRequest={})", otpRequest);
+		log.debug("<<< Exiting generateOtp(otpRequest={})", otpRequest);
         return userService.generateOtp(otpRequest);
     }
 
@@ -70,12 +72,14 @@ public class UserController {
             throws InvalidTokenException {
 			log.debug(">>> Entering verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
 
+		log.debug("<<< Exiting verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
         return userService.verifyOtpAndLogin(otpVerificationRequest);
     }
 
     @PostMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody User user) {
 		log.debug(">>> Entering updateUser(user={})", user);
+		log.debug("<<< Exiting updateUser(user={})", user);
         return userService.updateUser(user);
     }
 
