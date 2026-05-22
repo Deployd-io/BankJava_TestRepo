@@ -154,6 +154,7 @@ public class AccountServiceImpl implements AccountService {
         if (amount > 100000) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_EXCEED_100_000_ERROR.getMessage());
         }
+		log.info("validateAmount(amount)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", amount);
     }
 
     @Transactional

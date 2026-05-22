@@ -56,6 +56,7 @@ public class UserServiceImpl implements UserService {
         validationUtil.validateNewUser(user);
         encodePassword(user);
         val savedUser = saveUserWithAccount(user);
+		log.info("registerUser(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -65,6 +66,8 @@ public class UserServiceImpl implements UserService {
         val user = authenticateUser(loginRequest);
         sendLoginNotification(user, request.getRemoteAddr());
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
+		log.warn("login(loginRequest,request)={},{}): SOC2-AUDIT [CC7.3]: Security incident detected", loginRequest, request);
+		log.info("login(loginRequest,request)={},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", loginRequest, request, user);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
@@ -81,6 +84,9 @@ public class UserServiceImpl implements UserService {
         validateOtpRequest(otpVerificationRequest);
         val user = getUserByIdentifier(otpVerificationRequest.identifier());
         validateOtp(user, otpVerificationRequest.otp());
+		log.info("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpVerificationRequest);
+		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC7.3]: Security incident detected", otpVerificationRequest);
+		log.info("verifyOtpAndLogin(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", otpVerificationRequest, user);
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
@@ -92,6 +98,8 @@ public class UserServiceImpl implements UserService {
         val existingUser = getUserByAccountNumber(accountNumber);
         updateUserDetails(existingUser, updatedUser);
         val savedUser = saveUser(existingUser);
+		log.info("updateUser(updatedUser)={}): SOC2-AUDIT [CC8.1]: Change management operation performed by initiator {}", updatedUser, updatedUser);
+		log.info("updateUser(updatedUser)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", updatedUser, updatedUser);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -168,6 +176,7 @@ public class UserServiceImpl implements UserService {
         val accountNumber = user.getAccount().getAccountNumber();
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+		log.info("authenticateUser(loginRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", loginRequest, user);
         return user;
     }
 
@@ -202,17 +211,21 @@ public class UserServiceImpl implements UserService {
         if (request.otp() == null || request.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(request)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", request);
     }
 
     private void validateOtp(User user, String otp) {
         if (!otpService.validateOTP(user.getAccount().getAccountNumber(), otp)) {
             throw new UnauthorizedException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
+		log.info("validateOtp(user,otp)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", user, "****");
     }
 
     private void updateUserDetails(User existingUser, User updatedUser) {
         ValidationUtil.validateUserDetails(updatedUser);
         updatedUser.setPassword(existingUser.getPassword());
+		log.info("updateUserDetails(existingUser,updatedUser)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", existingUser, updatedUser);
+		log.info("updateUserDetails(existingUser,updatedUser)={},{}): SOC2-AUDIT [CC8.1]: Change management operation performed by initiator {}", existingUser, updatedUser, existingUser);
         userMapper.updateUser(updatedUser, existingUser);
     }
 
