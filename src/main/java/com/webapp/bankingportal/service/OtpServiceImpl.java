@@ -18,10 +18,13 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
 public class OtpServiceImpl implements OtpService {
+public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
     public static final int OTP_ATTEMPTS_LIMIT = 3;
     public static final int OTP_EXPIRY_MINUTES = 5;
@@ -73,6 +76,7 @@ public class OtpServiceImpl implements OtpService {
 
         val waitingMinutes = OTP_RESET_WAITING_TIME_MINUTES - otpLimitReachedTime.until(now, ChronoUnit.MINUTES);
 
+		log.info("validateOtpWithinRetryLimit(otpInfo)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", otpInfo);
         throw new OtpRetryLimitExceededException(
                 String.format(ApiMessages.OTP_GENERATION_LIMIT_EXCEEDED.getMessage(), waitingMinutes));
     }

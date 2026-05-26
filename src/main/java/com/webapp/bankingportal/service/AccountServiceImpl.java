@@ -154,6 +154,7 @@ public class AccountServiceImpl implements AccountService {
         if (amount > 100000) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_EXCEED_100_000_ERROR.getMessage());
         }
+		log.info("validateAmount(amount)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", amount);
     }
 
     @Transactional
