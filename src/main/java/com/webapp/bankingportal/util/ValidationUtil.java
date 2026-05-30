@@ -44,10 +44,12 @@ public class ValidationUtil {
     }
 
     public static boolean isValidCountryCode(String countryCode) {
+		log.debug(">>> Entering isValidCountryCode(countryCode={})", countryCode);
         if (!phoneNumberUtil.getSupportedRegions().contains(countryCode)) {
             return false;
         }
 
+		log.debug("<<< Exiting isValidCountryCode(countryCode={})", countryCode);
         return true;
     }
 
@@ -118,6 +120,7 @@ public class ValidationUtil {
     }
 
     public static void validateUserDetailsNotEmpty(User user) {
+		log.debug(">>> Entering validateUserDetailsNotEmpty(user={})", "****");
         if (user == null) {
             throw new UserInvalidException(ApiMessages.USER_DETAILS_EMPTY_ERROR.getMessage());
         }
@@ -145,9 +148,11 @@ public class ValidationUtil {
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new UserInvalidException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
+		log.debug("<<< Exiting validateUserDetailsNotEmpty(user={})", "****");
     }
 
     public static void validateUserDetails(User user) {
+		log.debug(">>> Entering validateUserDetails(user={})", "****");
         validateUserDetailsNotEmpty(user);
 
         if (!isValidEmail(user.getEmail())) {
@@ -163,9 +168,11 @@ public class ValidationUtil {
         }
 
         validatePassword(user.getPassword());
+		log.debug("<<< Exiting validateUserDetails(user={})", "****");
     }
 
     public void validateNewUser(User user) {
+		log.debug(">>> Entering validateNewUser(user={})", "****");
         validateUserDetails(user);
         if (doesEmailExist(user.getEmail())) {
             throw new UserInvalidException(ApiMessages.USER_EMAIL_ALREADY_EXISTS_ERROR.getMessage());
@@ -173,6 +180,7 @@ public class ValidationUtil {
         if (doesPhoneNumberExist(user.getPhoneNumber())) {
             throw new UserInvalidException(ApiMessages.USER_PHONE_NUMBER_ALREADY_EXISTS_ERROR.getMessage());
         }
+		log.debug("<<< Exiting validateNewUser(user={})", "****");
     }
 
     public boolean doesAccountExist(String accountNumber) {
