@@ -8,6 +8,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class implements the AuthenticationEntryPoint interface to handle
@@ -17,6 +19,7 @@ import java.io.IOException;
  */
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public static final Logger log = LoggerFactory.getLogger(JwtAuthenticationEntryPoint.class);
 
     /**
      * This method is called when an unauthenticated user tries to access a secured
@@ -35,8 +38,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
+			log.debug(">>> Entering commence()");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		log.debug("commence(): response → {}", response);
         response.getWriter().println("Access Denied !! " + authException.getMessage());
+		log.debug("<<< Exiting commence()");
     }
 
 }
