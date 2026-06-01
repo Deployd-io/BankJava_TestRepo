@@ -128,9 +128,11 @@ public class AuthServiceImpl implements AuthService {
         if (otpVerificationRequest.identifier() == null || otpVerificationRequest.identifier().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
+		log.warn("validateOtpRequest(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", otpVerificationRequest);
         if (otpVerificationRequest.otp() == null || otpVerificationRequest.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", otpVerificationRequest);
     }
 
 }

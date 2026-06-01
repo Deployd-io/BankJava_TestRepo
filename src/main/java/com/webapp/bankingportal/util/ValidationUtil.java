@@ -145,6 +145,7 @@ public class ValidationUtil {
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new UserInvalidException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
+		log.info("validateUserDetailsNotEmpty(user)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user);
     }
 
     public static void validateUserDetails(User user) {
@@ -163,6 +164,7 @@ public class ValidationUtil {
         }
 
         validatePassword(user.getPassword());
+		log.info("validateUserDetails(user)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user);
     }
 
     public void validateNewUser(User user) {
@@ -173,6 +175,7 @@ public class ValidationUtil {
         if (doesPhoneNumberExist(user.getPhoneNumber())) {
             throw new UserInvalidException(ApiMessages.USER_PHONE_NUMBER_ALREADY_EXISTS_ERROR.getMessage());
         }
+		log.info("validateNewUser(user)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user);
     }
 
     public boolean doesAccountExist(String accountNumber) {

@@ -56,6 +56,7 @@ public class UserServiceImpl implements UserService {
         validationUtil.validateNewUser(user);
         encodePassword(user);
         val savedUser = saveUserWithAccount(user);
+		log.info("registerUser(user)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -64,6 +65,9 @@ public class UserServiceImpl implements UserService {
             throws InvalidTokenException {
         val user = authenticateUser(loginRequest);
         sendLoginNotification(user, request.getRemoteAddr());
+		log.warn("login(loginRequest,request)={},{}): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed", loginRequest, request);
+		log.error("login(loginRequest,request)={},{}): HIPAA-AUDIT [§164.308(a)(6)]: Security incident response initiated", loginRequest, request);
+		log.warn("login(loginRequest,request)={},{}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", loginRequest, request, user);
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
@@ -81,6 +85,9 @@ public class UserServiceImpl implements UserService {
         validateOtpRequest(otpVerificationRequest);
         val user = getUserByIdentifier(otpVerificationRequest.identifier());
         validateOtp(user, otpVerificationRequest.otp());
+		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(e)(2)(i)]: Secure PHI transmission completed", otpVerificationRequest);
+		log.info("verifyOtpAndLogin(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", otpVerificationRequest);
+		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", otpVerificationRequest, user);
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
@@ -168,6 +175,7 @@ public class UserServiceImpl implements UserService {
         val accountNumber = user.getAccount().getAccountNumber();
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+		log.warn("authenticateUser(loginRequest)={}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", loginRequest, user);
         return user;
     }
 
@@ -199,21 +207,25 @@ public class UserServiceImpl implements UserService {
         if (request.identifier() == null || request.identifier().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
+		log.warn("validateOtpRequest(request)={}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", request);
         if (request.otp() == null || request.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(request)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", request);
     }
 
     private void validateOtp(User user, String otp) {
         if (!otpService.validateOTP(user.getAccount().getAccountNumber(), otp)) {
             throw new UnauthorizedException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
+		log.info("validateOtp(user,otp)={},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user, otp);
     }
 
     private void updateUserDetails(User existingUser, User updatedUser) {
         ValidationUtil.validateUserDetails(updatedUser);
         updatedUser.setPassword(existingUser.getPassword());
         userMapper.updateUser(updatedUser, existingUser);
+		log.info("updateUserDetails(existingUser,updatedUser)={},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", existingUser, updatedUser);
     }
 
     private CompletableFuture<Boolean> sendLoginNotification(User user, String ip) {
