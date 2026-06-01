@@ -12,10 +12,13 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
+public static final Logger log = LoggerFactory.getLogger(DashboardServiceImpl.class);
 @Autowired
     private final UserRepository userRepository;
 @Autowired
@@ -26,6 +29,7 @@ public class DashboardServiceImpl implements DashboardService {
         val user = userRepository.findByAccountAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
+				long start = System.currentTimeMillis();
 
         return new UserResponse(user);
     }
@@ -33,6 +37,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public AccountResponse getAccountDetails(String accountNumber) {
         val account = accountRepository.findByAccountNumber(accountNumber);
+		long start = System.currentTimeMillis();
         if (account == null) {
             throw new NotFoundException(String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber));
         }
