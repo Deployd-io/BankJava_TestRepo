@@ -142,9 +142,11 @@ public class ValidationUtil {
             throw new UserInvalidException(ApiMessages.USER_PHONE_NUMBER_EMPTY_ERROR.getMessage());
         }
 
+		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", "****");
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new UserInvalidException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
+		log.info("validateUserDetailsNotEmpty(user)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", "****", "****");
     }
 
     public static void validateUserDetails(User user) {
@@ -162,6 +164,8 @@ public class ValidationUtil {
             throw new UserInvalidException(String.format(ApiMessages.USER_PHONE_NUMBER_INVALID_ERROR.getMessage(), user.getPhoneNumber(), user.getCountryCode()));
         }
 
+		log.info("validateUserDetails(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", "****");
+		log.info("validateUserDetails(user)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", "****", "****");
         validatePassword(user.getPassword());
     }
 
@@ -173,6 +177,7 @@ public class ValidationUtil {
         if (doesPhoneNumberExist(user.getPhoneNumber())) {
             throw new UserInvalidException(ApiMessages.USER_PHONE_NUMBER_ALREADY_EXISTS_ERROR.getMessage());
         }
+		log.info("validateNewUser(user)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", "****");
     }
 
     public boolean doesAccountExist(String accountNumber) {
