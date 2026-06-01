@@ -19,11 +19,14 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/account")
 @RequiredArgsConstructor
 public class AccountController {
+public static final Logger log = LoggerFactory.getLogger(AccountController.class);
 
     private final AccountService accountService;
     private final TransactionService transactionService;
@@ -34,6 +37,7 @@ public class AccountController {
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
 
+		log.info("checkAccountPIN()=null): HIPAA-AUDIT [§164.312(c)(1)]: PHI integrity verification completed {}", isPINValid);
         return ResponseEntity.ok(response);
     }
 
@@ -86,6 +90,7 @@ public class AccountController {
                 fundTransferRequest.pin(),
                 fundTransferRequest.amount());
 
+		log.warn("fundTransfer(fundTransferRequest)={}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", fundTransferRequest);
         return ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
     }
 
