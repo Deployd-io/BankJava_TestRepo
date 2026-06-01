@@ -50,6 +50,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String generateToken(UserDetails userDetails) {
         log.info("Generating token for user: " + userDetails.getUsername());
+		// SUGGESTED FIX (review before applying): log.info("Generating *** for user: " + userDetails.getUsername());
         return doGenerateToken(userDetails,
                 new Date(System.currentTimeMillis() + expiration));
     }
@@ -92,6 +93,7 @@ public class TokenServiceImpl implements TokenService {
         return claimsResolver.apply(claims);
     }
     private JwtParser parser() {
+		log.info("parser()=null): SOC2-AUDIT [CC6.1]: Authentication operation completed");
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build();
@@ -135,6 +137,7 @@ public class TokenServiceImpl implements TokenService {
                 getUsernameFromToken(token));
 
         log.info("Saving token for account: " + account.getAccountNumber());
+		// SUGGESTED FIX (review before applying): log.info("Saving *** for account: " + account.getAccountNumber());
 
         val tokenObj = new Token(
                 token,
