@@ -39,16 +39,20 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account createAccount(User user) {
+		log.debug(">>> Entering createAccount(user={})", user);
         val account = new Account();
         account.setAccountNumber(generateUniqueAccountNumber());
+		log.debug("createAccount(user={}): account → {}", user, account);
         account.setBalance(0.0);
         account.setUser(user);
+		log.debug("<<< Exiting createAccount(user={})", user);
         return accountRepository.save(account);
     }
 
     @Override
     public boolean isPinCreated(String accountNumber) {
         val account = accountRepository.findByAccountNumber(accountNumber);
+		long start = System.currentTimeMillis();
         if (account == null) {
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
@@ -58,6 +62,7 @@ public class AccountServiceImpl implements AccountService {
 
     private String generateUniqueAccountNumber() {
         String accountNumber;
+		long start = System.currentTimeMillis();
         do {
             // Generate a UUID as the account number
             accountNumber = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 6);
@@ -68,6 +73,7 @@ public class AccountServiceImpl implements AccountService {
 
     private void validatePin(String accountNumber, String pin) {
         val account = accountRepository.findByAccountNumber(accountNumber);
+		long start = System.currentTimeMillis();
         if (account == null) {
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
@@ -87,6 +93,7 @@ public class AccountServiceImpl implements AccountService {
 
     private void validatePassword(String accountNumber, String password) {
         val account = accountRepository.findByAccountNumber(accountNumber);
+		long start = System.currentTimeMillis();
         if (account == null) {
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
@@ -103,6 +110,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void createPin(String accountNumber, String password, String pin) {
         validatePassword(accountNumber, password);
+		long start = System.currentTimeMillis();
 
         val account = accountRepository.findByAccountNumber(accountNumber);
         if (account.getPin() != null) {
@@ -124,6 +132,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void updatePin(String accountNumber, String oldPin, String password, String newPin) {
         log.info("Updating PIN for account: {}", accountNumber);
+		long start = System.currentTimeMillis();
 
         validatePassword(accountNumber, password);
         validatePin(accountNumber, oldPin);
@@ -143,6 +152,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private void validateAmount(double amount) {
+		log.debug(">>> Entering validateAmount(amount={})", amount);
         if (amount <= 0) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_NEGATIVE_ERROR.getMessage());
         }
@@ -154,12 +164,14 @@ public class AccountServiceImpl implements AccountService {
         if (amount > 100000) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_EXCEED_100_000_ERROR.getMessage());
         }
+		log.debug("<<< Exiting validateAmount(amount={})", amount);
     }
 
     @Transactional
     @Override
     public void cashDeposit(String accountNumber, String pin, double amount) {
         validatePin(accountNumber, pin);
+		long start = System.currentTimeMillis();
         validateAmount(amount);
 
         val account = accountRepository.findByAccountNumber(accountNumber);
@@ -180,6 +192,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void cashWithdrawal(String accountNumber, String pin, double amount) {
         validatePin(accountNumber, pin);
+		long start = System.currentTimeMillis();
         validateAmount(amount);
 
         val account = accountRepository.findByAccountNumber(accountNumber);
@@ -204,6 +217,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void fundTransfer(String sourceAccountNumber, String targetAccountNumber, String pin, double amount) {
         validatePin(sourceAccountNumber, pin);
+		long start = System.currentTimeMillis();
         validateAmount(amount);
 
         if (sourceAccountNumber.equals(targetAccountNumber)) {

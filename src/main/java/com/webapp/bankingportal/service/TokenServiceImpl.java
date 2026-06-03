@@ -60,7 +60,9 @@ public class TokenServiceImpl implements TokenService {
         return doGenerateToken(userDetails, expiry);
     }
     private Key key() {
+		log.debug(">>> Entering key()");
         byte[] keyBytes = Decoders.BASE64.decode(secret);
+		log.debug("<<< Exiting key()");
         return Keys.hmacShaKeyFor(keyBytes);
     }
     private String doGenerateToken(UserDetails userDetails, Date expiry) {
@@ -75,6 +77,7 @@ public class TokenServiceImpl implements TokenService {
         val user = userRepository.findByAccountAccountNumber(accountNumber)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
+				long start = System.currentTimeMillis();
 
         return withUsername(accountNumber).password(user.getPassword()).build();
     }
@@ -92,6 +95,8 @@ public class TokenServiceImpl implements TokenService {
         return claimsResolver.apply(claims);
     }
     private JwtParser parser() {
+		log.debug(">>> Entering parser()");
+		log.debug("<<< Exiting parser()");
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build();
@@ -130,6 +135,7 @@ public class TokenServiceImpl implements TokenService {
         if (tokenRepository.findByToken(token) != null) {
             throw new InvalidTokenException(ApiMessages.TOKEN_ALREADY_EXISTS_ERROR.getMessage());
         }
+		long start = System.currentTimeMillis();
 
         val account = accountRepository.findByAccountNumber(
                 getUsernameFromToken(token));
@@ -146,6 +152,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void validateToken(String token) throws InvalidTokenException {
+	long start = System.currentTimeMillis();
         if (tokenRepository.findByToken(token) == null) {
             throw new InvalidTokenException(ApiMessages.TOKEN_NOT_FOUND_ERROR.getMessage());
         }
@@ -154,6 +161,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     @Transactional
     public void invalidateToken(String token) {
+	long start = System.currentTimeMillis();
         if (tokenRepository.findByToken(token) != null) {
             tokenRepository.deleteByToken(token);
         }

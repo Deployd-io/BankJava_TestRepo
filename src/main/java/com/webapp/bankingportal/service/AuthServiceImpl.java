@@ -34,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String generatePasswordResetToken(User user) {
         val existingToken = passwordResetTokenRepository.findByUser(user);
+		long start = System.currentTimeMillis();
         if (isExistingTokenValid(existingToken)) {
             return existingToken.getToken();
         }
@@ -58,6 +59,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void deletePasswordResetToken(String token) {
+		long start = System.currentTimeMillis();
         passwordResetTokenRepository.deleteByToken(token);
     }
 
@@ -125,12 +127,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void validateOtpRequest(OtpVerificationRequest otpVerificationRequest) {
+		log.debug(">>> Entering validateOtpRequest(otpVerificationRequest={})", otpVerificationRequest);
         if (otpVerificationRequest.identifier() == null || otpVerificationRequest.identifier().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
         if (otpVerificationRequest.otp() == null || otpVerificationRequest.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.debug("<<< Exiting validateOtpRequest(otpVerificationRequest={})", otpVerificationRequest);
     }
 
 }
