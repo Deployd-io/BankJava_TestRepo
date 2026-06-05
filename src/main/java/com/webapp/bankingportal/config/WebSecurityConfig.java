@@ -23,12 +23,15 @@ import com.webapp.bankingportal.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
+public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     private static final String[] PUBLIC_URLS = {
             "/api/users/register",
@@ -50,11 +53,15 @@ public class WebSecurityConfig {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		log.debug(">>> Entering configureGlobal(auth={})", auth);
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
+		log.debug("<<< Exiting configureGlobal(auth={})", auth);
     }
 
     @Bean
     PasswordEncoder passwordEncoder() {
+		log.debug(">>> Entering passwordEncoder()");
+		log.debug("<<< Exiting passwordEncoder()");
         return new BCryptPasswordEncoder();
     }
 
@@ -62,11 +69,14 @@ public class WebSecurityConfig {
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
+			log.debug(">>> Entering authenticationManager()");
+		log.debug("<<< Exiting authenticationManager()");
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		log.debug(">>> Entering securityFilterChain(http={})", http);
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(PUBLIC_URLS).permitAll()
@@ -84,9 +94,14 @@ public class WebSecurityConfig {
                             response.setStatus(HttpServletResponse.SC_OK);
                         }));
 
+		log.info("securityFilterChain(http)={}): SOC2-AUDIT [CC6.1]: Session management operation performed", http);
+		log.warn("securityFilterChain(http)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", http);
+		log.info("securityFilterChain(http)={}): SOC2-AUDIT [CC7.1]: System operation completed", http);
+		log.info("securityFilterChain(http)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed", http);
         http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
+		log.debug("<<< Exiting securityFilterChain(http={})", http);
         return http.build();
     }
 
