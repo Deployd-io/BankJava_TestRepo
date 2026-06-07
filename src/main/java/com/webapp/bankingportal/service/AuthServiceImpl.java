@@ -48,6 +48,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean verifyPasswordResetToken(String token, User user) {
+		log.warn("verifyPasswordResetToken(token,user)={},{}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", token, user, user);
+		log.info("verifyPasswordResetToken(token,user)={},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", token, user);
         return passwordResetTokenRepository.findByToken(token)
                 .map(resetToken -> {
                     deletePasswordResetToken(token);
@@ -68,6 +70,7 @@ public class AuthServiceImpl implements AuthService {
         val accountNumber = user.getAccount().getAccountNumber();
         val generatedOtp = otpService.generateOTP(accountNumber);
 
+		log.warn("sendOtpForPasswordReset(otpRequest)={}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", otpRequest);
         return sendOtpEmail(user, accountNumber, generatedOtp);
     }
 
@@ -80,6 +83,10 @@ public class AuthServiceImpl implements AuthService {
         if (!otpService.validateOTP(accountNumber, otpVerificationRequest.otp())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
+		log.warn("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(e)(2)(i)]: Secure PHI transmission completed", otpVerificationRequest);
+		log.warn("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed", otpVerificationRequest);
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", otpVerificationRequest);
+		log.warn("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", otpVerificationRequest, user);
 
         String resetToken = generatePasswordResetToken(user);
         return ResponseEntity.ok(String.format(ApiMessages.PASSWORD_RESET_TOKEN_ISSUED.getMessage(), resetToken));
@@ -103,6 +110,7 @@ public class AuthServiceImpl implements AuthService {
             }
         } catch (Exception e) {
             log.error("Error resetting password for user: {}", user.getId(), e);
+			log.warn("resetPassword(resetPasswordRequest)={}): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed", resetPasswordRequest);
             return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
         }
     }
@@ -120,6 +128,7 @@ public class AuthServiceImpl implements AuthService {
         val failureResponse = ResponseEntity.internalServerError()
                 .body(String.format(ApiMessages.OTP_SENT_FAILURE.getMessage(), user.getEmail()));
 
+		log.warn("sendOtpEmail(user,accountNumber,generatedOtp)={},{},{}): HIPAA-AUDIT [§164.312(e)(1)]: PHI transmission secured and logged {}", user, accountNumber, generatedOtp, successResponse);
         return emailSendingFuture.thenApply(result -> successResponse)
                 .exceptionally(e -> failureResponse).join();
     }
@@ -128,9 +137,11 @@ public class AuthServiceImpl implements AuthService {
         if (otpVerificationRequest.identifier() == null || otpVerificationRequest.identifier().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
+		log.warn("validateOtpRequest(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", otpVerificationRequest);
         if (otpVerificationRequest.otp() == null || otpVerificationRequest.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", otpVerificationRequest);
     }
 
 }

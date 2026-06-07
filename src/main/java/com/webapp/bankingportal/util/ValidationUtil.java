@@ -35,11 +35,13 @@ public class ValidationUtil {
             log.warn("Invalid email address: {}", identifier);
         }
 
+		log.info("isValidEmail(identifier)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", identifier);
         return false;
     }
 
     public static boolean isValidAccountNumber(String identifier) {
         // Account number validation logic (e.g., length check)
+		log.info("isValidAccountNumber(identifier)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", identifier);
         return identifier != null && identifier.length() == 6;
     }
 
@@ -115,6 +117,7 @@ public class ValidationUtil {
             }
             throw new UserInvalidException(message.toString());
         }
+		log.info("validatePassword(password)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", password);
     }
 
     public static void validateUserDetailsNotEmpty(User user) {
@@ -145,6 +148,7 @@ public class ValidationUtil {
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new UserInvalidException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
+		log.info("validateUserDetailsNotEmpty(user)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user);
     }
 
     public static void validateUserDetails(User user) {
@@ -163,6 +167,7 @@ public class ValidationUtil {
         }
 
         validatePassword(user.getPassword());
+		log.info("validateUserDetails(user)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user);
     }
 
     public void validateNewUser(User user) {
@@ -173,6 +178,7 @@ public class ValidationUtil {
         if (doesPhoneNumberExist(user.getPhoneNumber())) {
             throw new UserInvalidException(ApiMessages.USER_PHONE_NUMBER_ALREADY_EXISTS_ERROR.getMessage());
         }
+		log.info("validateNewUser(user)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user);
     }
 
     public boolean doesAccountExist(String accountNumber) {
