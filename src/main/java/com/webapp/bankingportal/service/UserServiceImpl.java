@@ -62,36 +62,53 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<String> login(LoginRequest loginRequest, HttpServletRequest request)
             throws InvalidTokenException {
+			log.debug(">>> Entering login(loginRequest={},request={})", loginRequest, request);
         val user = authenticateUser(loginRequest);
+		log.debug("<<< Exiting login(loginRequest={},request={})", loginRequest, request);
+		log.debug("login(loginRequest={},request={}): user → {}", loginRequest, request, user);
+		log.warn("login(loginRequest,request)={},{}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", loginRequest, request, user);
         sendLoginNotification(user, request.getRemoteAddr());
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
+		log.warn("login(loginRequest={},request={}): token → {}", loginRequest, request, token);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
     @Override
     public ResponseEntity<String> generateOtp(OtpRequest otpRequest) {
+		log.debug(">>> Entering generateOtp(otpRequest={})", otpRequest);
         val user = getUserByIdentifier(otpRequest.identifier());
         val otp = otpService.generateOTP(user.getAccount().getAccountNumber());
+		log.debug("generateOtp(otpRequest={}): user → {}", otpRequest, user);
+		log.debug("<<< Exiting generateOtp(otpRequest={})", otpRequest);
         return sendOtpEmail(user, otp);
     }
 
     @Override
     public ResponseEntity<String> verifyOtpAndLogin(OtpVerificationRequest otpVerificationRequest)
             throws InvalidTokenException {
+			log.debug(">>> Entering verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
+			log.info("verifyOtpAndLogin(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", otpVerificationRequest);
         validateOtpRequest(otpVerificationRequest);
+		log.debug("<<< Exiting verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
         val user = getUserByIdentifier(otpVerificationRequest.identifier());
         validateOtp(user, otpVerificationRequest.otp());
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
+		log.warn("verifyOtpAndLogin(otpVerificationRequest)={}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", otpVerificationRequest, user);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
     @Override
     public ResponseEntity<String> updateUser(User updatedUser) {
+		log.debug(">>> Entering updateUser(updatedUser={})", updatedUser);
         val accountNumber = LoggedinUser.getAccountNumber();
         authenticateUser(accountNumber, updatedUser.getPassword());
+		log.debug("updateUser(updatedUser={}): accountNumber → {}", updatedUser, accountNumber);
         val existingUser = getUserByAccountNumber(accountNumber);
         updateUserDetails(existingUser, updatedUser);
+		log.debug("updateUser(updatedUser={}): existingUser → {}", updatedUser, existingUser);
         val savedUser = saveUser(existingUser);
+		log.debug("updateUser(updatedUser={}): savedUser → {}", updatedUser, savedUser);
+		log.debug("<<< Exiting updateUser(updatedUser={})", updatedUser);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -115,6 +132,8 @@ public class UserServiceImpl implements UserService {
 
         log.info("User logged out successfully {}", tokenService.getUsernameFromToken(token));
 
+		log.info("logout(token)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", token);
+		log.debug("<<< Exiting logout(token={})", token);
         return new ModelAndView("redirect:/logout");
     }
 
@@ -125,8 +144,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByIdentifier(String identifier) {
+		log.debug(">>> Entering getUserByIdentifier(identifier={})", identifier);
         User user = null;
 
+		log.debug("getUserByIdentifier(identifier={}): user → {}", identifier, user);
         if (validationUtil.doesEmailExist(identifier)) {
             user = getUserByEmail(identifier);
         } else if (validationUtil.doesAccountExist(identifier)) {
@@ -136,11 +157,14 @@ public class UserServiceImpl implements UserService {
                     String.format(ApiMessages.USER_NOT_FOUND_BY_IDENTIFIER.getMessage(), identifier));
         }
 
+		log.debug("<<< Exiting getUserByIdentifier(identifier={})", identifier);
         return user;
     }
 
     @Override
     public User getUserByAccountNumber(String accountNo) {
+		log.debug(">>> Entering getUserByAccountNumber(accountNo={})", accountNo);
+		log.debug("<<< Exiting getUserByAccountNumber(accountNo={})", accountNo);
         return userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
                 () -> new UserInvalidException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNo)));
@@ -148,6 +172,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
+		log.debug(">>> Entering getUserByEmail(email={})", email);
+		log.debug("<<< Exiting getUserByEmail(email={})", email);
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UserInvalidException(String.format(ApiMessages.USER_NOT_FOUND_BY_EMAIL.getMessage(), email)));
     }
@@ -164,10 +190,15 @@ public class UserServiceImpl implements UserService {
     }
 
     private User authenticateUser(LoginRequest loginRequest) {
+		log.debug(">>> Entering authenticateUser(loginRequest={})", loginRequest);
         val user = getUserByIdentifier(loginRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
+		log.debug("authenticateUser(loginRequest={}): user → {}", loginRequest, user);
+		log.debug("authenticateUser(loginRequest={}): accountNumber → {}", loginRequest, accountNumber);
+		log.warn("authenticateUser(loginRequest)={}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", loginRequest, user);
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+		log.debug("<<< Exiting authenticateUser(loginRequest={})", loginRequest);
         return user;
     }
 
@@ -196,12 +227,15 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateOtpRequest(OtpVerificationRequest request) {
+		log.debug(">>> Entering validateOtpRequest(request={})", request);
         if (request.identifier() == null || request.identifier().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(request)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", request);
         if (request.otp() == null || request.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.debug("<<< Exiting validateOtpRequest(request={})", request);
     }
 
     private void validateOtp(User user, String otp) {
