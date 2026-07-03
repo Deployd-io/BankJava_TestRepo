@@ -40,7 +40,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
     @Override
     public String generateOTP(String accountNumber) {
-		log.debug(">>> Entering generateOTP(accountNumber={})", accountNumber);
+		log.info(">>> Entering generateOTP(accountNumber={})", accountNumber);
 		long start = System.currentTimeMillis();
         if (!validationUtil.doesAccountExist(accountNumber)) {
             throw new AccountDoesNotExistException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
@@ -48,7 +48,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
         val existingOtpInfo = otpInfoRepository.findByAccountNumber(accountNumber);
         if (existingOtpInfo == null) {
-			log.debug("generateOTP(accountNumber={}): existingOtpInfo → {}", accountNumber, existingOtpInfo);
+			log.info("generateOTP(accountNumber={}): existingOtpInfo → {}", accountNumber, existingOtpInfo);
             incrementOtpAttempts(accountNumber);
             return generateNewOTP(accountNumber);
         }
@@ -64,7 +64,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
         existingOtpInfo.setGeneratedAt(LocalDateTime.now());
         incrementOtpAttempts(accountNumber);
 
-		log.debug("<<< Exiting generateOTP(accountNumber={})", accountNumber);
+		log.info("<<< Exiting generateOTP(accountNumber={})", accountNumber);
         return existingOtpInfo.getOtp();
     }
 
@@ -81,7 +81,7 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
         val waitingMinutes = OTP_RESET_WAITING_TIME_MINUTES - otpLimitReachedTime.until(now, ChronoUnit.MINUTES);
 
-				log.debug("<<< Exiting validateOtpWithinRetryLimit(otpInfo={})", otpInfo);
+				log.info("<<< Exiting validateOtpWithinRetryLimit(otpInfo={})", otpInfo);
         throw new OtpRetryLimitExceededException(
                 String.format(ApiMessages.OTP_GENERATION_LIMIT_EXCEEDED.getMessage(), waitingMinutes));
     }
@@ -103,47 +103,47 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
     }
 
     private boolean isOtpResetWaitingTimeExceeded() {
-		log.debug(">>> Entering isOtpResetWaitingTimeExceeded()");
+		log.info(">>> Entering isOtpResetWaitingTimeExceeded()");
         val now = LocalDateTime.now();
-		log.debug("isOtpResetWaitingTimeExceeded(): now → {}", now);
-		log.debug("<<< Exiting isOtpResetWaitingTimeExceeded()");
+		log.info("isOtpResetWaitingTimeExceeded(): now → {}", now);
+		log.info("<<< Exiting isOtpResetWaitingTimeExceeded()");
         return otpLimitReachedTime != null
                 && otpLimitReachedTime.isBefore(now.minusMinutes(OTP_RESET_WAITING_TIME_MINUTES));
     }
 
     private void incrementOtpAttempts(String accountNumber) {
-		log.debug(">>> Entering incrementOtpAttempts(accountNumber={})", accountNumber);
+		log.info(">>> Entering incrementOtpAttempts(accountNumber={})", accountNumber);
         if (!validationUtil.doesAccountExist(accountNumber)) {
             throw new AccountDoesNotExistException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
 
         val cache = cacheManager.getCache("otpAttempts");
         if (cache != null) {
-			log.debug("incrementOtpAttempts(accountNumber={}): cache → {}", accountNumber, cache);
+			log.info("incrementOtpAttempts(accountNumber={}): cache → {}", accountNumber, cache);
             cache.put(accountNumber, getOtpAttempts(accountNumber) + 1);
         }
-		log.debug("<<< Exiting incrementOtpAttempts(accountNumber={})", accountNumber);
+		log.info("<<< Exiting incrementOtpAttempts(accountNumber={})", accountNumber);
     }
 
     private void resetOtpAttempts(String accountNumber) {
-		log.debug(">>> Entering resetOtpAttempts(accountNumber={})", accountNumber);
+		log.info(">>> Entering resetOtpAttempts(accountNumber={})", accountNumber);
         otpLimitReachedTime = null;
         val cache = cacheManager.getCache("otpAttempts");
-		log.debug("resetOtpAttempts(accountNumber={}): otpLimitReachedTime → {}", accountNumber, otpLimitReachedTime);
-		log.debug("resetOtpAttempts(accountNumber={}): cache → {}", accountNumber, cache);
+		log.info("resetOtpAttempts(accountNumber={}): otpLimitReachedTime → {}", accountNumber, otpLimitReachedTime);
+		log.info("resetOtpAttempts(accountNumber={}): cache → {}", accountNumber, cache);
         if (cache != null) {
             cache.put(accountNumber, 0);
         }
-		log.debug("<<< Exiting resetOtpAttempts(accountNumber={})", accountNumber);
+		log.info("<<< Exiting resetOtpAttempts(accountNumber={})", accountNumber);
     }
 
     private int getOtpAttempts(String accountNumber) {
-		log.debug(">>> Entering getOtpAttempts(accountNumber={})", accountNumber);
+		log.info(">>> Entering getOtpAttempts(accountNumber={})", accountNumber);
         var otpAttempts = 0;
         val cache = cacheManager.getCache("otpAttempts");
-		log.debug("getOtpAttempts(accountNumber={}): otpAttempts → {}", accountNumber, otpAttempts);
+		log.info("getOtpAttempts(accountNumber={}): otpAttempts → {}", accountNumber, otpAttempts);
         if (cache == null) {
-			log.debug("getOtpAttempts(accountNumber={}): cache → {}", accountNumber, cache);
+			log.info("getOtpAttempts(accountNumber={}): cache → {}", accountNumber, cache);
             return otpAttempts;
         }
 
@@ -152,22 +152,22 @@ public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
             otpAttempts = value;
         }
 
-		log.debug("<<< Exiting getOtpAttempts(accountNumber={})", accountNumber);
+		log.info("<<< Exiting getOtpAttempts(accountNumber={})", accountNumber);
         return otpAttempts;
     }
 
     private String generateNewOTP(String accountNumber) {
-		log.debug(">>> Entering generateNewOTP(accountNumber={})", accountNumber);
+		log.info(">>> Entering generateNewOTP(accountNumber={})", accountNumber);
         val random = new Random();
         val otpValue = 100_000 + random.nextInt(900_000);
-		log.debug("generateNewOTP(accountNumber={}): random → {}", accountNumber, random);
-		log.debug("generateNewOTP(accountNumber={}): otpValue → {}", accountNumber, otpValue);
+		log.info("generateNewOTP(accountNumber={}): random → {}", accountNumber, random);
+		log.info("generateNewOTP(accountNumber={}): otpValue → {}", accountNumber, otpValue);
         val otp = String.valueOf(otpValue);
 
-		log.debug("generateNewOTP(accountNumber={}): otp → {}", accountNumber, otp);
+		log.info("generateNewOTP(accountNumber={}): otp → {}", accountNumber, otp);
         otpInfoRepository.save(new OtpInfo(accountNumber, otp, LocalDateTime.now()));
 
-		log.debug("<<< Exiting generateNewOTP(accountNumber={})", accountNumber);
+		log.info("<<< Exiting generateNewOTP(accountNumber={})", accountNumber);
         return otp;
     }
 

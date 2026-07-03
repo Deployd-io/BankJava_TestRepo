@@ -7,7 +7,7 @@ public static final Logger log = LoggerFactory.getLogger(FundTransferException.c
 
     public FundTransferException(String message) {
         super(message);
-		log.debug(">>> Entering FundTransferException(message={})", message);
+		log.info(">>> Entering FundTransferException(message={})", message);
     }
 
 }

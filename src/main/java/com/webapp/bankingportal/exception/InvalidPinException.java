@@ -7,6 +7,6 @@ public static final Logger log = LoggerFactory.getLogger(InvalidPinException.cla
 
     public InvalidPinException(String message) {
         super(message);
-		log.debug(">>> Entering InvalidPinException(message={})", message);
+		log.info(">>> Entering InvalidPinException(message={})", message);
     }
 }

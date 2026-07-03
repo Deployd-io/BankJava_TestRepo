@@ -38,11 +38,11 @@ public static final Logger log = LoggerFactory.getLogger(JwtAuthenticationEntryP
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
-			log.debug(">>> Entering commence(request={},response={},authException={})", request, response, authException);
-			log.debug("commence(request={},response={},authException={}): response → {}", request, response, authException, response);
+			log.info(">>> Entering commence(request={},response={},authException={})", request, response, authException);
+			log.info("commence(request={},response={},authException={}): response → {}", request, response, authException, response);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().println("Access Denied !! " + authException.getMessage());
-		log.debug("<<< Exiting commence(request={},response={},authException={})", request, response, authException);
+		log.info("<<< Exiting commence(request={},response={},authException={})", request, response, authException);
     }
 
 }

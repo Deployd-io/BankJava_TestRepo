@@ -7,6 +7,6 @@ public static final Logger log = LoggerFactory.getLogger(NotFoundException.class
 
     public NotFoundException(String message) {
         super(message);
-		log.debug(">>> Entering NotFoundException(message={})", message);
+		log.info(">>> Entering NotFoundException(message={})", message);
     }
 }

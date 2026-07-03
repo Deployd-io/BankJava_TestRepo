@@ -21,10 +21,10 @@ public static final Logger log = LoggerFactory.getLogger(SwaggerConfig.class);
 
     @Bean
     public OpenAPI customOpenAPI() {
-		log.debug(">>> Entering customOpenAPI()");
+		log.info(">>> Entering customOpenAPI()");
         val securitySchemeName = "Bearer";
-		log.debug("customOpenAPI(): securitySchemeName → {}", securitySchemeName);
-		log.debug("<<< Exiting customOpenAPI()");
+		log.info("customOpenAPI(): securitySchemeName → {}", securitySchemeName);
+		log.info("<<< Exiting customOpenAPI()");
         return new OpenAPI()
                 .info(new Info().title("Banking Portal API")
                         .description("This is auth service use for validate the user.")

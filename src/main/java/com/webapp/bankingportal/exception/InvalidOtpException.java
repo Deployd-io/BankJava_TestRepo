@@ -7,6 +7,6 @@ public static final Logger log = LoggerFactory.getLogger(InvalidOtpException.cla
 
     public InvalidOtpException(String msg) {
         super(msg);
-		log.debug(">>> Entering InvalidOtpException(msg={})", msg);
+		log.info(">>> Entering InvalidOtpException(msg={})", msg);
     }
 }

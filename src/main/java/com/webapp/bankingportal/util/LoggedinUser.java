@@ -20,15 +20,15 @@ public static final Logger log = LoggerFactory.getLogger(LoggedinUser.class);
      * @throws NotFoundException If there is no user logged in.
      */
     public static String getAccountNumber() {
-		log.debug(">>> Entering getAccountNumber()");
+		log.info(">>> Entering getAccountNumber()");
         val authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-			log.debug("getAccountNumber(): authentication → {}", authentication);
+			log.info("getAccountNumber(): authentication → {}", authentication);
             throw new NotFoundException("No user is currently logged in.");
         }
         val principal = (User) authentication.getPrincipal();
-		log.debug("getAccountNumber(): principal → {}", principal);
-		log.debug("<<< Exiting getAccountNumber()");
+		log.info("getAccountNumber(): principal → {}", principal);
+		log.info("<<< Exiting getAccountNumber()");
         return principal.getUsername();
     }
 

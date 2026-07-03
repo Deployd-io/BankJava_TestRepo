@@ -7,6 +7,6 @@ public static final Logger log = LoggerFactory.getLogger(InvalidTokenException.c
 
     public InvalidTokenException(String message) {
         super(message);
-		log.debug(">>> Entering InvalidTokenException(message={})", message);
+		log.info(">>> Entering InvalidTokenException(message={})", message);
     }
 }

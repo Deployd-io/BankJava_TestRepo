@@ -7,6 +7,6 @@ public static final Logger log = LoggerFactory.getLogger(UnauthorizedException.c
 
     public UnauthorizedException(String message) {
         super(message);
-		log.debug(">>> Entering UnauthorizedException(message={})", message);
+		log.info(">>> Entering UnauthorizedException(message={})", message);
     }
 }

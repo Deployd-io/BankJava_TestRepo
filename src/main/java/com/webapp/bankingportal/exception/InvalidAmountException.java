@@ -7,6 +7,6 @@ public class InvalidAmountException extends RuntimeException {
     
     public InvalidAmountException(String message) {
         super(message);
-		log.debug(">>> Entering InvalidAmountException(message={})", message);
+		log.info(">>> Entering InvalidAmountException(message={})", message);
     }
 }

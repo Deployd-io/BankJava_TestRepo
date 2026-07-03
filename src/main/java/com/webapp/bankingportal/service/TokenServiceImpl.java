@@ -44,16 +44,16 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getUsernameFromToken(String token) throws InvalidTokenException {
-		log.debug(">>> Entering getUsernameFromToken(token={})", token);
-		log.debug("<<< Exiting getUsernameFromToken(token={})", token);
+		log.info(">>> Entering getUsernameFromToken(token={})", token);
+		log.info("<<< Exiting getUsernameFromToken(token={})", token);
         return getClaimFromToken(token, Claims::getSubject);
     }
 
     @Override
     public String generateToken(UserDetails userDetails) {
-		log.debug(">>> Entering generateToken(userDetails={})", userDetails);
+		log.info(">>> Entering generateToken(userDetails={})", userDetails);
         log.info("Generating token for user: " + userDetails.getUsername());
-		log.debug("<<< Exiting generateToken(userDetails={})", userDetails);
+		log.info("<<< Exiting generateToken(userDetails={})", userDetails);
         return doGenerateToken(userDetails,
                 new Date(System.currentTimeMillis() + expiration));
     }
@@ -64,14 +64,14 @@ public class TokenServiceImpl implements TokenService {
         return doGenerateToken(userDetails, expiry);
     }
     private Key key() {
-		log.debug(">>> Entering key()");
+		log.info(">>> Entering key()");
         byte[] keyBytes = Decoders.BASE64.decode(secret);
-		log.debug("<<< Exiting key()");
+		log.info("<<< Exiting key()");
         return Keys.hmacShaKeyFor(keyBytes);
     }
     private String doGenerateToken(UserDetails userDetails, Date expiry) {
-		log.debug(">>> Entering doGenerateToken(userDetails={},expiry={})", userDetails, expiry);
-		log.debug("<<< Exiting doGenerateToken(userDetails={},expiry={})", userDetails, expiry);
+		log.info(">>> Entering doGenerateToken(userDetails={},expiry={})", userDetails, expiry);
+		log.info("<<< Exiting doGenerateToken(userDetails={},expiry={})", userDetails, expiry);
         return Jwts.builder().setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(expiry)
@@ -80,20 +80,20 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public UserDetails loadUserByUsername(String accountNumber) throws UsernameNotFoundException {
-		log.debug(">>> Entering loadUserByUsername(accountNumber={})", accountNumber);
+		log.info(">>> Entering loadUserByUsername(accountNumber={})", accountNumber);
         val user = userRepository.findByAccountAccountNumber(accountNumber)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 
-		log.debug("<<< Exiting loadUserByUsername(accountNumber={})", accountNumber);
+		log.info("<<< Exiting loadUserByUsername(accountNumber={})", accountNumber);
         return withUsername(accountNumber).password(user.getPassword()).build();
     }
 
     @Override
     public Date getExpirationDateFromToken(String token)
             throws InvalidTokenException {
-			log.debug(">>> Entering getExpirationDateFromToken(token={})", token);
-		log.debug("<<< Exiting getExpirationDateFromToken(token={})", token);
+			log.info(">>> Entering getExpirationDateFromToken(token={})", token);
+		log.info("<<< Exiting getExpirationDateFromToken(token={})", token);
         return getClaimFromToken(token, Claims::getExpiration);
     }
 
@@ -104,17 +104,17 @@ public class TokenServiceImpl implements TokenService {
         return claimsResolver.apply(claims);
     }
     private JwtParser parser() {
-		log.debug(">>> Entering parser()");
-		log.debug("<<< Exiting parser()");
+		log.info(">>> Entering parser()");
+		log.info("<<< Exiting parser()");
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build();
     }
     private Claims getAllClaimsFromToken(String token) throws InvalidTokenException {
-		log.debug(">>> Entering getAllClaimsFromToken(token={})", token);
+		log.info(">>> Entering getAllClaimsFromToken(token={})", token);
         try {
            // return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-			log.debug("<<< Exiting getAllClaimsFromToken(token={})", token);
+			log.info("<<< Exiting getAllClaimsFromToken(token={})", token);
             return Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
@@ -143,7 +143,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void saveToken(String token) throws InvalidTokenException {
-		log.debug(">>> Entering saveToken(token={})", token);
+		log.info(">>> Entering saveToken(token={})", token);
 		long start = System.currentTimeMillis();
         if (tokenRepository.findByToken(token) != null) {
             throw new InvalidTokenException(ApiMessages.TOKEN_ALREADY_EXISTS_ERROR.getMessage());
@@ -161,28 +161,28 @@ public class TokenServiceImpl implements TokenService {
 
 		log.info("saveToken(token)={}: save query executed in {} ms", token, (System.currentTimeMillis() - start));
         tokenRepository.save(tokenObj);
-		log.debug("<<< Exiting saveToken(token={})", token);
+		log.info("<<< Exiting saveToken(token={})", token);
     }
 
     @Override
     public void validateToken(String token) throws InvalidTokenException {
-		log.debug(">>> Entering validateToken(token={})", token);
+		log.info(">>> Entering validateToken(token={})", token);
 		long start = System.currentTimeMillis();
         if (tokenRepository.findByToken(token) == null) {
             throw new InvalidTokenException(ApiMessages.TOKEN_NOT_FOUND_ERROR.getMessage());
         }
-		log.debug("<<< Exiting validateToken(token={})", token);
+		log.info("<<< Exiting validateToken(token={})", token);
     }
 
     @Override
     @Transactional
     public void invalidateToken(String token) {
-		log.debug(">>> Entering invalidateToken(token={})", token);
+		log.info(">>> Entering invalidateToken(token={})", token);
 		long start = System.currentTimeMillis();
         if (tokenRepository.findByToken(token) != null) {
             tokenRepository.deleteByToken(token);
         }
-		log.debug("<<< Exiting invalidateToken(token={})", token);
+		log.info("<<< Exiting invalidateToken(token={})", token);
 	log.info("invalidateToken(token)={}: find query executed in {} ms", token, (System.currentTimeMillis() - start));
     }
 

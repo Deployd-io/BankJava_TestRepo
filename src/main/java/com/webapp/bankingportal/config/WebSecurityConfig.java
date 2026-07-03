@@ -53,15 +53,15 @@ public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		log.debug(">>> Entering configureGlobal(auth={})", auth);
+		log.info(">>> Entering configureGlobal(auth={})", auth);
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
-		log.debug("<<< Exiting configureGlobal(auth={})", auth);
+		log.info("<<< Exiting configureGlobal(auth={})", auth);
     }
 
     @Bean
     PasswordEncoder passwordEncoder() {
-		log.debug(">>> Entering passwordEncoder()");
-		log.debug("<<< Exiting passwordEncoder()");
+		log.info(">>> Entering passwordEncoder()");
+		log.info("<<< Exiting passwordEncoder()");
         return new BCryptPasswordEncoder();
     }
 
@@ -69,14 +69,14 @@ public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
-			log.debug(">>> Entering authenticationManager(authenticationConfiguration={})", authenticationConfiguration);
-		log.debug("<<< Exiting authenticationManager(authenticationConfiguration={})", authenticationConfiguration);
+			log.info(">>> Entering authenticationManager(authenticationConfiguration={})", authenticationConfiguration);
+		log.info("<<< Exiting authenticationManager(authenticationConfiguration={})", authenticationConfiguration);
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		log.debug(">>> Entering securityFilterChain(http={})", http);
+		log.info(">>> Entering securityFilterChain(http={})", http);
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(PUBLIC_URLS).permitAll()
@@ -97,7 +97,7 @@ public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class
         http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
-		log.debug("<<< Exiting securityFilterChain(http={})", http);
+		log.info("<<< Exiting securityFilterChain(http={})", http);
         return http.build();
     }
 

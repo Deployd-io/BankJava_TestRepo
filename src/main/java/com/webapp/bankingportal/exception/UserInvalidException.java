@@ -7,6 +7,6 @@ public static final Logger log = LoggerFactory.getLogger(UserInvalidException.cl
 
     public UserInvalidException(String message) {
         super(message);
-		log.debug(">>> Entering UserInvalidException(message={})", message);
+		log.info(">>> Entering UserInvalidException(message={})", message);
     }
 }

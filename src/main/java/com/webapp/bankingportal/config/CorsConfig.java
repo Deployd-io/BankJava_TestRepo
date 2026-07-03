@@ -13,10 +13,10 @@ public static final Logger log = LoggerFactory.getLogger(CorsConfig.class);
 
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
-		log.debug(">>> Entering addCorsMappings(registry={})", registry);
+		log.info(">>> Entering addCorsMappings(registry={})", registry);
         registry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("*");
-				log.debug("<<< Exiting addCorsMappings(registry={})", registry);
+				log.info("<<< Exiting addCorsMappings(registry={})", registry);
     }
 }

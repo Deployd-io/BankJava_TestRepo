@@ -24,7 +24,7 @@ public static final Logger log = LoggerFactory.getLogger(TransactionServiceImpl.
 
     @Override
     public List<TransactionDTO> getAllTransactionsByAccountNumber(String accountNumber) {
-		log.debug(">>> Entering getAllTransactionsByAccountNumber(accountNumber={})", accountNumber);
+		log.info(">>> Entering getAllTransactionsByAccountNumber(accountNumber={})", accountNumber);
         val transactions = transactionRepository
                 .findBySourceAccount_AccountNumberOrTargetAccount_AccountNumber(accountNumber, accountNumber);
 
@@ -33,7 +33,7 @@ public static final Logger log = LoggerFactory.getLogger(TransactionServiceImpl.
                 .sorted((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()))
                 .collect(Collectors.toList());
 
-		log.debug("<<< Exiting getAllTransactionsByAccountNumber(accountNumber={})", accountNumber);
+		log.info("<<< Exiting getAllTransactionsByAccountNumber(accountNumber={})", accountNumber);
         return transactionDTOs;
     }
 

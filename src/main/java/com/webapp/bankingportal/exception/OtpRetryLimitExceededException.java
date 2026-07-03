@@ -7,6 +7,6 @@ public static final Logger log = LoggerFactory.getLogger(OtpRetryLimitExceededEx
 
     public OtpRetryLimitExceededException(String message) {
         super(message);
-		log.debug(">>> Entering OtpRetryLimitExceededException(message={})", message);
+		log.info(">>> Entering OtpRetryLimitExceededException(message={})", message);
     }
 }

@@ -12,8 +12,8 @@ public class TransactionMapper {
 public static final Logger log = LoggerFactory.getLogger(TransactionMapper.class);
 
     public TransactionDTO toDto(Transaction transaction) {
-		log.debug(">>> Entering toDto(transaction={})", transaction);
-		log.debug("<<< Exiting toDto(transaction={})", transaction);
+		log.info(">>> Entering toDto(transaction={})", transaction);
+		log.info("<<< Exiting toDto(transaction={})", transaction);
         return new TransactionDTO(transaction);
     }
 

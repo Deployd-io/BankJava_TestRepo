@@ -25,19 +25,19 @@ public static final Logger log = LoggerFactory.getLogger(DashboardController.cla
 
     @GetMapping("/user")
     public ResponseEntity<String> getUserDetails() {
-		log.debug(">>> Entering getUserDetails()");
+		log.info(">>> Entering getUserDetails()");
         val accountNumber = LoggedinUser.getAccountNumber();
         val userResponse = dashboardService.getUserDetails(accountNumber);
-		log.debug("<<< Exiting getUserDetails()");
+		log.info("<<< Exiting getUserDetails()");
         return ResponseEntity.ok(JsonUtil.toJson(userResponse));
     }
 
     @GetMapping("/account")
     public ResponseEntity<String> getAccountDetails() {
-		log.debug(">>> Entering getAccountDetails()");
+		log.info(">>> Entering getAccountDetails()");
         val accountNumber = LoggedinUser.getAccountNumber();
         val accountResponse = dashboardService.getAccountDetails(accountNumber);
-		log.debug("<<< Exiting getAccountDetails()");
+		log.info("<<< Exiting getAccountDetails()");
         return ResponseEntity.ok(JsonUtil.toJson(accountResponse));
     }
 

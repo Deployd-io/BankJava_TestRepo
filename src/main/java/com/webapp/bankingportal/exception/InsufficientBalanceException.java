@@ -7,6 +7,6 @@ public static final Logger log = LoggerFactory.getLogger(InsufficientBalanceExce
 
     public InsufficientBalanceException(String message) {
         super(message);
-		log.debug(">>> Entering InsufficientBalanceException(message={})", message);
+		log.info(">>> Entering InsufficientBalanceException(message={})", message);
     }
 }

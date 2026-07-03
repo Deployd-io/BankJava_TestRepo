@@ -22,23 +22,23 @@ public static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping("/password-reset/send-otp")
     public ResponseEntity<String> sendOtpForPasswordReset(@RequestBody OtpRequest otpRequest) {
-		log.debug(">>> Entering sendOtpForPasswordReset(otpRequest={})", otpRequest);
-		log.debug("<<< Exiting sendOtpForPasswordReset(otpRequest={})", otpRequest);
+		log.info(">>> Entering sendOtpForPasswordReset(otpRequest={})", otpRequest);
+		log.info("<<< Exiting sendOtpForPasswordReset(otpRequest={})", otpRequest);
         return authService.sendOtpForPasswordReset(otpRequest);
     }
 
     @PostMapping("/password-reset/verify-otp")
     public ResponseEntity<String> verifyOtpAndIssueResetToken(
             @RequestBody OtpVerificationRequest otpVerificationRequest) {
-			log.debug(">>> Entering verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
-		log.debug("<<< Exiting verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
+			log.info(">>> Entering verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
+		log.info("<<< Exiting verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
         return authService.verifyOtpAndIssueResetToken(otpVerificationRequest);
     }
 
     @PostMapping("/password-reset")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
-		log.debug(">>> Entering resetPassword(resetPasswordRequest={})", resetPasswordRequest);
-		log.debug("<<< Exiting resetPassword(resetPasswordRequest={})", resetPasswordRequest);
+		log.info(">>> Entering resetPassword(resetPasswordRequest={})", resetPasswordRequest);
+		log.info("<<< Exiting resetPassword(resetPasswordRequest={})", resetPasswordRequest);
         return authService.resetPassword(resetPasswordRequest);
     }
 

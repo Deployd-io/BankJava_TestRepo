@@ -29,7 +29,7 @@ public class GeolocationServiceImpl implements GeolocationService {
     @Override
     @Async
     public CompletableFuture<GeolocationResponse> getGeolocation(String ip) {
-		log.debug(">>> Entering getGeolocation(ip={})", ip);
+		log.info(">>> Entering getGeolocation(ip={})", ip);
 		long start = System.currentTimeMillis();
         val future = new CompletableFuture<GeolocationResponse>();
 
@@ -62,7 +62,7 @@ public class GeolocationServiceImpl implements GeolocationService {
             future.completeExceptionally(e);
         }
 
-		log.debug("<<< Exiting getGeolocation(ip={})", ip);
+		log.info("<<< Exiting getGeolocation(ip={})", ip);
         return future;
     }
 

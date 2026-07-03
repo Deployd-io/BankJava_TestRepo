@@ -22,18 +22,18 @@ public static final Logger log = LoggerFactory.getLogger(CacheConfig.class);
 
     @Bean
     public CacheManager cacheManager() {
-		log.debug(">>> Entering cacheManager()");
+		log.info(">>> Entering cacheManager()");
         val cacheManager = new CaffeineCacheManager();
         cacheManager.setCacheNames(List.of("otpAttempts")); // Define the cache name
-		log.debug("cacheManager(): cacheManager → {}", cacheManager);
+		log.info("cacheManager(): cacheManager → {}", cacheManager);
         cacheManager.setCaffeine(caffeineConfig());
-		log.debug("<<< Exiting cacheManager()");
+		log.info("<<< Exiting cacheManager()");
         return cacheManager;
     }
 
     public Caffeine<Object, Object> caffeineConfig() {
-		log.debug(">>> Entering caffeineConfig()");
-		log.debug("<<< Exiting caffeineConfig()");
+		log.info(">>> Entering caffeineConfig()");
+		log.info("<<< Exiting caffeineConfig()");
         return Caffeine.newBuilder()
                 .expireAfterWrite(15, TimeUnit.MINUTES) // Cache entries expire after 15 minutes
                 .maximumSize(100) // Maximum of 100 entries in the cache

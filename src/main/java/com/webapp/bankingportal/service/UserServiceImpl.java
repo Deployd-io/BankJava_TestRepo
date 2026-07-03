@@ -62,52 +62,52 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<String> login(LoginRequest loginRequest, HttpServletRequest request)
             throws InvalidTokenException {
-			log.debug(">>> Entering login(loginRequest={},request={})", loginRequest, request);
+			log.info(">>> Entering login(loginRequest={},request={})", loginRequest, request);
         val user = authenticateUser(loginRequest);
         sendLoginNotification(user, request.getRemoteAddr());
-		log.debug("login(loginRequest={},request={}): user → {}", loginRequest, request, user);
+		log.info("login(loginRequest={},request={}): user → {}", loginRequest, request, user);
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
 		log.warn("login(loginRequest={},request={}): token → {}", loginRequest, request, token);
-		log.debug("<<< Exiting login(loginRequest={},request={})", loginRequest, request);
+		log.info("<<< Exiting login(loginRequest={},request={})", loginRequest, request);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
     @Override
     public ResponseEntity<String> generateOtp(OtpRequest otpRequest) {
-		log.debug(">>> Entering generateOtp(otpRequest={})", otpRequest);
+		log.info(">>> Entering generateOtp(otpRequest={})", otpRequest);
         val user = getUserByIdentifier(otpRequest.identifier());
         val otp = otpService.generateOTP(user.getAccount().getAccountNumber());
-		log.debug("generateOtp(otpRequest={}): user → {}", otpRequest, user);
-		log.debug("<<< Exiting generateOtp(otpRequest={})", otpRequest);
+		log.info("generateOtp(otpRequest={}): user → {}", otpRequest, user);
+		log.info("<<< Exiting generateOtp(otpRequest={})", otpRequest);
         return sendOtpEmail(user, otp);
     }
 
     @Override
     public ResponseEntity<String> verifyOtpAndLogin(OtpVerificationRequest otpVerificationRequest)
             throws InvalidTokenException {
-			log.debug(">>> Entering verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
+			log.info(">>> Entering verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
         validateOtpRequest(otpVerificationRequest);
         val user = getUserByIdentifier(otpVerificationRequest.identifier());
         validateOtp(user, otpVerificationRequest.otp());
-		log.debug("verifyOtpAndLogin(otpVerificationRequest={}): user → {}", otpVerificationRequest, user);
+		log.info("verifyOtpAndLogin(otpVerificationRequest={}): user → {}", otpVerificationRequest, user);
         val token = generateAndSaveToken(user.getAccount().getAccountNumber());
 		log.warn("verifyOtpAndLogin(otpVerificationRequest={}): token → {}", otpVerificationRequest, token);
-		log.debug("<<< Exiting verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
+		log.info("<<< Exiting verifyOtpAndLogin(otpVerificationRequest={})", otpVerificationRequest);
         return ResponseEntity.ok(String.format(ApiMessages.TOKEN_ISSUED_SUCCESS.getMessage(), token));
     }
 
     @Override
     public ResponseEntity<String> updateUser(User updatedUser) {
-		log.debug(">>> Entering updateUser(updatedUser={})", updatedUser);
+		log.info(">>> Entering updateUser(updatedUser={})", updatedUser);
         val accountNumber = LoggedinUser.getAccountNumber();
         authenticateUser(accountNumber, updatedUser.getPassword());
-		log.debug("updateUser(updatedUser={}): accountNumber → {}", updatedUser, accountNumber);
+		log.info("updateUser(updatedUser={}): accountNumber → {}", updatedUser, accountNumber);
         val existingUser = getUserByAccountNumber(accountNumber);
         updateUserDetails(existingUser, updatedUser);
-		log.debug("updateUser(updatedUser={}): existingUser → {}", updatedUser, existingUser);
+		log.info("updateUser(updatedUser={}): existingUser → {}", updatedUser, existingUser);
         val savedUser = saveUser(existingUser);
-		log.debug("updateUser(updatedUser={}): savedUser → {}", updatedUser, savedUser);
-		log.debug("<<< Exiting updateUser(updatedUser={})", updatedUser);
+		log.info("updateUser(updatedUser={}): savedUser → {}", updatedUser, savedUser);
+		log.info("<<< Exiting updateUser(updatedUser={})", updatedUser);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -131,7 +131,7 @@ public class UserServiceImpl implements UserService {
 
         log.info("User logged out successfully {}", tokenService.getUsernameFromToken(token));
 
-		log.debug("<<< Exiting logout(token={})", token);
+		log.info("<<< Exiting logout(token={})", token);
         return new ModelAndView("redirect:/logout");
     }
 
@@ -142,10 +142,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByIdentifier(String identifier) {
-		log.debug(">>> Entering getUserByIdentifier(identifier={})", identifier);
+		log.info(">>> Entering getUserByIdentifier(identifier={})", identifier);
         User user = null;
 
-		log.debug("getUserByIdentifier(identifier={}): user → {}", identifier, user);
+		log.info("getUserByIdentifier(identifier={}): user → {}", identifier, user);
         if (validationUtil.doesEmailExist(identifier)) {
             user = getUserByEmail(identifier);
         } else if (validationUtil.doesAccountExist(identifier)) {
@@ -155,14 +155,14 @@ public class UserServiceImpl implements UserService {
                     String.format(ApiMessages.USER_NOT_FOUND_BY_IDENTIFIER.getMessage(), identifier));
         }
 
-		log.debug("<<< Exiting getUserByIdentifier(identifier={})", identifier);
+		log.info("<<< Exiting getUserByIdentifier(identifier={})", identifier);
         return user;
     }
 
     @Override
     public User getUserByAccountNumber(String accountNo) {
-		log.debug(">>> Entering getUserByAccountNumber(accountNo={})", accountNo);
-		log.debug("<<< Exiting getUserByAccountNumber(accountNo={})", accountNo);
+		log.info(">>> Entering getUserByAccountNumber(accountNo={})", accountNo);
+		log.info("<<< Exiting getUserByAccountNumber(accountNo={})", accountNo);
         return userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
                 () -> new UserInvalidException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNo)));
@@ -170,8 +170,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
-		log.debug(">>> Entering getUserByEmail(email={})", email);
-		log.debug("<<< Exiting getUserByEmail(email={})", email);
+		log.info(">>> Entering getUserByEmail(email={})", email);
+		log.info("<<< Exiting getUserByEmail(email={})", email);
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UserInvalidException(String.format(ApiMessages.USER_NOT_FOUND_BY_EMAIL.getMessage(), email)));
     }
@@ -188,14 +188,14 @@ public class UserServiceImpl implements UserService {
     }
 
     private User authenticateUser(LoginRequest loginRequest) {
-		log.debug(">>> Entering authenticateUser(loginRequest={})", loginRequest);
+		log.info(">>> Entering authenticateUser(loginRequest={})", loginRequest);
         val user = getUserByIdentifier(loginRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
-		log.debug("authenticateUser(loginRequest={}): user → {}", loginRequest, user);
-		log.debug("authenticateUser(loginRequest={}): accountNumber → {}", loginRequest, accountNumber);
+		log.info("authenticateUser(loginRequest={}): user → {}", loginRequest, user);
+		log.info("authenticateUser(loginRequest={}): accountNumber → {}", loginRequest, accountNumber);
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
-		log.debug("<<< Exiting authenticateUser(loginRequest={})", loginRequest);
+		log.info("<<< Exiting authenticateUser(loginRequest={})", loginRequest);
         return user;
     }
 
@@ -224,14 +224,14 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateOtpRequest(OtpVerificationRequest request) {
-		log.debug(">>> Entering validateOtpRequest(request={})", request);
+		log.info(">>> Entering validateOtpRequest(request={})", request);
         if (request.identifier() == null || request.identifier().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
         if (request.otp() == null || request.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
-		log.debug("<<< Exiting validateOtpRequest(request={})", request);
+		log.info("<<< Exiting validateOtpRequest(request={})", request);
     }
 
     private void validateOtp(User user, String otp) {

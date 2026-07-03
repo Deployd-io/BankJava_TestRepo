@@ -7,6 +7,6 @@ public static final Logger log = LoggerFactory.getLogger(AccountDoesNotExistExce
 
     public AccountDoesNotExistException(String message) {
         super(message);
-		log.debug(">>> Entering AccountDoesNotExistException(message={})", message);
+		log.info(">>> Entering AccountDoesNotExistException(message={})", message);
     }
 }

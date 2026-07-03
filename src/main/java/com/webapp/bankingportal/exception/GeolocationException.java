@@ -7,6 +7,6 @@ public static final Logger log = LoggerFactory.getLogger(GeolocationException.cl
 
     public GeolocationException(String message) {
         super(message);
-		log.debug(">>> Entering GeolocationException(message={})", message);
+		log.info(">>> Entering GeolocationException(message={})", message);
     }
 }

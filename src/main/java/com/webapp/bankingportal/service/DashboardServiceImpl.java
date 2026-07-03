@@ -26,26 +26,26 @@ public static final Logger log = LoggerFactory.getLogger(DashboardServiceImpl.cl
 
     @Override
     public UserResponse getUserDetails(String accountNumber) {
-		log.debug(">>> Entering getUserDetails(accountNumber={})", accountNumber);
+		log.info(">>> Entering getUserDetails(accountNumber={})", accountNumber);
 		long start = System.currentTimeMillis();
         val user = userRepository.findByAccountAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 						log.info("getUserDetails(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
 
-		log.debug("<<< Exiting getUserDetails(accountNumber={})", accountNumber);
+		log.info("<<< Exiting getUserDetails(accountNumber={})", accountNumber);
         return new UserResponse(user);
     }
 
     @Override
     public AccountResponse getAccountDetails(String accountNumber) {
-		log.debug(">>> Entering getAccountDetails(accountNumber={})", accountNumber);
+		log.info(">>> Entering getAccountDetails(accountNumber={})", accountNumber);
         val account = accountRepository.findByAccountNumber(accountNumber);
         if (account == null) {
             throw new NotFoundException(String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber));
         }
 
-		log.debug("<<< Exiting getAccountDetails(accountNumber={})", accountNumber);
+		log.info("<<< Exiting getAccountDetails(accountNumber={})", accountNumber);
         return new AccountResponse(account);
     }
 

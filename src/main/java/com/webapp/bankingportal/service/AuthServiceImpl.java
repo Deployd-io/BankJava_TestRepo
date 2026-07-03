@@ -64,42 +64,42 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<String> sendOtpForPasswordReset(OtpRequest otpRequest) {
-		log.debug(">>> Entering sendOtpForPasswordReset(otpRequest={})", otpRequest);
+		log.info(">>> Entering sendOtpForPasswordReset(otpRequest={})", otpRequest);
         log.info("Received OTP request for identifier: {}", otpRequest.identifier());
         val user = userService.getUserByIdentifier(otpRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
         val generatedOtp = otpService.generateOTP(accountNumber);
 
-		log.debug("<<< Exiting sendOtpForPasswordReset(otpRequest={})", otpRequest);
+		log.info("<<< Exiting sendOtpForPasswordReset(otpRequest={})", otpRequest);
         return sendOtpEmail(user, accountNumber, generatedOtp);
     }
 
     @Override
     public ResponseEntity<String> verifyOtpAndIssueResetToken(OtpVerificationRequest otpVerificationRequest) {
-		log.debug(">>> Entering verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
+		log.info(">>> Entering verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
         validateOtpRequest(otpVerificationRequest);
         val user = userService.getUserByIdentifier(otpVerificationRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
-		log.debug("verifyOtpAndIssueResetToken(otpVerificationRequest={}): user → {}", otpVerificationRequest, user);
-		log.debug("verifyOtpAndIssueResetToken(otpVerificationRequest={}): accountNumber → {}", otpVerificationRequest, accountNumber);
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest={}): user → {}", otpVerificationRequest, user);
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest={}): accountNumber → {}", otpVerificationRequest, accountNumber);
 
         if (!otpService.validateOTP(accountNumber, otpVerificationRequest.otp())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
 
         String resetToken = generatePasswordResetToken(user);
-		log.debug("verifyOtpAndIssueResetToken(otpVerificationRequest={}): resetToken → {}", otpVerificationRequest, resetToken);
-		log.debug("<<< Exiting verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest={}): resetToken → {}", otpVerificationRequest, resetToken);
+		log.info("<<< Exiting verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
         return ResponseEntity.ok(String.format(ApiMessages.PASSWORD_RESET_TOKEN_ISSUED.getMessage(), resetToken));
     }
 
     @Override
     @Transactional
     public ResponseEntity<String> resetPassword(ResetPasswordRequest resetPasswordRequest) {
-		log.debug(">>> Entering resetPassword(resetPasswordRequest={})", resetPasswordRequest);
+		log.info(">>> Entering resetPassword(resetPasswordRequest={})", resetPasswordRequest);
         val user = userService.getUserByIdentifier(resetPasswordRequest.identifier());
 
-		log.debug("resetPassword(resetPasswordRequest={}): user → {}", resetPasswordRequest, user);
+		log.info("resetPassword(resetPasswordRequest={}): user → {}", resetPasswordRequest, user);
         if (!verifyPasswordResetToken(resetPasswordRequest.resetToken(), user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiMessages.TOKEN_INVALID_ERROR.getMessage());
         }
@@ -107,14 +107,14 @@ public class AuthServiceImpl implements AuthService {
         try {
             boolean passwordResetSuccessful = userService.resetPassword(user, resetPasswordRequest.newPassword());
             if (passwordResetSuccessful) {
-				log.debug("resetPassword(resetPasswordRequest={}): passwordResetSuccessful → {}", resetPasswordRequest, passwordResetSuccessful);
+				log.info("resetPassword(resetPasswordRequest={}): passwordResetSuccessful → {}", resetPasswordRequest, passwordResetSuccessful);
                 return ResponseEntity.ok(ApiMessages.PASSWORD_RESET_SUCCESS.getMessage());
             } else {
                 return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
             }
         } catch (Exception e) {
             log.error("Error resetting password for user: {}", user.getId(), e);
-			log.debug("<<< Exiting resetPassword(resetPasswordRequest={})", resetPasswordRequest);
+			log.info("<<< Exiting resetPassword(resetPasswordRequest={})", resetPasswordRequest);
             return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
         }
     }
@@ -137,14 +137,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void validateOtpRequest(OtpVerificationRequest otpVerificationRequest) {
-		log.debug(">>> Entering validateOtpRequest(otpVerificationRequest={})", otpVerificationRequest);
+		log.info(">>> Entering validateOtpRequest(otpVerificationRequest={})", otpVerificationRequest);
         if (otpVerificationRequest.identifier() == null || otpVerificationRequest.identifier().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
         if (otpVerificationRequest.otp() == null || otpVerificationRequest.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
-		log.debug("<<< Exiting validateOtpRequest(otpVerificationRequest={})", otpVerificationRequest);
+		log.info("<<< Exiting validateOtpRequest(otpVerificationRequest={})", otpVerificationRequest);
     }
 
 }

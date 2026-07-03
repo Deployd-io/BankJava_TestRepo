@@ -28,7 +28,7 @@ public class ValidationUtil {
     private final UserRepository userRepository;
 
     public static boolean isValidEmail(String identifier) {
-		log.debug(">>> Entering isValidEmail(identifier={})", identifier);
+		log.info(">>> Entering isValidEmail(identifier={})", identifier);
         try {
             new InternetAddress(identifier).validate();
             return true;
@@ -36,32 +36,32 @@ public class ValidationUtil {
             log.warn("Invalid email address: {}", identifier);
         }
 
-		log.debug("<<< Exiting isValidEmail(identifier={})", identifier);
+		log.info("<<< Exiting isValidEmail(identifier={})", identifier);
         return false;
     }
 
     public static boolean isValidAccountNumber(String identifier) {
-		log.debug(">>> Entering isValidAccountNumber(identifier={})", identifier);
+		log.info(">>> Entering isValidAccountNumber(identifier={})", identifier);
         // Account number validation logic (e.g., length check)
-		log.debug("<<< Exiting isValidAccountNumber(identifier={})", identifier);
+		log.info("<<< Exiting isValidAccountNumber(identifier={})", identifier);
         return identifier != null && identifier.length() == 6;
     }
 
     public static boolean isValidCountryCode(String countryCode) {
-		log.debug(">>> Entering isValidCountryCode(countryCode={})", countryCode);
+		log.info(">>> Entering isValidCountryCode(countryCode={})", countryCode);
         if (!phoneNumberUtil.getSupportedRegions().contains(countryCode)) {
             return false;
         }
 
-		log.debug("<<< Exiting isValidCountryCode(countryCode={})", countryCode);
+		log.info("<<< Exiting isValidCountryCode(countryCode={})", countryCode);
         return true;
     }
 
     public static boolean isValidPhoneNumber(String phoneNumber, String countryCode) {
-		log.debug(">>> Entering isValidPhoneNumber(phoneNumber={},countryCode={})", phoneNumber, countryCode);
+		log.info(">>> Entering isValidPhoneNumber(phoneNumber={},countryCode={})", phoneNumber, countryCode);
         PhoneNumber parsedNumber = null;
 
-		log.debug("isValidPhoneNumber(phoneNumber={},countryCode={}): parsedNumber → {}", phoneNumber, countryCode, parsedNumber);
+		log.info("isValidPhoneNumber(phoneNumber={},countryCode={}): parsedNumber → {}", phoneNumber, countryCode, parsedNumber);
         try {
             parsedNumber = phoneNumberUtil.parse(phoneNumber, countryCode);
         } catch (NumberParseException e) {
@@ -69,12 +69,12 @@ public class ValidationUtil {
             throw new UserInvalidException(String.format(ApiMessages.USER_PHONE_NUMBER_INVALID_ERROR.getMessage(), phoneNumber, countryCode));
         }
 
-		log.debug("<<< Exiting isValidPhoneNumber(phoneNumber={},countryCode={})", phoneNumber, countryCode);
+		log.info("<<< Exiting isValidPhoneNumber(phoneNumber={},countryCode={})", phoneNumber, countryCode);
         return phoneNumberUtil.isValidNumber(parsedNumber);
     }
 
     public static void validatePassword(String password) {
-		log.debug(">>> Entering validatePassword(password={})", password);
+		log.info(">>> Entering validatePassword(password={})", password);
         if (password.length() < 8) {
             throw new UserInvalidException(ApiMessages.PASSWORD_TOO_SHORT_ERROR.getMessage());
         }
@@ -89,11 +89,11 @@ public class ValidationUtil {
 
         val message = new StringBuilder();
         message.append("Password must contain at least ");
-		log.debug("validatePassword(password={}): message → {}", password, message);
+		log.info("validatePassword(password={}): message → {}", password, message);
 
         var needsComma = false;
         if (!password.matches(".*[A-Z].*")) {
-			log.debug("validatePassword(password={}): needsComma → {}", password, needsComma);
+			log.info("validatePassword(password={}): needsComma → {}", password, needsComma);
             message.append("one uppercase letter");
             needsComma = true;
         }
@@ -124,16 +124,16 @@ public class ValidationUtil {
         if (message.length() > "Password must contain at least ".length()) {
             val lastCommaIndex = message.lastIndexOf(",");
             if (lastCommaIndex > -1) {
-				log.debug("validatePassword(password={}): lastCommaIndex → {}", password, lastCommaIndex);
+				log.info("validatePassword(password={}): lastCommaIndex → {}", password, lastCommaIndex);
                 message.replace(lastCommaIndex, lastCommaIndex + 1, " and");
             }
             throw new UserInvalidException(message.toString());
         }
-		log.debug("<<< Exiting validatePassword(password={})", password);
+		log.info("<<< Exiting validatePassword(password={})", password);
     }
 
     public static void validateUserDetailsNotEmpty(User user) {
-		log.debug(">>> Entering validateUserDetailsNotEmpty(user={})", user);
+		log.info(">>> Entering validateUserDetailsNotEmpty(user={})", user);
         if (user == null) {
             throw new UserInvalidException(ApiMessages.USER_DETAILS_EMPTY_ERROR.getMessage());
         }
@@ -161,11 +161,11 @@ public class ValidationUtil {
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new UserInvalidException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
-		log.debug("<<< Exiting validateUserDetailsNotEmpty(user={})", user);
+		log.info("<<< Exiting validateUserDetailsNotEmpty(user={})", user);
     }
 
     public static void validateUserDetails(User user) {
-		log.debug(">>> Entering validateUserDetails(user={})", user);
+		log.info(">>> Entering validateUserDetails(user={})", user);
         validateUserDetailsNotEmpty(user);
 
         if (!isValidEmail(user.getEmail())) {
@@ -181,11 +181,11 @@ public class ValidationUtil {
         }
 
         validatePassword(user.getPassword());
-		log.debug("<<< Exiting validateUserDetails(user={})", user);
+		log.info("<<< Exiting validateUserDetails(user={})", user);
     }
 
     public void validateNewUser(User user) {
-		log.debug(">>> Entering validateNewUser(user={})", user);
+		log.info(">>> Entering validateNewUser(user={})", user);
         validateUserDetails(user);
         if (doesEmailExist(user.getEmail())) {
             throw new UserInvalidException(ApiMessages.USER_EMAIL_ALREADY_EXISTS_ERROR.getMessage());
@@ -193,24 +193,24 @@ public class ValidationUtil {
         if (doesPhoneNumberExist(user.getPhoneNumber())) {
             throw new UserInvalidException(ApiMessages.USER_PHONE_NUMBER_ALREADY_EXISTS_ERROR.getMessage());
         }
-		log.debug("<<< Exiting validateNewUser(user={})", user);
+		log.info("<<< Exiting validateNewUser(user={})", user);
     }
 
     public boolean doesAccountExist(String accountNumber) {
-		log.debug(">>> Entering doesAccountExist(accountNumber={})", accountNumber);
-		log.debug("<<< Exiting doesAccountExist(accountNumber={})", accountNumber);
+		log.info(">>> Entering doesAccountExist(accountNumber={})", accountNumber);
+		log.info("<<< Exiting doesAccountExist(accountNumber={})", accountNumber);
         return userRepository.findByAccountAccountNumber(accountNumber).isPresent();
     }
 
     public boolean doesEmailExist(String email) {
-		log.debug(">>> Entering doesEmailExist(email={})", email);
-		log.debug("<<< Exiting doesEmailExist(email={})", email);
+		log.info(">>> Entering doesEmailExist(email={})", email);
+		log.info("<<< Exiting doesEmailExist(email={})", email);
         return userRepository.findByEmail(email).isPresent();
     }
 
     public boolean doesPhoneNumberExist(String phoneNumber) {
-		log.debug(">>> Entering doesPhoneNumberExist(phoneNumber={})", phoneNumber);
-		log.debug("<<< Exiting doesPhoneNumberExist(phoneNumber={})", phoneNumber);
+		log.info(">>> Entering doesPhoneNumberExist(phoneNumber={})", phoneNumber);
+		log.info("<<< Exiting doesPhoneNumberExist(phoneNumber={})", phoneNumber);
         return userRepository.findByPhoneNumber(phoneNumber).isPresent();
     }
 
