@@ -9,27 +9,36 @@ import com.webapp.bankingportal.dto.ResetPasswordRequest;
 import com.webapp.bankingportal.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+public static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthService authService;
 
     @PostMapping("/password-reset/send-otp")
     public ResponseEntity<String> sendOtpForPasswordReset(@RequestBody OtpRequest otpRequest) {
+		log.debug(">>> Entering sendOtpForPasswordReset(otpRequest={})", otpRequest);
+		log.debug("<<< Exiting sendOtpForPasswordReset(otpRequest={})", otpRequest);
         return authService.sendOtpForPasswordReset(otpRequest);
     }
 
     @PostMapping("/password-reset/verify-otp")
     public ResponseEntity<String> verifyOtpAndIssueResetToken(
             @RequestBody OtpVerificationRequest otpVerificationRequest) {
+			log.debug(">>> Entering verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
+		log.debug("<<< Exiting verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
         return authService.verifyOtpAndIssueResetToken(otpVerificationRequest);
     }
 
     @PostMapping("/password-reset")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+		log.debug(">>> Entering resetPassword(resetPasswordRequest={})", resetPasswordRequest);
+		log.debug("<<< Exiting resetPassword(resetPasswordRequest={})", resetPasswordRequest);
         return authService.resetPassword(resetPasswordRequest);
     }
 
