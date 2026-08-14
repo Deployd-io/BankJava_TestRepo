@@ -39,17 +39,23 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account createAccount(User user) {
+		log.debug(">>> Entering createAccount(user={})", user);
         val account = new Account();
         account.setAccountNumber(generateUniqueAccountNumber());
+		log.debug("createAccount(user={}): account → {}", user, account);
         account.setBalance(0.0);
         account.setUser(user);
+		log.debug("<<< Exiting createAccount(user={})", user);
         return accountRepository.save(account);
     }
 
     @Override
     public boolean isPinCreated(String accountNumber) {
+		log.debug(">>> Entering isPinCreated(accountNumber={})", accountNumber);
         val account = accountRepository.findByAccountNumber(accountNumber);
         if (account == null) {
+			log.debug("isPinCreated(accountNumber={}): account → {}", accountNumber, account);
+		log.debug("<<< Exiting isPinCreated(accountNumber={})", accountNumber);
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
 
@@ -57,18 +63,22 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private String generateUniqueAccountNumber() {
+		log.debug(">>> Entering generateUniqueAccountNumber()");
         String accountNumber;
         do {
             // Generate a UUID as the account number
             accountNumber = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 6);
         } while (accountRepository.findByAccountNumber(accountNumber) != null);
+		log.debug("generateUniqueAccountNumber(): accountNumber → {}", accountNumber);
 
+		log.debug("<<< Exiting generateUniqueAccountNumber()");
         return accountNumber;
     }
 
     private void validatePin(String accountNumber, String pin) {
         val account = accountRepository.findByAccountNumber(accountNumber);
         if (account == null) {
+			log.debug("validatePin(accountNumber={},pin=<redacted>): account → {}", accountNumber, account);
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
 
@@ -86,8 +96,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private void validatePassword(String accountNumber, String password) {
+		long start = System.currentTimeMillis();
         val account = accountRepository.findByAccountNumber(accountNumber);
         if (account == null) {
+			log.info("validatePassword(accountNumber,password)={},{}: find query executed in {} ms", accountNumber, password, (System.currentTimeMillis() - start));
+			log.debug("validatePassword(accountNumber={},password=<redacted>): account → {}", accountNumber, account);
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
 
@@ -104,10 +117,13 @@ public class AccountServiceImpl implements AccountService {
     public void createPin(String accountNumber, String password, String pin) {
         validatePassword(accountNumber, password);
 
+		long start = System.currentTimeMillis();
         val account = accountRepository.findByAccountNumber(accountNumber);
         if (account.getPin() != null) {
+			log.debug("createPin(accountNumber={},password=<redacted>,pin=<redacted>): account → {}", accountNumber, account);
             throw new UnauthorizedException(ApiMessages.PIN_ALREADY_EXISTS.getMessage());
         }
+		log.info("createPin(accountNumber,password,pin)={},{},{}: find query executed in {} ms", accountNumber, password, pin, (System.currentTimeMillis() - start));
 
         if (pin == null || pin.isEmpty()) {
             throw new InvalidPinException(ApiMessages.PIN_EMPTY_ERROR.getMessage());
@@ -118,6 +134,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         account.setPin(passwordEncoder.encode(pin));
+		log.info("createPin(accountNumber,password,pin)={},{},{}: save query executed in {} ms", accountNumber, password, pin, (System.currentTimeMillis() - start));
         accountRepository.save(account);
     }
 
@@ -128,6 +145,8 @@ public class AccountServiceImpl implements AccountService {
         validatePassword(accountNumber, password);
         validatePin(accountNumber, oldPin);
 
+		long start = System.currentTimeMillis();
+		log.info("updatePin(accountNumber,oldPin,password,newPin)={},{},{},{}: find query executed in {} ms", accountNumber, oldPin, password, newPin, (System.currentTimeMillis() - start));
         val account = accountRepository.findByAccountNumber(accountNumber);
 
         if (newPin == null || newPin.isEmpty()) {
@@ -138,11 +157,13 @@ public class AccountServiceImpl implements AccountService {
             throw new InvalidPinException(ApiMessages.PIN_FORMAT_INVALID_ERROR.getMessage());
         }
 
+		log.info("updatePin(accountNumber,oldPin,password,newPin)={},{},{},{}: save query executed in {} ms", accountNumber, oldPin, password, newPin, (System.currentTimeMillis() - start));
         account.setPin(passwordEncoder.encode(newPin));
         accountRepository.save(account);
     }
 
     private void validateAmount(double amount) {
+		log.debug(">>> Entering validateAmount(amount={})", amount);
         if (amount <= 0) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_NEGATIVE_ERROR.getMessage());
         }
@@ -152,6 +173,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         if (amount > 100000) {
+		log.debug("<<< Exiting validateAmount(amount={})", amount);
             throw new InvalidAmountException(ApiMessages.AMOUNT_EXCEED_100_000_ERROR.getMessage());
         }
     }
@@ -162,8 +184,11 @@ public class AccountServiceImpl implements AccountService {
         validatePin(accountNumber, pin);
         validateAmount(amount);
 
+		long start = System.currentTimeMillis();
         val account = accountRepository.findByAccountNumber(accountNumber);
         val currentBalance = account.getBalance();
+		log.info("cashDeposit(accountNumber,pin,amount)={},{},{}: find query executed in {} ms", accountNumber, pin, amount, (System.currentTimeMillis() - start));
+		log.info("cashDeposit(accountNumber,pin,amount)={},{},{}: save query executed in {} ms", accountNumber, pin, amount, (System.currentTimeMillis() - start));
         val newBalance = currentBalance + amount;
         account.setBalance(newBalance);
         accountRepository.save(account);
@@ -182,15 +207,19 @@ public class AccountServiceImpl implements AccountService {
         validatePin(accountNumber, pin);
         validateAmount(amount);
 
+		long start = System.currentTimeMillis();
         val account = accountRepository.findByAccountNumber(accountNumber);
         val currentBalance = account.getBalance();
+		log.info("cashWithdrawal(accountNumber,pin,amount)={},{},{}: find query executed in {} ms", accountNumber, pin, amount, (System.currentTimeMillis() - start));
         if (currentBalance < amount) {
+			log.debug("cashWithdrawal(accountNumber={},pin=<redacted>,amount={}): currentBalance → {}", accountNumber, amount, currentBalance);
             throw new InsufficientBalanceException(ApiMessages.BALANCE_INSUFFICIENT_ERROR.getMessage());
         }
 
         val newBalance = currentBalance - amount;
         account.setBalance(newBalance);
         accountRepository.save(account);
+		log.info("cashWithdrawal(accountNumber,pin,amount)={},{},{}: save query executed in {} ms", accountNumber, pin, amount, (System.currentTimeMillis() - start));
 
         val transaction = new Transaction();
         transaction.setAmount(amount);
@@ -210,8 +239,11 @@ public class AccountServiceImpl implements AccountService {
             throw new FundTransferException(ApiMessages.CASH_TRANSFER_SAME_ACCOUNT_ERROR.getMessage());
         }
 
+		long start = System.currentTimeMillis();
         val targetAccount = accountRepository.findByAccountNumber(targetAccountNumber);
         if (targetAccount == null) {
+			log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},{},{}: find query executed in {} ms", sourceAccountNumber, targetAccountNumber, pin, amount, (System.currentTimeMillis() - start));
+			log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): targetAccount → {}", sourceAccountNumber, targetAccountNumber, amount, targetAccount);
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
 
@@ -224,6 +256,7 @@ public class AccountServiceImpl implements AccountService {
         val newSourceBalance = sourceBalance - amount;
         sourceAccount.setBalance(newSourceBalance);
         accountRepository.save(sourceAccount);
+		log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},{},{}: save query executed in {} ms", sourceAccountNumber, targetAccountNumber, pin, amount, (System.currentTimeMillis() - start));
 
         val targetBalance = targetAccount.getBalance();
         val newTargetBalance = targetBalance + amount;
