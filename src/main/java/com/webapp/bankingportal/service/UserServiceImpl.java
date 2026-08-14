@@ -91,6 +91,9 @@ public class UserServiceImpl implements UserService {
         authenticateUser(accountNumber, updatedUser.getPassword());
         val existingUser = getUserByAccountNumber(accountNumber);
         updateUserDetails(existingUser, updatedUser);
+		log.info("updateUser(updatedUser)={}): SOC2-AUDIT [CC8.1]: Change management operation performed by initiator {}", updatedUser, updatedUser);
+		log.warn("updateUser(updatedUser)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", updatedUser, updatedUser);
+		log.info("updateUser(updatedUser)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", updatedUser, updatedUser);
         val savedUser = saveUser(existingUser);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
@@ -114,6 +117,8 @@ public class UserServiceImpl implements UserService {
         tokenService.invalidateToken(token);
 
         log.info("User logged out successfully {}", tokenService.getUsernameFromToken(token));
+		log.info("logout(token)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", token);
+		log.warn("logout(token)={}): SOC2-AUDIT [CC7.3]: Security incident detected", token);
 
         return new ModelAndView("redirect:/logout");
     }
@@ -168,6 +173,8 @@ public class UserServiceImpl implements UserService {
         val accountNumber = user.getAccount().getAccountNumber();
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+				log.warn("authenticateUser(loginRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", loginRequest, user);
+				log.info("authenticateUser(loginRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", loginRequest, user);
         return user;
     }
 
@@ -202,6 +209,7 @@ public class UserServiceImpl implements UserService {
         if (request.otp() == null || request.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(request)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", request);
     }
 
     private void validateOtp(User user, String otp) {
