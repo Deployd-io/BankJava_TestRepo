@@ -19,10 +19,12 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/account")
 @RequiredArgsConstructor
+@Slf4j
 public class AccountController {
 
     private final AccountService accountService;
@@ -30,10 +32,13 @@ public class AccountController {
 
     @GetMapping("/pin/check")
     public ResponseEntity<String> checkAccountPIN() {
+		log.debug(">>> Entering checkAccountPIN()");
         val isPINValid = accountService.isPinCreated(LoggedinUser.getAccountNumber());
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
+				log.debug("checkAccountPIN(): isPINValid → {}", isPINValid);
 
+		log.debug("<<< Exiting checkAccountPIN()");
         return ResponseEntity.ok(response);
     }
 
@@ -60,39 +65,47 @@ public class AccountController {
 
     @PostMapping("/deposit")
     public ResponseEntity<String> cashDeposit(@RequestBody AmountRequest amountRequest) {
+		log.debug(">>> Entering cashDeposit(amountRequest={})", amountRequest);
         accountService.cashDeposit(
                 LoggedinUser.getAccountNumber(),
                 amountRequest.pin(),
                 amountRequest.amount());
 
+		log.debug("<<< Exiting cashDeposit(amountRequest={})", amountRequest);
         return ResponseEntity.ok(ApiMessages.CASH_DEPOSIT_SUCCESS.getMessage());
     }
 
     @PostMapping("/withdraw")
     public ResponseEntity<String> cashWithdrawal(@RequestBody AmountRequest amountRequest) {
+		log.debug(">>> Entering cashWithdrawal(amountRequest={})", amountRequest);
         accountService.cashWithdrawal(
                 LoggedinUser.getAccountNumber(),
                 amountRequest.pin(),
                 amountRequest.amount());
 
+		log.debug("<<< Exiting cashWithdrawal(amountRequest={})", amountRequest);
         return ResponseEntity.ok(ApiMessages.CASH_WITHDRAWAL_SUCCESS.getMessage());
     }
 
     @PostMapping("/fund-transfer")
     public ResponseEntity<String> fundTransfer(@RequestBody FundTransferRequest fundTransferRequest) {
+		log.debug(">>> Entering fundTransfer(fundTransferRequest={})", fundTransferRequest);
         accountService.fundTransfer(
                 LoggedinUser.getAccountNumber(),
                 fundTransferRequest.targetAccountNumber(),
                 fundTransferRequest.pin(),
                 fundTransferRequest.amount());
 
+		log.debug("<<< Exiting fundTransfer(fundTransferRequest={})", fundTransferRequest);
         return ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
     }
 
     @GetMapping("/transactions")
     public ResponseEntity<String> getAllTransactionsByAccountNumber() {
+		log.debug(">>> Entering getAllTransactionsByAccountNumber()");
         val transactions = transactionService
                 .getAllTransactionsByAccountNumber(LoggedinUser.getAccountNumber());
+		log.debug("<<< Exiting getAllTransactionsByAccountNumber()");
         return ResponseEntity.ok(JsonUtil.toJson(transactions));
     }
 
