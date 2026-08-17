@@ -70,8 +70,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<String> generateOtp(OtpRequest otpRequest) {
+		log.debug(">>> Entering generateOtp(otpRequest=<redacted>)");
         val user = getUserByIdentifier(otpRequest.identifier());
+		log.debug("generateOtp(otpRequest=<redacted>): user → {}", user);
         val otp = otpService.generateOTP(user.getAccount().getAccountNumber());
+		log.debug("generateOtp(otpRequest=<redacted>): otp → {}", otp);
+		log.debug("<<< Exiting generateOtp(otpRequest=<redacted>)");
         return sendOtpEmail(user, otp);
     }
 
@@ -87,11 +91,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<String> updateUser(User updatedUser) {
+		log.debug(">>> Entering updateUser(updatedUser={})", updatedUser);
         val accountNumber = LoggedinUser.getAccountNumber();
         authenticateUser(accountNumber, updatedUser.getPassword());
+		log.debug("updateUser(updatedUser={}): accountNumber → {}", updatedUser, accountNumber);
         val existingUser = getUserByAccountNumber(accountNumber);
+		log.debug("updateUser(updatedUser={}): existingUser → {}", updatedUser, existingUser);
         updateUserDetails(existingUser, updatedUser);
         val savedUser = saveUser(existingUser);
+		log.debug("updateUser(updatedUser={}): savedUser → {}", updatedUser, savedUser);
+		log.debug("<<< Exiting updateUser(updatedUser={})", updatedUser);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -109,12 +118,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ModelAndView logout(String token) throws InvalidTokenException {
+		log.debug(">>> Entering logout(token=<redacted>)");
         token = token.substring(7);
         tokenService.validateToken(token);
         tokenService.invalidateToken(token);
 
         log.info("User logged out successfully {}", tokenService.getUsernameFromToken(token));
 
+		log.debug("<<< Exiting logout(token=<redacted>)");
         return new ModelAndView("redirect:/logout");
     }
 
@@ -125,13 +136,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByIdentifier(String identifier) {
+		log.debug(">>> Entering getUserByIdentifier(identifier={})", identifier);
         User user = null;
 
+		log.debug("getUserByIdentifier(identifier={}): user → {}", identifier, user);
         if (validationUtil.doesEmailExist(identifier)) {
             user = getUserByEmail(identifier);
         } else if (validationUtil.doesAccountExist(identifier)) {
             user = getUserByAccountNumber(identifier);
         } else {
+			log.warn("Throwing UserInvalidException from getUserByIdentifier(identifier={})", identifier);
+		log.debug("<<< Exiting getUserByIdentifier(identifier={})", identifier);
             throw new UserInvalidException(
                     String.format(ApiMessages.USER_NOT_FOUND_BY_IDENTIFIER.getMessage(), identifier));
         }
@@ -141,6 +156,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByAccountNumber(String accountNo) {
+		log.debug(">>> Entering getUserByAccountNumber(accountNo={})", accountNo);
+		log.debug("<<< Exiting getUserByAccountNumber(accountNo={})", accountNo);
         return userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
                 () -> new UserInvalidException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNo)));
@@ -148,6 +165,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
+		log.debug(">>> Entering getUserByEmail(email={})", email);
+		log.debug("<<< Exiting getUserByEmail(email={})", email);
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UserInvalidException(String.format(ApiMessages.USER_NOT_FOUND_BY_EMAIL.getMessage(), email)));
     }
@@ -155,6 +174,7 @@ public class UserServiceImpl implements UserService {
     private void encodePassword(User user) {
         user.setCountryCode(user.getCountryCode().toUpperCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+		log.debug("<<< Exiting encodePassword(user={})", user);
     }
 
     private User saveUserWithAccount(User user) {
@@ -164,10 +184,14 @@ public class UserServiceImpl implements UserService {
     }
 
     private User authenticateUser(LoginRequest loginRequest) {
+		log.debug(">>> Entering authenticateUser(loginRequest={})", loginRequest);
         val user = getUserByIdentifier(loginRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
+		log.debug("authenticateUser(loginRequest={}): accountNumber → {}", loginRequest, accountNumber);
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+				log.debug("authenticateUser(loginRequest={}): user → {}", loginRequest, user);
+		log.debug("<<< Exiting authenticateUser(loginRequest={})", loginRequest);
         return user;
     }
 
@@ -196,10 +220,13 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateOtpRequest(OtpVerificationRequest request) {
+		log.debug(">>> Entering validateOtpRequest(request={})", request);
         if (request.identifier() == null || request.identifier().isEmpty()) {
+			log.warn("Throwing IllegalArgumentException from validateOtpRequest(request={})", request);
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
         if (request.otp() == null || request.otp().isEmpty()) {
+		log.debug("<<< Exiting validateOtpRequest(request={})", request);
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
     }
@@ -214,6 +241,7 @@ public class UserServiceImpl implements UserService {
         ValidationUtil.validateUserDetails(updatedUser);
         updatedUser.setPassword(existingUser.getPassword());
         userMapper.updateUser(updatedUser, existingUser);
+		log.debug("<<< Exiting updateUserDetails(existingUser={},updatedUser={})", existingUser, updatedUser);
     }
 
     private CompletableFuture<Boolean> sendLoginNotification(User user, String ip) {
