@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * JWT Authentication Filter
@@ -30,6 +31,7 @@ import lombok.val;
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
@@ -51,6 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
+			log.debug(">>> Entering doFilterInternal(request={},response={},filterChain={})", request, response, filterChain);
 
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             logger.info("User is already authenticated");
@@ -60,6 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         val requestTokenHeader = request.getHeader("Authorization");
+		log.debug("doFilterInternal(request={},response={},filterChain={}): requestTokenHeader → {}", request, response, filterChain, requestTokenHeader);
 
         if (requestTokenHeader == null) {
             filterChain.doFilter(request, response);
@@ -74,13 +78,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         val token = requestTokenHeader.substring(7);
+		log.warn("doFilterInternal(request={},response={},filterChain={}): token → {}", request, response, filterChain, token);
         String username = null;
+		log.debug("doFilterInternal(request={},response={},filterChain={}): username → {}", request, response, filterChain, username);
 
         try {
             tokenService.validateToken(token);
             username = tokenService.getUsernameFromToken(token);
 
         } catch (InvalidTokenException e) {
+			log.error("Exception in doFilterInternal(request={},response={},filterChain={}): {}", request, response, filterChain, e.getMessage(), e);
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
                     e.getMessage());
             return;

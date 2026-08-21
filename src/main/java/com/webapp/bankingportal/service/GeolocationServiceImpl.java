@@ -29,6 +29,8 @@ public class GeolocationServiceImpl implements GeolocationService {
     @Override
     @Async
     public CompletableFuture<GeolocationResponse> getGeolocation(String ip) {
+		log.debug(">>> Entering getGeolocation(ip={})", ip);
+		long start = System.currentTimeMillis();
         val future = new CompletableFuture<GeolocationResponse>();
 
         try {
@@ -42,6 +44,7 @@ public class GeolocationServiceImpl implements GeolocationService {
             val response = new RestTemplate()
                     .getForObject(url, GeolocationResponse.class);
 
+			log.info("getGeolocation(ip)={}: external service call {} took {} ms", ip, url, (System.currentTimeMillis() - start));
             if (response == null) {
                 log.error("Failed to get geolocation for IP: {}", ip);
                 future.completeExceptionally(new GeolocationException(

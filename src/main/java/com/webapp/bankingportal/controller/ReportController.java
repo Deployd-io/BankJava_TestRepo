@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.webapp.bankingportal.service.ReportService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
+@Slf4j
 public class ReportController {
 
     private final ReportService reportService;
@@ -20,12 +22,15 @@ public class ReportController {
     @GetMapping("/interest-yield")
     public ResponseEntity<String> getInterestYield(
             @RequestParam(defaultValue = "0") int accounts) {
+			log.debug(">>> Entering getInterestYield()");
+		log.debug("<<< Exiting getInterestYield()");
         return ResponseEntity.ok(reportService.calculateInterestYield(accounts));
     }
 
     @GetMapping("/account-summary")
     public ResponseEntity<String> getAccountSummary(
             @RequestParam(defaultValue = "ACC-9999") String accountNumber) {
+			log.debug(">>> Entering getAccountSummary()");
         return ResponseEntity.ok(reportService.buildAccountSummary(accountNumber));
     }
 

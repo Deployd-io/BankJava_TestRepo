@@ -21,18 +21,22 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
 
     public EmailServiceImpl(JavaMailSender mailSender) {
+		log.debug(">>> Entering EmailServiceImpl(mailSender={})", mailSender);
         this.mailSender = mailSender;
+		log.debug("<<< Exiting EmailServiceImpl(mailSender={})", mailSender);
     }
 
     @Override
     @Async
     public CompletableFuture<Void> sendEmail(String to, String subject, String text) {
+		log.debug(">>> Entering sendEmail(to={},subject={},text={})", to, subject, text);
         val future = new CompletableFuture<Void>();
 
         try {
             val message = mailSender.createMimeMessage();
             val helper = new MimeMessageHelper(message, true);
             helper.setTo(to);
+			log.debug("sendEmail(to={},subject={},text={}): helper → {}", to, subject, text, helper);
             // From address is automatically set by Spring Boot based on your properties
             helper.setSubject(subject);
             helper.setText(text, true); // Set the second parameter to true to send HTML content
@@ -46,11 +50,13 @@ public class EmailServiceImpl implements EmailService {
             future.completeExceptionally(e);
         }
 
+		log.debug("<<< Exiting sendEmail(to={},subject={},text={})", to, subject, text);
         return future;
     }
 
     @Override
     public String getLoginEmailTemplate(String name, String loginTime, String loginLocation) {
+		log.debug(">>> Entering getLoginEmailTemplate(name={},loginTime={},loginLocation={})", name, loginTime, loginLocation);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -77,6 +83,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getOtpLoginEmailTemplate(String name, String accountNumber, String otp) {
+		log.debug(">>> Entering getOtpLoginEmailTemplate(name={},accountNumber={},otp=<redacted>)", name, accountNumber);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"

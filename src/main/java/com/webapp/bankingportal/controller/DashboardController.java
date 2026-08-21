@@ -12,18 +12,24 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/dashboard")
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardController {
 
     private final DashboardService dashboardService;
 
     @GetMapping("/user")
     public ResponseEntity<String> getUserDetails() {
+		log.debug(">>> Entering getUserDetails()");
         val accountNumber = LoggedinUser.getAccountNumber();
+		log.debug("getUserDetails(): accountNumber → {}", accountNumber);
         val userResponse = dashboardService.getUserDetails(accountNumber);
+		log.debug("getUserDetails(): userResponse → {}", userResponse);
+		log.debug("<<< Exiting getUserDetails()");
         return ResponseEntity.ok(JsonUtil.toJson(userResponse));
     }
 
