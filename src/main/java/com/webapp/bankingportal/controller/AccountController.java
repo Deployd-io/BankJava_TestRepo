@@ -19,10 +19,12 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/account")
 @RequiredArgsConstructor
+@Slf4j
 public class AccountController {
 
     private final AccountService accountService;
@@ -30,36 +32,44 @@ public class AccountController {
 
     @GetMapping("/pin/check")
     public ResponseEntity<String> checkAccountPIN() {
+		log.debug(">>> Entering checkAccountPIN()");
         val isPINValid = accountService.isPinCreated(LoggedinUser.getAccountNumber());
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
+				log.debug("checkAccountPIN(): isPINValid → {}", isPINValid);
 
+		log.debug("<<< Exiting checkAccountPIN()");
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/pin/create")
     public ResponseEntity<String> createPIN(@RequestBody PinRequest pinRequest) {
+		log.debug(">>> Entering createPIN(pinRequest=<redacted>)");
         accountService.createPin(
                 LoggedinUser.getAccountNumber(),
                 pinRequest.password(),
                 pinRequest.pin());
 
+		log.debug("<<< Exiting createPIN(pinRequest=<redacted>)");
         return ResponseEntity.ok(ApiMessages.PIN_CREATION_SUCCESS.getMessage());
     }
 
     @PostMapping("/pin/update")
     public ResponseEntity<String> updatePIN(@RequestBody PinUpdateRequest pinUpdateRequest) {
+		log.debug(">>> Entering updatePIN(pinUpdateRequest=<redacted>)");
         accountService.updatePin(
                 LoggedinUser.getAccountNumber(),
                 pinUpdateRequest.oldPin(),
                 pinUpdateRequest.password(),
                 pinUpdateRequest.newPin());
 
+		log.debug("<<< Exiting updatePIN(pinUpdateRequest=<redacted>)");
         return ResponseEntity.ok(ApiMessages.PIN_UPDATE_SUCCESS.getMessage());
     }
 
     @PostMapping("/deposit")
     public ResponseEntity<String> cashDeposit(@RequestBody AmountRequest amountRequest) {
+		log.debug(">>> Entering cashDeposit(amountRequest={})", amountRequest);
         accountService.cashDeposit(
                 LoggedinUser.getAccountNumber(),
                 amountRequest.pin(),
