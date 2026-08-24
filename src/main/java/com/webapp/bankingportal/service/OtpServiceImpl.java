@@ -18,10 +18,13 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
 public class OtpServiceImpl implements OtpService {
+public static final Logger log = LoggerFactory.getLogger(OtpServiceImpl.class);
 
     public static final int OTP_ATTEMPTS_LIMIT = 3;
     public static final int OTP_EXPIRY_MINUTES = 5;
@@ -57,6 +60,7 @@ public class OtpServiceImpl implements OtpService {
         existingOtpInfo.setGeneratedAt(LocalDateTime.now());
         incrementOtpAttempts(accountNumber);
 
+		log.info("generateOTP(accountNumber)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
         return existingOtpInfo.getOtp();
     }
 
