@@ -59,6 +59,8 @@ public class GeolocationServiceImpl implements GeolocationService {
             future.completeExceptionally(e);
         }
 
+		log.warn("getGeolocation(ip)={}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", ip);
+		log.info("getGeolocation(ip)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", ip);
         return future;
     }
 

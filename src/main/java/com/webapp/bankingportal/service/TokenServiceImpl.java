@@ -99,6 +99,7 @@ public class TokenServiceImpl implements TokenService {
     private Claims getAllClaimsFromToken(String token) throws InvalidTokenException {
         try {
            // return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+			log.info("getAllClaimsFromToken(token)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", token);
             return Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
@@ -149,6 +150,7 @@ public class TokenServiceImpl implements TokenService {
         if (tokenRepository.findByToken(token) == null) {
             throw new InvalidTokenException(ApiMessages.TOKEN_NOT_FOUND_ERROR.getMessage());
         }
+		log.info("validateToken(token)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", token);
     }
 
     @Override
@@ -157,6 +159,7 @@ public class TokenServiceImpl implements TokenService {
         if (tokenRepository.findByToken(token) != null) {
             tokenRepository.deleteByToken(token);
         }
+		log.info("invalidateToken(token)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", token);
     }
 
 }

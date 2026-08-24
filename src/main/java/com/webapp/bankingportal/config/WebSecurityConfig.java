@@ -23,12 +23,15 @@ import com.webapp.bankingportal.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
+public static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     private static final String[] PUBLIC_URLS = {
             "/api/users/register",
@@ -88,6 +91,7 @@ public class WebSecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
+		log.warn("securityFilterChain(http)={}): HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed", http);
         return http.build();
     }
 

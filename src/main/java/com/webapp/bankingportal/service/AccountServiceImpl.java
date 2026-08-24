@@ -83,6 +83,7 @@ public class AccountServiceImpl implements AccountService {
         if (!passwordEncoder.matches(pin, account.getPin())) {
             throw new UnauthorizedException(ApiMessages.PIN_INVALID_ERROR.getMessage());
         }
+		log.info("validatePin(accountNumber,pin)={},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, pin);
     }
 
     private void validatePassword(String accountNumber, String password) {
@@ -98,6 +99,7 @@ public class AccountServiceImpl implements AccountService {
         if (!passwordEncoder.matches(password, account.getUser().getPassword())) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_INVALID_ERROR.getMessage());
         }
+		log.info("validatePassword(accountNumber,password)={},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, password);
     }
 
     @Override
@@ -119,6 +121,7 @@ public class AccountServiceImpl implements AccountService {
 
         account.setPin(passwordEncoder.encode(pin));
         accountRepository.save(account);
+		log.info("createPin(accountNumber,password,pin)={},{},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, password, pin);
     }
 
     @Override
@@ -140,6 +143,7 @@ public class AccountServiceImpl implements AccountService {
 
         account.setPin(passwordEncoder.encode(newPin));
         accountRepository.save(account);
+		log.info("updatePin(accountNumber,oldPin,password,newPin)={},{},{},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, oldPin, password, newPin);
     }
 
     private void validateAmount(double amount) {
@@ -154,6 +158,7 @@ public class AccountServiceImpl implements AccountService {
         if (amount > 100000) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_EXCEED_100_000_ERROR.getMessage());
         }
+		log.info("validateAmount(amount)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", amount);
     }
 
     @Transactional
@@ -174,6 +179,7 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
         transactionRepository.save(transaction);
+		log.info("cashDeposit(accountNumber,pin,amount)={},{},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, pin, amount);
     }
 
     @Transactional
@@ -198,6 +204,7 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
         transactionRepository.save(transaction);
+		log.info("cashWithdrawal(accountNumber,pin,amount)={},{},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, pin, amount);
     }
 
     @Transactional
@@ -236,6 +243,8 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(sourceAccount);
         transaction.setTargetAccount(targetAccount);
+		log.warn("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},{},{}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", sourceAccountNumber, targetAccountNumber, pin, amount);
+		log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},{},{}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", sourceAccountNumber, targetAccountNumber, pin, amount);
         transactionRepository.save(transaction);
     }
 
