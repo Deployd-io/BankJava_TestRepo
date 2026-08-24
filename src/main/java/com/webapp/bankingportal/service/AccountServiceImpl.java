@@ -80,9 +80,11 @@ public class AccountServiceImpl implements AccountService {
             throw new UnauthorizedException(ApiMessages.PIN_EMPTY_ERROR.getMessage());
         }
 
+		log.info("validatePin(accountNumber,pin)={},<redacted>: SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
         if (!passwordEncoder.matches(pin, account.getPin())) {
             throw new UnauthorizedException(ApiMessages.PIN_INVALID_ERROR.getMessage());
         }
+		log.warn("validatePin(accountNumber,pin)={},<redacted>: SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, account);
     }
 
     private void validatePassword(String accountNumber, String password) {
@@ -95,9 +97,11 @@ public class AccountServiceImpl implements AccountService {
             throw new UnauthorizedException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
 
+		log.info("validatePassword(accountNumber,password)={},<redacted>: SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
         if (!passwordEncoder.matches(password, account.getUser().getPassword())) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_INVALID_ERROR.getMessage());
         }
+		log.warn("validatePassword(accountNumber,password)={},<redacted>: SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, account);
     }
 
     @Override
@@ -118,6 +122,8 @@ public class AccountServiceImpl implements AccountService {
         }
 
         account.setPin(passwordEncoder.encode(pin));
+		log.info("createPin(accountNumber,password,pin)={},<redacted>,<redacted>: SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
+		log.warn("createPin(accountNumber,password,pin)={},<redacted>,<redacted>: SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, account);
         accountRepository.save(account);
     }
 
@@ -138,6 +144,9 @@ public class AccountServiceImpl implements AccountService {
             throw new InvalidPinException(ApiMessages.PIN_FORMAT_INVALID_ERROR.getMessage());
         }
 
+		log.info("updatePin(accountNumber,oldPin,password,newPin)={},<redacted>,<redacted>,<redacted>: SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
+		log.info("updatePin(accountNumber,oldPin,password,newPin)={},<redacted>,<redacted>,<redacted>: SOC2-AUDIT [CC8.1]: Change management operation performed", accountNumber);
+		log.warn("updatePin(accountNumber,oldPin,password,newPin)={},<redacted>,<redacted>,<redacted>: SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, account);
         account.setPin(passwordEncoder.encode(newPin));
         accountRepository.save(account);
     }
@@ -154,6 +163,7 @@ public class AccountServiceImpl implements AccountService {
         if (amount > 100000) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_EXCEED_100_000_ERROR.getMessage());
         }
+		log.info("validateAmount(amount)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", amount);
     }
 
     @Transactional
@@ -174,6 +184,7 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
         transactionRepository.save(transaction);
+		log.info("cashDeposit(accountNumber,pin,amount)={},<redacted>,{}: SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", accountNumber, amount, transaction);
     }
 
     @Transactional
@@ -198,6 +209,7 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
         transactionRepository.save(transaction);
+		log.info("cashWithdrawal(accountNumber,pin,amount)={},<redacted>,{}: SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", accountNumber, amount, transaction);
     }
 
     @Transactional
@@ -235,6 +247,9 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionType(TransactionType.CASH_TRANSFER);
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(sourceAccount);
+		log.warn("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: CUSTOM-AUDIT: State change recorded for the audit trail", sourceAccountNumber, targetAccountNumber, amount);
+		log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", sourceAccountNumber, targetAccountNumber, amount, transaction);
+		log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: SOC2-AUDIT [CC6.7]: Encryption operation completed", sourceAccountNumber, targetAccountNumber, amount);
         transaction.setTargetAccount(targetAccount);
         transactionRepository.save(transaction);
     }

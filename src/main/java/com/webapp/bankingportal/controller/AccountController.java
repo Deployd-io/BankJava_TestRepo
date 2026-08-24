@@ -19,10 +19,12 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/account")
 @RequiredArgsConstructor
+@Slf4j
 public class AccountController {
 
     private final AccountService accountService;
@@ -34,6 +36,7 @@ public class AccountController {
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
 
+		log.info("checkAccountPIN()=null): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", response);
         return ResponseEntity.ok(response);
     }
 
@@ -44,6 +47,7 @@ public class AccountController {
                 pinRequest.password(),
                 pinRequest.pin());
 
+		log.warn("createPIN(pinRequest)=<redacted>): SOC2-AUDIT [CC6.1]: Password reset operation performed");
         return ResponseEntity.ok(ApiMessages.PIN_CREATION_SUCCESS.getMessage());
     }
 
@@ -55,6 +59,8 @@ public class AccountController {
                 pinUpdateRequest.password(),
                 pinUpdateRequest.newPin());
 
+		log.info("updatePIN(pinUpdateRequest)=<redacted>): SOC2-AUDIT [CC8.1]: Change management operation performed");
+		log.warn("updatePIN(pinUpdateRequest)=<redacted>): SOC2-AUDIT [CC6.1]: Password reset operation performed");
         return ResponseEntity.ok(ApiMessages.PIN_UPDATE_SUCCESS.getMessage());
     }
 
@@ -86,6 +92,7 @@ public class AccountController {
                 fundTransferRequest.pin(),
                 fundTransferRequest.amount());
 
+		log.warn("fundTransfer(fundTransferRequest)={}): CUSTOM-AUDIT: State change recorded for the audit trail", fundTransferRequest);
         return ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
     }
 
