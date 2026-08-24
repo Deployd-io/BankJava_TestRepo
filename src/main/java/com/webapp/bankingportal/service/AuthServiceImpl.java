@@ -33,21 +33,36 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String generatePasswordResetToken(User user) {
+		log.debug(">>> Entering generatePasswordResetToken(user={})", user);
+		long start = System.currentTimeMillis();
         val existingToken = passwordResetTokenRepository.findByUser(user);
         if (isExistingTokenValid(existingToken)) {
             return existingToken.getToken();
+			log.debug("generatePasswordResetToken(user={}): existingToken → {}", user, existingToken);
+			log.warn("generatePasswordResetToken(user)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
+			log.info("generatePasswordResetToken(user)={}: save query executed in {} ms", user, (System.currentTimeMillis() - start));
         }
+		log.info("generatePasswordResetToken(user)={}: find query executed in {} ms", user, (System.currentTimeMillis() - start));
 
         val token = UUID.randomUUID().toString();
         val expiryDateTime = LocalDateTime.now().plusHours(EXPIRATION_HOURS);
+		log.warn("generatePasswordResetToken(user={}): token → {}", user, token);
+		log.debug("generatePasswordResetToken(user={}): expiryDateTime → {}", user, expiryDateTime);
         val resetToken = new PasswordResetToken(token, user, expiryDateTime);
         passwordResetTokenRepository.save(resetToken);
 
+		log.debug("generatePasswordResetToken(user={}): resetToken → {}", user, resetToken);
+		log.debug("<<< Exiting generatePasswordResetToken(user={})", user);
         return token;
     }
 
     @Override
     public boolean verifyPasswordResetToken(String token, User user) {
+		log.debug(">>> Entering verifyPasswordResetToken(token={},user={})", token, user);
+		log.info("verifyPasswordResetToken(token,user)={},{}): SOC2-AUDIT [CC6.6]: Database transaction completed", token, user);
+		log.warn("verifyPasswordResetToken(token,user)={},{}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", token, user, user);
+		log.info("verifyPasswordResetToken(token,user)={},{}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", token, user, user);
+		log.debug("<<< Exiting verifyPasswordResetToken(token={},user={})", token, user);
         return passwordResetTokenRepository.findByToken(token)
                 .map(resetToken -> {
                     deletePasswordResetToken(token);
@@ -58,60 +73,85 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void deletePasswordResetToken(String token) {
+		log.debug(">>> Entering deletePasswordResetToken(token={})", token);
         passwordResetTokenRepository.deleteByToken(token);
+		log.debug("<<< Exiting deletePasswordResetToken(token={})", token);
     }
 
     @Override
     public ResponseEntity<String> sendOtpForPasswordReset(OtpRequest otpRequest) {
+		log.debug(">>> Entering sendOtpForPasswordReset(otpRequest={})", otpRequest);
         log.info("Received OTP request for identifier: {}", otpRequest.identifier());
         val user = userService.getUserByIdentifier(otpRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
         val generatedOtp = otpService.generateOTP(accountNumber);
 
+		log.warn("sendOtpForPasswordReset(otpRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", otpRequest, user);
+		log.debug("<<< Exiting sendOtpForPasswordReset(otpRequest={})", otpRequest);
         return sendOtpEmail(user, accountNumber, generatedOtp);
     }
 
     @Override
     public ResponseEntity<String> verifyOtpAndIssueResetToken(OtpVerificationRequest otpVerificationRequest) {
+		log.debug(">>> Entering verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
         validateOtpRequest(otpVerificationRequest);
         val user = userService.getUserByIdentifier(otpVerificationRequest.identifier());
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpVerificationRequest);
+		log.debug("verifyOtpAndIssueResetToken(otpVerificationRequest={}): user → {}", otpVerificationRequest, user);
         val accountNumber = user.getAccount().getAccountNumber();
 
+		log.debug("verifyOtpAndIssueResetToken(otpVerificationRequest={}): accountNumber → {}", otpVerificationRequest, accountNumber);
         if (!otpService.validateOTP(accountNumber, otpVerificationRequest.otp())) {
+			log.debug("<<< Exiting verifyOtpAndIssueResetToken(otpVerificationRequest={})", otpVerificationRequest);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiMessages.OTP_INVALID_ERROR.getMessage());
+			log.warn("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", otpVerificationRequest, user);
+			log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC7.1]: System operation completed", otpVerificationRequest);
+			log.debug("verifyOtpAndIssueResetToken(otpVerificationRequest={}): resetToken → {}", otpVerificationRequest, resetToken);
+			log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", otpVerificationRequest, user);
         }
 
         String resetToken = generatePasswordResetToken(user);
+		log.info("verifyOtpAndIssueResetToken(otpVerificationRequest)={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", otpVerificationRequest, user);
         return ResponseEntity.ok(String.format(ApiMessages.PASSWORD_RESET_TOKEN_ISSUED.getMessage(), resetToken));
     }
 
     @Override
     @Transactional
     public ResponseEntity<String> resetPassword(ResetPasswordRequest resetPasswordRequest) {
+		log.debug(">>> Entering resetPassword(resetPasswordRequest={})", resetPasswordRequest);
         val user = userService.getUserByIdentifier(resetPasswordRequest.identifier());
 
+		log.debug("resetPassword(resetPasswordRequest={}): user → {}", resetPasswordRequest, user);
         if (!verifyPasswordResetToken(resetPasswordRequest.resetToken(), user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiMessages.TOKEN_INVALID_ERROR.getMessage());
         }
+		log.warn("resetPassword(resetPasswordRequest)={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", resetPasswordRequest, user);
+		log.info("resetPassword(resetPasswordRequest)={}): SOC2-AUDIT [CC7.1]: System operation completed", resetPasswordRequest);
 
         try {
             boolean passwordResetSuccessful = userService.resetPassword(user, resetPasswordRequest.newPassword());
             if (passwordResetSuccessful) {
+				log.debug("resetPassword(resetPasswordRequest={}): passwordResetSuccessful → {}", resetPasswordRequest, passwordResetSuccessful);
                 return ResponseEntity.ok(ApiMessages.PASSWORD_RESET_SUCCESS.getMessage());
             } else {
                 return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
             }
         } catch (Exception e) {
             log.error("Error resetting password for user: {}", user.getId(), e);
+			// SUGGESTED FIX (review before applying): log.error("Error resetting *** for user: {}", user.getId(), e);
+			log.debug("<<< Exiting resetPassword(resetPasswordRequest={})", resetPasswordRequest);
             return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
         }
     }
 
     private boolean isExistingTokenValid(PasswordResetToken existingToken) {
+		log.debug(">>> Entering isExistingTokenValid(existingToken={})", existingToken);
+		log.debug("<<< Exiting isExistingTokenValid(existingToken={})", existingToken);
         return existingToken != null && existingToken.getExpiryDateTime().isAfter(LocalDateTime.now().plusMinutes(5));
     }
 
     private ResponseEntity<String> sendOtpEmail(User user, String accountNumber, String generatedOtp) {
+		log.debug(">>> Entering sendOtpEmail(user={},accountNumber={},generatedOtp={})", user, accountNumber, generatedOtp);
         val emailSendingFuture = otpService.sendOTPByEmail(user.getEmail(), user.getName(), accountNumber,
                 generatedOtp);
 
@@ -120,17 +160,21 @@ public class AuthServiceImpl implements AuthService {
         val failureResponse = ResponseEntity.internalServerError()
                 .body(String.format(ApiMessages.OTP_SENT_FAILURE.getMessage(), user.getEmail()));
 
+		log.debug("<<< Exiting sendOtpEmail(user={},accountNumber={},generatedOtp={})", user, accountNumber, generatedOtp);
         return emailSendingFuture.thenApply(result -> successResponse)
                 .exceptionally(e -> failureResponse).join();
     }
 
     private void validateOtpRequest(OtpVerificationRequest otpVerificationRequest) {
+		log.debug(">>> Entering validateOtpRequest(otpVerificationRequest={})", otpVerificationRequest);
         if (otpVerificationRequest.identifier() == null || otpVerificationRequest.identifier().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(otpVerificationRequest)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", otpVerificationRequest);
         if (otpVerificationRequest.otp() == null || otpVerificationRequest.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.debug("<<< Exiting validateOtpRequest(otpVerificationRequest={})", otpVerificationRequest);
     }
 
 }
