@@ -11,16 +11,20 @@ import com.webapp.bankingportal.repository.TransactionRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
+public static final Logger log = LoggerFactory.getLogger(TransactionServiceImpl.class);
 
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
 
     @Override
     public List<TransactionDTO> getAllTransactionsByAccountNumber(String accountNumber) {
+		log.debug(">>> Entering getAllTransactionsByAccountNumber(accountNumber={})", accountNumber);
         val transactions = transactionRepository
                 .findBySourceAccount_AccountNumberOrTargetAccount_AccountNumber(accountNumber, accountNumber);
 
@@ -29,6 +33,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .sorted((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()))
                 .collect(Collectors.toList());
 
+		log.info("getAllTransactionsByAccountNumber(accountNumber)={}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", accountNumber, transactions);
+		log.debug("<<< Exiting getAllTransactionsByAccountNumber(accountNumber={})", accountNumber);
         return transactionDTOs;
     }
 

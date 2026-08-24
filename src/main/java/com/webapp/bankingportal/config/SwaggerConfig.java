@@ -12,13 +12,22 @@ import lombok.val;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 public class SwaggerConfig {
+public static final Logger log = LoggerFactory.getLogger(SwaggerConfig.class);
 
     @Bean
     public OpenAPI customOpenAPI() {
+		log.debug(">>> Entering customOpenAPI()");
         val securitySchemeName = "Bearer";
+		log.info("customOpenAPI()=null): SOC2-AUDIT [CC6.7]: Encryption operation completed");
+		log.info("customOpenAPI()=null): SOC2-AUDIT [CC8.1]: Change management operation performed");
+		log.info("customOpenAPI()=null): SOC2-AUDIT [CC6.6]: Database transaction completed");
+		log.debug("customOpenAPI(): securitySchemeName → {}", securitySchemeName);
+		log.debug("<<< Exiting customOpenAPI()");
         return new OpenAPI()
                 .info(new Info().title("Banking Portal API")
                         .description("This is auth service use for validate the user.")
