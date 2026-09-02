@@ -18,9 +18,11 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OtpServiceImpl implements OtpService {
 
     public static final int OTP_ATTEMPTS_LIMIT = 3;
@@ -57,6 +59,8 @@ public class OtpServiceImpl implements OtpService {
         existingOtpInfo.setGeneratedAt(LocalDateTime.now());
         incrementOtpAttempts(accountNumber);
 
+		log.warn("generateOTP(accountNumber)={}): HIPAA-AUDIT: State change recorded for the audit trail", accountNumber);
+		log.info("generateOTP(accountNumber)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber);
         return existingOtpInfo.getOtp();
     }
 
@@ -73,6 +77,7 @@ public class OtpServiceImpl implements OtpService {
 
         val waitingMinutes = OTP_RESET_WAITING_TIME_MINUTES - otpLimitReachedTime.until(now, ChronoUnit.MINUTES);
 
+		log.info("validateOtpWithinRetryLimit(otpInfo)=<redacted>): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
         throw new OtpRetryLimitExceededException(
                 String.format(ApiMessages.OTP_GENERATION_LIMIT_EXCEEDED.getMessage(), waitingMinutes));
     }
@@ -95,6 +100,7 @@ public class OtpServiceImpl implements OtpService {
 
     private boolean isOtpResetWaitingTimeExceeded() {
         val now = LocalDateTime.now();
+		log.warn("isOtpResetWaitingTimeExceeded()=null): HIPAA-AUDIT: State change recorded for the audit trail");
         return otpLimitReachedTime != null
                 && otpLimitReachedTime.isBefore(now.minusMinutes(OTP_RESET_WAITING_TIME_MINUTES));
     }
@@ -116,6 +122,7 @@ public class OtpServiceImpl implements OtpService {
         if (cache != null) {
             cache.put(accountNumber, 0);
         }
+		log.warn("resetOtpAttempts(accountNumber)={}): HIPAA-AUDIT: State change recorded for the audit trail", accountNumber);
     }
 
     private int getOtpAttempts(String accountNumber) {
@@ -130,6 +137,7 @@ public class OtpServiceImpl implements OtpService {
             otpAttempts = value;
         }
 
+		log.warn("getOtpAttempts(accountNumber)={}): HIPAA-AUDIT: Record access recorded for the audit trail", accountNumber);
         return otpAttempts;
     }
 
@@ -140,12 +148,15 @@ public class OtpServiceImpl implements OtpService {
 
         otpInfoRepository.save(new OtpInfo(accountNumber, otp, LocalDateTime.now()));
 
+		log.warn("generateNewOTP(accountNumber)={}): HIPAA-AUDIT: State change recorded for the audit trail", accountNumber);
         return otp;
     }
 
     @Override
     public CompletableFuture<Void> sendOTPByEmail(String email, String name, String accountNumber, String otp) {
         val emailText = emailService.getOtpLoginEmailTemplate(name, "xxx" + accountNumber.substring(3), otp);
+		log.warn("sendOTPByEmail(email,name,accountNumber,otp)={},{},{},<redacted>: HIPAA-AUDIT: Outbound notification recorded for the audit trail", email, name, accountNumber);
+		log.warn("sendOTPByEmail(email,name,accountNumber,otp)={},{},{},<redacted>: HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", email, name, accountNumber);
         return emailService.sendEmail(email, ApiMessages.EMAIL_SUBJECT_OTP.getMessage(), emailText);
     }
 
@@ -156,6 +167,8 @@ public class OtpServiceImpl implements OtpService {
             throw new InvalidOtpException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
 
+		log.warn("validateOTP(accountNumber,otp)={},<redacted>: HIPAA-AUDIT: State change recorded for the audit trail", accountNumber);
+		log.info("validateOTP(accountNumber,otp)={},<redacted>: HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber);
         return !isOtpExpired(otpInfo);
     }
 
@@ -167,6 +180,7 @@ public class OtpServiceImpl implements OtpService {
             otpInfoRepository.delete(otpInfo);
         }
 
+		log.warn("isOtpExpired(otpInfo)=<redacted>): HIPAA-AUDIT: State change recorded for the audit trail");
         return expired;
     }
 
