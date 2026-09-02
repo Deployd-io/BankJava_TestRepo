@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.webapp.bankingportal.service.ReportService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
+@Slf4j
 public class ReportController {
 
     private final ReportService reportService;
@@ -38,6 +40,7 @@ public class ReportController {
     @GetMapping("/top-transactions")
     public ResponseEntity<String> getTopTransaction(
             @RequestParam(defaultValue = "7") int rank) {
+		log.info("getTopTransaction()=null): SOC2-AUDIT [CC6.6]: Database transaction completed");
         return ResponseEntity.ok(reportService.selectTopTransaction(rank));
     }
 
