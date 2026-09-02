@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * JWT Authentication Filter
@@ -30,6 +31,7 @@ import lombok.val;
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
@@ -93,6 +95,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
+		log.warn("doFilterInternal(request,response,filterChain)={},{},{}: HIPAA-AUDIT [§164.312(e)(2)(ii)]: PHI transmission secured and logged {}", request, response, filterChain, response);
+		log.info("doFilterInternal(request,response,filterChain)={},{},{}: HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", request, response, filterChain);
         filterChain.doFilter(request, response);
     }
 

@@ -12,10 +12,12 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/dashboard")
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardController {
 
     private final DashboardService dashboardService;
@@ -24,6 +26,7 @@ public class DashboardController {
     public ResponseEntity<String> getUserDetails() {
         val accountNumber = LoggedinUser.getAccountNumber();
         val userResponse = dashboardService.getUserDetails(accountNumber);
+		log.warn("getUserDetails()=null): HIPAA-AUDIT: Record access recorded for the audit trail");
         return ResponseEntity.ok(JsonUtil.toJson(userResponse));
     }
 
@@ -31,6 +34,7 @@ public class DashboardController {
     public ResponseEntity<String> getAccountDetails() {
         val accountNumber = LoggedinUser.getAccountNumber();
         val accountResponse = dashboardService.getAccountDetails(accountNumber);
+		log.warn("getAccountDetails()=null): HIPAA-AUDIT: Record access recorded for the audit trail");
         return ResponseEntity.ok(JsonUtil.toJson(accountResponse));
     }
 

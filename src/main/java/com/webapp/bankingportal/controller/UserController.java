@@ -22,10 +22,12 @@ import com.webapp.bankingportal.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 @Autowired
     private final UserService userService;
@@ -42,6 +44,7 @@ public class UserController {
             emailService.sendEmail(user.getEmail(), "Welcome to OneStopBank", emailBody);
         }
 
+		log.warn("registerUser(user)={}): HIPAA-AUDIT: State change recorded for the audit trail", user);
         return response;
     }
 
@@ -66,6 +69,7 @@ public class UserController {
 
     @PostMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody User user) {
+		log.warn("updateUser(user)={}): HIPAA-AUDIT: State change recorded for the audit trail", user);
         return userService.updateUser(user);
     }
 

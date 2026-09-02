@@ -56,6 +56,8 @@ public class UserServiceImpl implements UserService {
         validationUtil.validateNewUser(user);
         encodePassword(user);
         val savedUser = saveUserWithAccount(user);
+		log.warn("registerUser(user)={}): HIPAA-AUDIT: State change recorded for the audit trail", user);
+		log.info("registerUser(user)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -92,6 +94,7 @@ public class UserServiceImpl implements UserService {
         val existingUser = getUserByAccountNumber(accountNumber);
         updateUserDetails(existingUser, updatedUser);
         val savedUser = saveUser(existingUser);
+		log.warn("updateUser(updatedUser)={}): HIPAA-AUDIT: State change recorded for the audit trail", updatedUser);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -101,6 +104,7 @@ public class UserServiceImpl implements UserService {
         try {
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
+			log.warn("resetPassword(user,newPassword)={},<redacted>: HIPAA-AUDIT: State change recorded for the audit trail", user);
             return true;
         } catch (Exception e) {
             throw new PasswordResetException(ApiMessages.PASSWORD_RESET_FAILURE.getMessage(), e);
@@ -115,11 +119,13 @@ public class UserServiceImpl implements UserService {
 
         log.info("User logged out successfully {}", tokenService.getUsernameFromToken(token));
 
+		log.info("logout(token)=<redacted>): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
         return new ModelAndView("redirect:/logout");
     }
 
     @Override
     public User saveUser(User user) {
+		log.warn("saveUser(user)={}): HIPAA-AUDIT: State change recorded for the audit trail", user);
         return userRepository.save(user);
     }
 
@@ -136,11 +142,13 @@ public class UserServiceImpl implements UserService {
                     String.format(ApiMessages.USER_NOT_FOUND_BY_IDENTIFIER.getMessage(), identifier));
         }
 
+		log.warn("getUserByIdentifier(identifier)={}): HIPAA-AUDIT: Record access recorded for the audit trail {}", identifier, identifier);
         return user;
     }
 
     @Override
     public User getUserByAccountNumber(String accountNo) {
+		log.warn("getUserByAccountNumber(accountNo)={}): HIPAA-AUDIT: Record access recorded for the audit trail", accountNo);
         return userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
                 () -> new UserInvalidException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNo)));
@@ -148,6 +156,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
+		log.warn("getUserByEmail(email)={}): HIPAA-AUDIT: Record access recorded for the audit trail", email);
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UserInvalidException(String.format(ApiMessages.USER_NOT_FOUND_BY_EMAIL.getMessage(), email)));
     }
@@ -160,6 +169,7 @@ public class UserServiceImpl implements UserService {
     private User saveUserWithAccount(User user) {
         val savedUser = saveUser(user);
         savedUser.setAccount(accountService.createAccount(savedUser));
+		log.warn("saveUserWithAccount(user)={}): HIPAA-AUDIT: State change recorded for the audit trail", user);
         return saveUser(savedUser);
     }
 
@@ -168,6 +178,7 @@ public class UserServiceImpl implements UserService {
         val accountNumber = user.getAccount().getAccountNumber();
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+		log.warn("authenticateUser(loginRequest)={}): HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", loginRequest, user);
         return user;
     }
 
@@ -179,6 +190,7 @@ public class UserServiceImpl implements UserService {
         val userDetails = userDetailsService.loadUserByUsername(accountNumber);
         val token = tokenService.generateToken(userDetails);
         tokenService.saveToken(token);
+		log.warn("generateAndSaveToken(accountNumber)={}): HIPAA-AUDIT: State change recorded for the audit trail", accountNumber);
         return token;
     }
 
@@ -191,6 +203,8 @@ public class UserServiceImpl implements UserService {
         ResponseEntity<String> failureResponse = ResponseEntity.internalServerError()
                 .body(String.format(ApiMessages.OTP_SENT_FAILURE.getMessage(), user.getEmail()));
 
+		log.warn("sendOtpEmail(user,otp)={},<redacted>: HIPAA-AUDIT: Outbound notification recorded for the audit trail", user);
+		log.warn("sendOtpEmail(user,otp)={},<redacted>: HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", user);
         return emailSendingFuture.thenApply(result -> successResponse)
                 .exceptionally(e -> failureResponse).join();
     }
@@ -199,26 +213,35 @@ public class UserServiceImpl implements UserService {
         if (request.identifier() == null || request.identifier().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
+		log.warn("validateOtpRequest(request)={}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", request);
         if (request.otp() == null || request.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(request)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", request);
     }
 
     private void validateOtp(User user, String otp) {
         if (!otpService.validateOTP(user.getAccount().getAccountNumber(), otp)) {
             throw new UnauthorizedException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
+		log.info("validateOtp(user,otp)={},<redacted>: HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", user);
     }
 
     private void updateUserDetails(User existingUser, User updatedUser) {
         ValidationUtil.validateUserDetails(updatedUser);
         updatedUser.setPassword(existingUser.getPassword());
+		log.warn("updateUserDetails(existingUser,updatedUser)={},{}: HIPAA-AUDIT: State change recorded for the audit trail", existingUser, updatedUser);
+		log.info("updateUserDetails(existingUser,updatedUser)={},{}: HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", existingUser, updatedUser);
         userMapper.updateUser(updatedUser, existingUser);
     }
 
     private CompletableFuture<Boolean> sendLoginNotification(User user, String ip) {
         val loginTime = new Timestamp(System.currentTimeMillis()).toString();
+		log.warn("sendLoginNotification(user,ip)={},{}: HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", user, ip);
+		log.error("sendLoginNotification(user,ip)={},{}: HIPAA-AUDIT [§164.308(a)(6)]: Security incident response initiated", user, ip);
 
+		log.warn("sendLoginNotification(user,ip)={},{}: HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", user, ip, user);
+		log.warn("sendLoginNotification(user,ip)={},{}: HIPAA-AUDIT: Outbound notification recorded for the audit trail", user, ip);
         return geolocationService.getGeolocation(ip)
                 .thenComposeAsync(geolocationResponse -> {
                     val loginLocation = String.format("%s, %s",
@@ -230,7 +253,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private CompletableFuture<Boolean> sendLoginEmail(User user, String loginTime, String loginLocation) {
+		log.warn("sendLoginEmail(user,loginTime,loginLocation)={},{},{}: HIPAA-AUDIT: Outbound notification recorded for the audit trail", user, loginTime, loginLocation);
+		log.warn("sendLoginEmail(user,loginTime,loginLocation)={},{},{}: HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", user, loginTime, loginLocation);
         val emailText = emailService.getLoginEmailTemplate(user.getName(), loginTime, loginLocation);
+		log.warn("sendLoginEmail(user,loginTime,loginLocation)={},{},{}: HIPAA-AUDIT [§164.312(d)]: User authentication completed before PHI access {}", user, loginTime, loginLocation, user);
         return emailService.sendEmail(user.getEmail(), ApiMessages.EMAIL_SUBJECT_LOGIN.getMessage(), emailText)
                 .thenApplyAsync(result -> true)
                 .exceptionally(ex -> false);

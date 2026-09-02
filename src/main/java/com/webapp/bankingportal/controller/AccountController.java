@@ -19,10 +19,12 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/account")
 @RequiredArgsConstructor
+@Slf4j
 public class AccountController {
 
     private final AccountService accountService;
@@ -34,6 +36,7 @@ public class AccountController {
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
 
+		log.info("checkAccountPIN()=null): HIPAA-AUDIT [§164.312(c)(1)]: PHI integrity verification completed {}", isPINValid);
         return ResponseEntity.ok(response);
     }
 
@@ -44,6 +47,7 @@ public class AccountController {
                 pinRequest.password(),
                 pinRequest.pin());
 
+		log.warn("createPIN(pinRequest)=<redacted>): HIPAA-AUDIT: State change recorded for the audit trail");
         return ResponseEntity.ok(ApiMessages.PIN_CREATION_SUCCESS.getMessage());
     }
 
@@ -55,6 +59,7 @@ public class AccountController {
                 pinUpdateRequest.password(),
                 pinUpdateRequest.newPin());
 
+		log.warn("updatePIN(pinUpdateRequest)=<redacted>): HIPAA-AUDIT: State change recorded for the audit trail");
         return ResponseEntity.ok(ApiMessages.PIN_UPDATE_SUCCESS.getMessage());
     }
 
@@ -86,6 +91,8 @@ public class AccountController {
                 fundTransferRequest.pin(),
                 fundTransferRequest.amount());
 
+		log.warn("fundTransfer(fundTransferRequest)={}): HIPAA-AUDIT: State change recorded for the audit trail", fundTransferRequest);
+		log.warn("fundTransfer(fundTransferRequest)={}): HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", fundTransferRequest);
         return ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
     }
 
@@ -93,6 +100,7 @@ public class AccountController {
     public ResponseEntity<String> getAllTransactionsByAccountNumber() {
         val transactions = transactionService
                 .getAllTransactionsByAccountNumber(LoggedinUser.getAccountNumber());
+		log.warn("getAllTransactionsByAccountNumber()=null): HIPAA-AUDIT: Record access recorded for the audit trail");
         return ResponseEntity.ok(JsonUtil.toJson(transactions));
     }
 

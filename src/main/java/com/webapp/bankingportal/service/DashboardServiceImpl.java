@@ -12,9 +12,11 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardServiceImpl implements DashboardService {
 @Autowired
     private final UserRepository userRepository;
@@ -27,6 +29,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .orElseThrow(() -> new NotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 
+		log.warn("getUserDetails(accountNumber)={}): HIPAA-AUDIT: Record access recorded for the audit trail", accountNumber);
         return new UserResponse(user);
     }
 
@@ -37,6 +40,7 @@ public class DashboardServiceImpl implements DashboardService {
             throw new NotFoundException(String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber));
         }
 
+		log.warn("getAccountDetails(accountNumber)={}): HIPAA-AUDIT: Record access recorded for the audit trail", accountNumber);
         return new AccountResponse(account);
     }
 

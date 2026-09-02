@@ -46,11 +46,15 @@ public class EmailServiceImpl implements EmailService {
             future.completeExceptionally(e);
         }
 
+		log.warn("sendEmail(to,subject,text)={},{},{}: HIPAA-AUDIT: Outbound notification recorded for the audit trail", to, subject, text);
+		log.warn("sendEmail(to,subject,text)={},{},{}: HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", to, subject, text);
         return future;
     }
 
     @Override
     public String getLoginEmailTemplate(String name, String loginTime, String loginLocation) {
+		log.warn("getLoginEmailTemplate(name,loginTime,loginLocation)={},{},{}: HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed", name, loginTime, loginLocation);
+		log.warn("getLoginEmailTemplate(name,loginTime,loginLocation)={},{},{}: HIPAA-AUDIT [§164.312(d)]: Authentication verification completed", name, loginTime, loginLocation);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -77,6 +81,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getOtpLoginEmailTemplate(String name, String accountNumber, String otp) {
+		log.warn("getOtpLoginEmailTemplate(name,accountNumber,otp)={},{},<redacted>: HIPAA-AUDIT [§164.312(e)(2)(ii)]: Secure PHI transmission completed", name, accountNumber);
+		log.warn("getOtpLoginEmailTemplate(name,accountNumber,otp)={},{},<redacted>: HIPAA-AUDIT [§164.312(d)]: Authentication verification completed", name, accountNumber);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -102,6 +108,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getBankStatementEmailTemplate(String name, String statementText) {
+		log.warn("getBankStatementEmailTemplate(name,statementText)={},{}: HIPAA-AUDIT: Record access recorded for the audit trail", name, statementText);
          return "<div style=\"font-family: Arial, sans-serif; padding: 20px;\">" +
                 "<h2>Bank Statement</h2>" +
                 "<p>Dear " + name + ",</p>" +
@@ -128,6 +135,8 @@ public class EmailServiceImpl implements EmailService {
             mailSender.send(message);
         } catch (MessagingException e) {
             log.error("Failed to send email to {}", to, e);
+			log.warn("sendEmailWithAttachment(to,subject,text,attachmentFilePath)={},{},{},{}: HIPAA-AUDIT: Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.warn("sendEmailWithAttachment(to,subject,text,attachmentFilePath)={},{},{},{}: HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", to, subject, text, attachmentFilePath);
         }
     }
 

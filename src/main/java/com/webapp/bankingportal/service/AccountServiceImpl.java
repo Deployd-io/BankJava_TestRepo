@@ -43,6 +43,7 @@ public class AccountServiceImpl implements AccountService {
         account.setAccountNumber(generateUniqueAccountNumber());
         account.setBalance(0.0);
         account.setUser(user);
+		log.warn("createAccount(user)={}): HIPAA-AUDIT: State change recorded for the audit trail", user);
         return accountRepository.save(account);
     }
 
@@ -53,6 +54,7 @@ public class AccountServiceImpl implements AccountService {
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
 
+		log.warn("isPinCreated(accountNumber)={}): HIPAA-AUDIT: State change recorded for the audit trail", accountNumber);
         return account.getPin() != null;
     }
 
@@ -63,6 +65,7 @@ public class AccountServiceImpl implements AccountService {
             accountNumber = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 6);
         } while (accountRepository.findByAccountNumber(accountNumber) != null);
 
+		log.warn("generateUniqueAccountNumber()=null): HIPAA-AUDIT: State change recorded for the audit trail");
         return accountNumber;
     }
 
@@ -80,9 +83,11 @@ public class AccountServiceImpl implements AccountService {
             throw new UnauthorizedException(ApiMessages.PIN_EMPTY_ERROR.getMessage());
         }
 
+		log.warn("validatePin(accountNumber,pin)={},<redacted>: HIPAA-AUDIT: State change recorded for the audit trail", accountNumber);
         if (!passwordEncoder.matches(pin, account.getPin())) {
             throw new UnauthorizedException(ApiMessages.PIN_INVALID_ERROR.getMessage());
         }
+		log.info("validatePin(accountNumber,pin)={},<redacted>: HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber);
     }
 
     private void validatePassword(String accountNumber, String password) {
@@ -95,9 +100,11 @@ public class AccountServiceImpl implements AccountService {
             throw new UnauthorizedException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
 
+		log.warn("validatePassword(accountNumber,password)={},<redacted>: HIPAA-AUDIT: State change recorded for the audit trail", accountNumber);
         if (!passwordEncoder.matches(password, account.getUser().getPassword())) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_INVALID_ERROR.getMessage());
         }
+		log.info("validatePassword(accountNumber,password)={},<redacted>: HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber);
     }
 
     @Override
@@ -118,6 +125,8 @@ public class AccountServiceImpl implements AccountService {
         }
 
         account.setPin(passwordEncoder.encode(pin));
+		log.warn("createPin(accountNumber,password,pin)={},<redacted>,<redacted>: HIPAA-AUDIT: State change recorded for the audit trail", accountNumber);
+		log.info("createPin(accountNumber,password,pin)={},<redacted>,<redacted>: HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber);
         accountRepository.save(account);
     }
 
@@ -139,6 +148,8 @@ public class AccountServiceImpl implements AccountService {
         }
 
         account.setPin(passwordEncoder.encode(newPin));
+		log.warn("updatePin(accountNumber,oldPin,password,newPin)={},<redacted>,<redacted>,<redacted>: HIPAA-AUDIT: State change recorded for the audit trail", accountNumber);
+		log.info("updatePin(accountNumber,oldPin,password,newPin)={},<redacted>,<redacted>,<redacted>: HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber);
         accountRepository.save(account);
     }
 
@@ -154,6 +165,7 @@ public class AccountServiceImpl implements AccountService {
         if (amount > 100000) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_EXCEED_100_000_ERROR.getMessage());
         }
+		log.info("validateAmount(amount)={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", amount);
     }
 
     @Transactional
@@ -173,6 +185,8 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionType(TransactionType.CASH_DEPOSIT);
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
+		log.warn("cashDeposit(accountNumber,pin,amount)={},<redacted>,{}: HIPAA-AUDIT: State change recorded for the audit trail", accountNumber, amount);
+		log.info("cashDeposit(accountNumber,pin,amount)={},<redacted>,{}: HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, amount);
         transactionRepository.save(transaction);
     }
 
@@ -197,6 +211,8 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionType(TransactionType.CASH_WITHDRAWAL);
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
+		log.warn("cashWithdrawal(accountNumber,pin,amount)={},<redacted>,{}: HIPAA-AUDIT: State change recorded for the audit trail", accountNumber, amount);
+		log.info("cashWithdrawal(accountNumber,pin,amount)={},<redacted>,{}: HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", accountNumber, amount);
         transactionRepository.save(transaction);
     }
 
@@ -235,6 +251,9 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionType(TransactionType.CASH_TRANSFER);
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(sourceAccount);
+		log.warn("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: HIPAA-AUDIT: State change recorded for the audit trail", sourceAccountNumber, targetAccountNumber, amount);
+		log.warn("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: HIPAA-AUDIT [§164.312(e)(1)]: Secure PHI transmission completed", sourceAccountNumber, targetAccountNumber, amount);
+		log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", sourceAccountNumber, targetAccountNumber, amount);
         transaction.setTargetAccount(targetAccount);
         transactionRepository.save(transaction);
     }

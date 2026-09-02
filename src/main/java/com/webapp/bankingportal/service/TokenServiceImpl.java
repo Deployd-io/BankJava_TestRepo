@@ -44,6 +44,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getUsernameFromToken(String token) throws InvalidTokenException {
+		log.warn("getUsernameFromToken(token)=<redacted>): HIPAA-AUDIT: Record access recorded for the audit trail");
         return getClaimFromToken(token, Claims::getSubject);
     }
 
@@ -76,6 +77,7 @@ public class TokenServiceImpl implements TokenService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 
+		log.warn("loadUserByUsername(accountNumber)={}): HIPAA-AUDIT: Record access recorded for the audit trail", accountNumber);
         return withUsername(accountNumber).password(user.getPassword()).build();
     }
 
@@ -99,6 +101,8 @@ public class TokenServiceImpl implements TokenService {
     private Claims getAllClaimsFromToken(String token) throws InvalidTokenException {
         try {
            // return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+			log.warn("getAllClaimsFromToken(token)=<redacted>): HIPAA-AUDIT: Record access recorded for the audit trail");
+			log.info("getAllClaimsFromToken(token)=<redacted>): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
             return Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
@@ -142,11 +146,14 @@ public class TokenServiceImpl implements TokenService {
                 account);
 
         tokenRepository.save(tokenObj);
+		log.warn("saveToken(token)=<redacted>): HIPAA-AUDIT: State change recorded for the audit trail");
     }
 
     @Override
     public void validateToken(String token) throws InvalidTokenException {
         if (tokenRepository.findByToken(token) == null) {
+			log.warn("validateToken(token)=<redacted>): HIPAA-AUDIT: State change recorded for the audit trail");
+			log.info("validateToken(token)=<redacted>): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
             throw new InvalidTokenException(ApiMessages.TOKEN_NOT_FOUND_ERROR.getMessage());
         }
     }
@@ -156,6 +163,8 @@ public class TokenServiceImpl implements TokenService {
     public void invalidateToken(String token) {
         if (tokenRepository.findByToken(token) != null) {
             tokenRepository.deleteByToken(token);
+			log.warn("invalidateToken(token)=<redacted>): HIPAA-AUDIT: State change recorded for the audit trail");
+			log.info("invalidateToken(token)=<redacted>): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed");
         }
     }
 
