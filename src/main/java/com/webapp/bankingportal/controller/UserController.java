@@ -22,10 +22,12 @@ import com.webapp.bankingportal.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 @Autowired
     private final UserService userService;
@@ -35,6 +37,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
         ResponseEntity<String> response = userService.registerUser(user);
+		log.info("ENTERING: registerUser() method");
 
         // Only send email if registration succeeded
         if (response.getStatusCode().is2xxSuccessful()) {
@@ -42,6 +45,8 @@ public class UserController {
             emailService.sendEmail(user.getEmail(), "Welcome to OneStopBank", emailBody);
         }
 
+		log.warn("registerUser(user)={}): GDPR-AUDIT: State change recorded for the audit trail", user);
+		log.info("registerUser(user)={}): GDPR-AUDIT [Art.30]: Personal data processing operation recorded {}", user, user);
         return response;
     }
 
@@ -54,6 +59,7 @@ public class UserController {
 
     @PostMapping("/generate-otp")
     public ResponseEntity<String> generateOtp(@RequestBody OtpRequest otpRequest) {
+		log.warn("ENTERING: generateOtp() method");
         return userService.generateOtp(otpRequest);
     }
 
@@ -66,6 +72,8 @@ public class UserController {
 
     @PostMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody User user) {
+		log.warn("updateUser(user)={}): GDPR-AUDIT [Art.15]: Data subject right exercised for data subject {}", user, user);
+		log.info("ENTERING: updateUser() method");
         return userService.updateUser(user);
     }
 

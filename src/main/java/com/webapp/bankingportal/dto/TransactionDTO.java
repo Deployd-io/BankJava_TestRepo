@@ -9,10 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class TransactionDTO {
 
     private Long id;
@@ -24,6 +26,7 @@ public class TransactionDTO {
 
     public TransactionDTO(Transaction transaction) {
         this.id = transaction.getId();
+		log.info("ENTERING: TransactionDTO() method");
         this.amount = transaction.getAmount();
         this.transactionType = transaction.getTransactionType();
         this.transactionDate = transaction.getTransactionDate();

@@ -30,12 +30,14 @@ public class GeolocationServiceImpl implements GeolocationService {
     @Async
     public CompletableFuture<GeolocationResponse> getGeolocation(String ip) {
         val future = new CompletableFuture<GeolocationResponse>();
+		log.info("ENTERING: getGeolocation() method");
 
         try {
             // Validate IP address
             InetAddress.getByName(ip);
 
             log.info("Getting geolocation for IP: {}", ip);
+			// SUGGESTED FIX (review before applying): log.info("Getting geolocation for ***: {}", ***);
 
             // Call geolocation API
             val url = String.format("%s/%s/?token=%s", apiUrl, ip, apiKey);
@@ -44,6 +46,7 @@ public class GeolocationServiceImpl implements GeolocationService {
 
             if (response == null) {
                 log.error("Failed to get geolocation for IP: {}", ip);
+				// SUGGESTED FIX (review before applying): log.error("Failed to get geolocation for ***: {}", ***);
                 future.completeExceptionally(new GeolocationException(
                         "Failed to get geolocation for IP: " + ip));
             } else {
@@ -52,6 +55,7 @@ public class GeolocationServiceImpl implements GeolocationService {
 
         } catch (UnknownHostException e) {
             log.error("Invalid IP address: {}", ip, e);
+			// SUGGESTED FIX (review before applying): log.error("Invalid *** ***: {}", ***, e);
             future.completeExceptionally(e);
 
         } catch (RestClientException e) {
@@ -59,6 +63,8 @@ public class GeolocationServiceImpl implements GeolocationService {
             future.completeExceptionally(e);
         }
 
+		log.warn("getGeolocation(ip)={}): GDPR-AUDIT: Record access recorded for the audit trail", ip);
+		log.info("getGeolocation(ip)={}): GDPR-AUDIT [Art.30]: Personal data processing activity completed", ip);
         return future;
     }
 

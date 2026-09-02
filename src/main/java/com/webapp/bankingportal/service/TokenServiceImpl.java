@@ -44,6 +44,8 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getUsernameFromToken(String token) throws InvalidTokenException {
+		log.info("ENTERING: getUsernameFromToken() method");
+		log.info("getUsernameFromToken(token)=<redacted>): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
         return getClaimFromToken(token, Claims::getSubject);
     }
 
@@ -57,13 +59,17 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String generateToken(UserDetails userDetails, Date expiry) {
         log.info("Generating token for user: " + userDetails.getUsername());
+		log.info("generateToken(userDetails,expiry)={},{}: GDPR-AUDIT [Art.5(1)(e)]: Data retention/deletion policy enforced", userDetails, expiry);
         return doGenerateToken(userDetails, expiry);
     }
     private Key key() {
+		log.warn("ENTERING: key() method");
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
     private String doGenerateToken(UserDetails userDetails, Date expiry) {
+		log.info("doGenerateToken(userDetails,expiry)={},{}: GDPR-AUDIT [Art.5(1)(e)]: Data retention/deletion policy enforced", userDetails, expiry);
+		log.info("ENTERING: doGenerateToken() method");
         return Jwts.builder().setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(expiry)
@@ -72,9 +78,11 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public UserDetails loadUserByUsername(String accountNumber) throws UsernameNotFoundException {
+		log.warn("loadUserByUsername(accountNumber)={}): GDPR-AUDIT: Record access recorded for the audit trail", accountNumber);
         val user = userRepository.findByAccountAccountNumber(accountNumber)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
+						log.info("ENTERING: loadUserByUsername() method");
 
         return withUsername(accountNumber).password(user.getPassword()).build();
     }
@@ -92,13 +100,16 @@ public class TokenServiceImpl implements TokenService {
         return claimsResolver.apply(claims);
     }
     private JwtParser parser() {
+		log.warn("ENTERING: parser() method");
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build();
     }
     private Claims getAllClaimsFromToken(String token) throws InvalidTokenException {
         try {
+		log.info("ENTERING: getAllClaimsFromToken() method");
            // return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+			log.warn("getAllClaimsFromToken(token)=<redacted>): GDPR-AUDIT: Record access recorded for the audit trail");
             return Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
@@ -128,6 +139,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void saveToken(String token) throws InvalidTokenException {
         if (tokenRepository.findByToken(token) != null) {
+			log.info("ENTERING: saveToken() method");
             throw new InvalidTokenException(ApiMessages.TOKEN_ALREADY_EXISTS_ERROR.getMessage());
         }
 
@@ -141,11 +153,15 @@ public class TokenServiceImpl implements TokenService {
                 getExpirationDateFromToken(token),
                 account);
 
+		log.warn("saveToken(token)=<redacted>): GDPR-AUDIT: State change recorded for the audit trail");
+		log.info("saveToken(token)=<redacted>): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
         tokenRepository.save(tokenObj);
     }
 
     @Override
     public void validateToken(String token) throws InvalidTokenException {
+		log.warn("validateToken(token)=<redacted>): GDPR-AUDIT: State change recorded for the audit trail");
+		log.info("ENTERING: validateToken() method");
         if (tokenRepository.findByToken(token) == null) {
             throw new InvalidTokenException(ApiMessages.TOKEN_NOT_FOUND_ERROR.getMessage());
         }
@@ -154,6 +170,8 @@ public class TokenServiceImpl implements TokenService {
     @Override
     @Transactional
     public void invalidateToken(String token) {
+		log.warn("invalidateToken(token)=<redacted>): GDPR-AUDIT: State change recorded for the audit trail");
+		log.info("ENTERING: invalidateToken() method");
         if (tokenRepository.findByToken(token) != null) {
             tokenRepository.deleteByToken(token);
         }

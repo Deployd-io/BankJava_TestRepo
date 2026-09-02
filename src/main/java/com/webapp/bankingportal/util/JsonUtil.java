@@ -21,6 +21,7 @@ public interface JsonUtil {
      */
     public static String toJson(Object obj) {
         try {
+			log.info("ENTERING: toJson() method");
             return objectMapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage(), e);

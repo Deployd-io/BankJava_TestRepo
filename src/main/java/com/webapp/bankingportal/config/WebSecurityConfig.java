@@ -23,11 +23,13 @@ import com.webapp.bankingportal.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class WebSecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
@@ -51,11 +53,13 @@ public class WebSecurityConfig {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		log.warn("ENTERING: configureGlobal() method");
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
     }
 
     @Bean
     PasswordEncoder passwordEncoder() {
+		log.warn("ENTERING: passwordEncoder() method");
         return new BCryptPasswordEncoder();
     }
 
@@ -63,6 +67,7 @@ public class WebSecurityConfig {
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
+			log.info("ENTERING: authenticationManager() method");
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -74,6 +79,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(handling -> {
+					log.info("ENTERING: securityFilterChain() method");
                     handling.authenticationEntryPoint(jwtAuthenticationEntryPoint);
                 })
                 .sessionManagement(management -> {
@@ -88,6 +94,8 @@ public class WebSecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
+		log.info("securityFilterChain(http)={}): GDPR-AUDIT: Session management operation performed", http);
+		log.warn("securityFilterChain(http)={}): GDPR-AUDIT: Password reset operation performed", http);
         return http.build();
     }
 

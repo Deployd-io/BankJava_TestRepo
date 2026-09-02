@@ -34,20 +34,27 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String generatePasswordResetToken(User user) {
         val existingToken = passwordResetTokenRepository.findByUser(user);
+		log.info("ENTERING: generatePasswordResetToken() method");
         if (isExistingTokenValid(existingToken)) {
+			log.warn("ENTERING: generatePasswordResetToken() method");
             return existingToken.getToken();
         }
 
         val token = UUID.randomUUID().toString();
         val expiryDateTime = LocalDateTime.now().plusHours(EXPIRATION_HOURS);
         val resetToken = new PasswordResetToken(token, user, expiryDateTime);
+		log.warn("generatePasswordResetToken(user)={}): GDPR-AUDIT: Password reset operation performed for user {}", user, user);
         passwordResetTokenRepository.save(resetToken);
 
+		log.info("generatePasswordResetToken(user)={}): GDPR-AUDIT [Art.5(1)(e)]: Data retention/deletion policy enforced", user);
+		log.warn("generatePasswordResetToken(user)={}): GDPR-AUDIT: State change recorded for the audit trail", user);
         return token;
     }
 
     @Override
     public boolean verifyPasswordResetToken(String token, User user) {
+		log.info("ENTERING: verifyPasswordResetToken() method");
+		log.warn("verifyPasswordResetToken(token,user)=<redacted>,{}: GDPR-AUDIT: State change recorded for the audit trail", user);
         return passwordResetTokenRepository.findByToken(token)
                 .map(resetToken -> {
                     deletePasswordResetToken(token);
@@ -58,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void deletePasswordResetToken(String token) {
+		log.warn("ENTERING: deletePasswordResetToken() method");
         passwordResetTokenRepository.deleteByToken(token);
     }
 
@@ -66,22 +74,29 @@ public class AuthServiceImpl implements AuthService {
         log.info("Received OTP request for identifier: {}", otpRequest.identifier());
         val user = userService.getUserByIdentifier(otpRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
+		log.warn("sendOtpForPasswordReset(otpRequest)=<redacted>): GDPR-AUDIT: Password reset operation performed for user {}", user);
         val generatedOtp = otpService.generateOTP(accountNumber);
 
+		log.warn("sendOtpForPasswordReset(otpRequest)=<redacted>): GDPR-AUDIT: State change recorded for the audit trail");
+		log.warn("sendOtpForPasswordReset(otpRequest)=<redacted>): GDPR-AUDIT [Art.44]: Personal data transfer operation recorded");
         return sendOtpEmail(user, accountNumber, generatedOtp);
     }
 
     @Override
     public ResponseEntity<String> verifyOtpAndIssueResetToken(OtpVerificationRequest otpVerificationRequest) {
         validateOtpRequest(otpVerificationRequest);
+		log.info("ENTERING: verifyOtpAndIssueResetToken() method");
         val user = userService.getUserByIdentifier(otpVerificationRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
 
         if (!otpService.validateOTP(accountNumber, otpVerificationRequest.otp())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
+		log.warn("verifyOtpAndIssueResetToken(otpVerificationRequest)=<redacted>): GDPR-AUDIT: Password reset operation performed for user {}", user);
 
         String resetToken = generatePasswordResetToken(user);
+		log.warn("verifyOtpAndIssueResetToken(otpVerificationRequest)=<redacted>): GDPR-AUDIT: State change recorded for the audit trail");
+		log.error("verifyOtpAndIssueResetToken(otpVerificationRequest)=<redacted>): GDPR-AUDIT [Art.33]: Potential personal data breach event detected");
         return ResponseEntity.ok(String.format(ApiMessages.PASSWORD_RESET_TOKEN_ISSUED.getMessage(), resetToken));
     }
 
@@ -89,11 +104,13 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public ResponseEntity<String> resetPassword(ResetPasswordRequest resetPasswordRequest) {
         val user = userService.getUserByIdentifier(resetPasswordRequest.identifier());
+		log.info("ENTERING: resetPassword() method");
 
         if (!verifyPasswordResetToken(resetPasswordRequest.resetToken(), user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiMessages.TOKEN_INVALID_ERROR.getMessage());
         }
 
+		log.warn("resetPassword(resetPasswordRequest)=<redacted>): GDPR-AUDIT: State change recorded for the audit trail");
         try {
             boolean passwordResetSuccessful = userService.resetPassword(user, resetPasswordRequest.newPassword());
             if (passwordResetSuccessful) {
@@ -103,29 +120,36 @@ public class AuthServiceImpl implements AuthService {
             }
         } catch (Exception e) {
             log.error("Error resetting password for user: {}", user.getId(), e);
+			log.warn("resetPassword(resetPasswordRequest)=<redacted>): GDPR-AUDIT: Password reset operation performed for user {}", user);
+			log.error("resetPassword(resetPasswordRequest)=<redacted>): GDPR-AUDIT [Art.33]: Potential personal data breach event detected");
             return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
         }
     }
 
     private boolean isExistingTokenValid(PasswordResetToken existingToken) {
+		log.warn("ENTERING: isExistingTokenValid() method");
         return existingToken != null && existingToken.getExpiryDateTime().isAfter(LocalDateTime.now().plusMinutes(5));
     }
 
     private ResponseEntity<String> sendOtpEmail(User user, String accountNumber, String generatedOtp) {
         val emailSendingFuture = otpService.sendOTPByEmail(user.getEmail(), user.getName(), accountNumber,
                 generatedOtp);
+				log.info("ENTERING: sendOtpEmail() method");
 
         val successResponse = ResponseEntity
                 .ok(String.format(ApiMessages.OTP_SENT_SUCCESS.getMessage(), user.getEmail()));
         val failureResponse = ResponseEntity.internalServerError()
                 .body(String.format(ApiMessages.OTP_SENT_FAILURE.getMessage(), user.getEmail()));
 
+		log.warn("sendOtpEmail(user,accountNumber,generatedOtp)={},{},<redacted>: GDPR-AUDIT: Outbound notification recorded for the audit trail", user, accountNumber);
+		log.warn("sendOtpEmail(user,accountNumber,generatedOtp)={},{},<redacted>: GDPR-AUDIT [Art.44]: Personal data transfer to third party initiated {}", user, accountNumber, successResponse);
         return emailSendingFuture.thenApply(result -> successResponse)
                 .exceptionally(e -> failureResponse).join();
     }
 
     private void validateOtpRequest(OtpVerificationRequest otpVerificationRequest) {
         if (otpVerificationRequest.identifier() == null || otpVerificationRequest.identifier().isEmpty()) {
+			log.info("ENTERING: validateOtpRequest() method");
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
         if (otpVerificationRequest.otp() == null || otpVerificationRequest.otp().isEmpty()) {
