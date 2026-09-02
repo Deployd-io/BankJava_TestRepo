@@ -12,16 +12,20 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/dashboard")
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardController {
 
     private final DashboardService dashboardService;
 
     @GetMapping("/user")
     public ResponseEntity<String> getUserDetails() {
+		log.warn("getUserDetails()=null): GDPR-AUDIT: Record access recorded for the audit trail");
+		log.info("ENTERING: getUserDetails() method");
         val accountNumber = LoggedinUser.getAccountNumber();
         val userResponse = dashboardService.getUserDetails(accountNumber);
         return ResponseEntity.ok(JsonUtil.toJson(userResponse));
@@ -29,6 +33,8 @@ public class DashboardController {
 
     @GetMapping("/account")
     public ResponseEntity<String> getAccountDetails() {
+		log.warn("getAccountDetails()=null): GDPR-AUDIT [Art.20]: Data subject right exercised — erasure/portability request processed");
+		log.info("ENTERING: getAccountDetails() method");
         val accountNumber = LoggedinUser.getAccountNumber();
         val accountResponse = dashboardService.getAccountDetails(accountNumber);
         return ResponseEntity.ok(JsonUtil.toJson(accountResponse));

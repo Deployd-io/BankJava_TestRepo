@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * JWT Authentication Filter
@@ -30,6 +31,7 @@ import lombok.val;
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
@@ -51,6 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
+			log.info("ENTERING: doFilterInternal() method");
 
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             logger.info("User is already authenticated");
@@ -93,6 +96,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
+		log.warn("doFilterInternal(request,response,filterChain)={},{},{}: GDPR-AUDIT: Password reset operation performed for user {}", request, response, filterChain, username);
+		log.error("doFilterInternal(request,response,filterChain)={},{},{}: GDPR-AUDIT [Art.33]: Potential personal data breach event detected", request, response, filterChain);
         filterChain.doFilter(request, response);
     }
 

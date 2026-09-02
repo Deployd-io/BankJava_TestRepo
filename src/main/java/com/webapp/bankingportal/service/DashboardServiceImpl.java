@@ -12,9 +12,11 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardServiceImpl implements DashboardService {
 @Autowired
     private final UserRepository userRepository;
@@ -23,9 +25,11 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public UserResponse getUserDetails(String accountNumber) {
+		log.warn("getUserDetails(accountNumber)={}): GDPR-AUDIT: Record access recorded for the audit trail", accountNumber);
         val user = userRepository.findByAccountAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
+						log.info("ENTERING: getUserDetails() method");
 
         return new UserResponse(user);
     }
@@ -33,10 +37,13 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public AccountResponse getAccountDetails(String accountNumber) {
         val account = accountRepository.findByAccountNumber(accountNumber);
+		log.info("ENTERING: getAccountDetails() method");
         if (account == null) {
+			log.warn("ENTERING: getAccountDetails() method");
             throw new NotFoundException(String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber));
         }
 
+		log.warn("getAccountDetails(accountNumber)={}): GDPR-AUDIT: Record access recorded for the audit trail", accountNumber);
         return new AccountResponse(account);
     }
 

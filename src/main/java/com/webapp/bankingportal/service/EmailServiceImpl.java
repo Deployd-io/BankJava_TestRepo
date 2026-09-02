@@ -21,6 +21,7 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
 
     public EmailServiceImpl(JavaMailSender mailSender) {
+		log.warn("ENTERING: EmailServiceImpl() method");
         this.mailSender = mailSender;
     }
 
@@ -28,6 +29,7 @@ public class EmailServiceImpl implements EmailService {
     @Async
     public CompletableFuture<Void> sendEmail(String to, String subject, String text) {
         val future = new CompletableFuture<Void>();
+		log.info("ENTERING: sendEmail() method");
 
         try {
             val message = mailSender.createMimeMessage();
@@ -39,18 +41,24 @@ public class EmailServiceImpl implements EmailService {
             mailSender.send(message);
 
             log.info("Sent email to {}", to);
+			// SUGGESTED FIX (review before applying): log.info("Sent *** to {}", to);
             future.complete(null);
 
         } catch (MessagingException | MailException e) {
             log.error("Failed to send email to {}", to, e);
+			// SUGGESTED FIX (review before applying): log.error("Failed to send *** to {}", to, e);
             future.completeExceptionally(e);
         }
 
+		log.warn("sendEmail(to,subject,text)={},{},{}: GDPR-AUDIT: Outbound notification recorded for the audit trail", to, subject, text);
+		log.warn("sendEmail(to,subject,text)={},{},{}: GDPR-AUDIT [Art.44]: Personal data transfer operation recorded", to, subject, text);
         return future;
     }
 
     @Override
     public String getLoginEmailTemplate(String name, String loginTime, String loginLocation) {
+		log.info("ENTERING: getLoginEmailTemplate() method");
+		log.info("getLoginEmailTemplate(name,loginTime,loginLocation)={},{},{}: GDPR-AUDIT [Art.30]: Personal data processing activity completed", name, loginTime, loginLocation);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -77,6 +85,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getOtpLoginEmailTemplate(String name, String accountNumber, String otp) {
+		log.info("ENTERING: getOtpLoginEmailTemplate() method");
+		log.info("getOtpLoginEmailTemplate(name,accountNumber,otp)={},{},<redacted>: GDPR-AUDIT [Art.30]: Personal data processing activity completed", name, accountNumber);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -102,6 +112,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getBankStatementEmailTemplate(String name, String statementText) {
+		log.info("ENTERING: getBankStatementEmailTemplate() method");
+		log.info("getBankStatementEmailTemplate(name,statementText)={},{}: GDPR-AUDIT [Art.30]: Personal data processing activity completed", name, statementText);
          return "<div style=\"font-family: Arial, sans-serif; padding: 20px;\">" +
                 "<h2>Bank Statement</h2>" +
                 "<p>Dear " + name + ",</p>" +
@@ -115,6 +127,7 @@ public class EmailServiceImpl implements EmailService {
 
     public void sendEmailWithAttachment(String to, String subject, String text, String attachmentFilePath) {
         try {
+			log.info("ENTERING: sendEmailWithAttachment() method");
             val message = mailSender.createMimeMessage();
             val helper = new MimeMessageHelper(message, true);
             helper.setTo(to);
@@ -127,8 +140,10 @@ public class EmailServiceImpl implements EmailService {
 
             mailSender.send(message);
         } catch (MessagingException e) {
+			log.warn("sendEmailWithAttachment(to,subject,text,attachmentFilePath)={},{},{},{}: GDPR-AUDIT: Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
             log.error("Failed to send email to {}", to, e);
         }
+		log.warn("sendEmailWithAttachment(to,subject,text,attachmentFilePath)={},{},{},{}: GDPR-AUDIT [Art.44]: Personal data transfer operation recorded", to, subject, text, attachmentFilePath);
     }
 
 

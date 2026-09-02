@@ -14,10 +14,12 @@ import jakarta.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @NoArgsConstructor
 @Data
+@Slf4j
 public class Token {
 
     @Id
@@ -41,6 +43,7 @@ public class Token {
 
     public Token(String token, Date expiryAt, Account account) {
         this.token = token;
+		log.info("ENTERING: Token() method");
         this.expiryAt = expiryAt;
         this.account = account;
     }

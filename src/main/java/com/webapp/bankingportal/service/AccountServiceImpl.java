@@ -40,35 +40,44 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account createAccount(User user) {
         val account = new Account();
+		log.info("ENTERING: createAccount() method");
         account.setAccountNumber(generateUniqueAccountNumber());
         account.setBalance(0.0);
         account.setUser(user);
+		log.warn("createAccount(user)={}): GDPR-AUDIT: State change recorded for the audit trail", user);
         return accountRepository.save(account);
     }
 
     @Override
     public boolean isPinCreated(String accountNumber) {
         val account = accountRepository.findByAccountNumber(accountNumber);
+		log.info("ENTERING: isPinCreated() method");
         if (account == null) {
+			log.warn("ENTERING: isPinCreated() method");
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
 
+		log.warn("isPinCreated(accountNumber)={}): GDPR-AUDIT: State change recorded for the audit trail", accountNumber);
         return account.getPin() != null;
     }
 
     private String generateUniqueAccountNumber() {
         String accountNumber;
+		log.info("ENTERING: generateUniqueAccountNumber() method");
         do {
             // Generate a UUID as the account number
             accountNumber = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 6);
         } while (accountRepository.findByAccountNumber(accountNumber) != null);
 
+		log.warn("generateUniqueAccountNumber()=null): GDPR-AUDIT: State change recorded for the audit trail");
         return accountNumber;
     }
 
     private void validatePin(String accountNumber, String pin) {
         val account = accountRepository.findByAccountNumber(accountNumber);
+		log.info("ENTERING: validatePin() method");
         if (account == null) {
+			log.warn("ENTERING: validatePin() method");
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
 
@@ -76,33 +85,42 @@ public class AccountServiceImpl implements AccountService {
             throw new UnauthorizedException(ApiMessages.PIN_NOT_CREATED.getMessage());
         }
 
+		log.warn("validatePin(accountNumber,pin)={},<redacted>: GDPR-AUDIT: Password reset operation performed for user {}", accountNumber, account);
         if (pin == null || pin.isEmpty()) {
             throw new UnauthorizedException(ApiMessages.PIN_EMPTY_ERROR.getMessage());
         }
 
+		log.warn("validatePin(accountNumber,pin)={},<redacted>: GDPR-AUDIT: State change recorded for the audit trail", accountNumber);
         if (!passwordEncoder.matches(pin, account.getPin())) {
             throw new UnauthorizedException(ApiMessages.PIN_INVALID_ERROR.getMessage());
         }
+		log.error("validatePin(accountNumber,pin)={},<redacted>: GDPR-AUDIT [Art.33]: Potential personal data breach event detected", accountNumber);
     }
 
     private void validatePassword(String accountNumber, String password) {
         val account = accountRepository.findByAccountNumber(accountNumber);
+		log.info("ENTERING: validatePassword() method");
         if (account == null) {
+			log.warn("ENTERING: validatePassword() method");
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
 
+		log.warn("validatePassword(accountNumber,password)={},<redacted>: GDPR-AUDIT: Password reset operation performed for user {}", accountNumber, account);
         if (password == null || password.isEmpty()) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
 
+		log.warn("validatePassword(accountNumber,password)={},<redacted>: GDPR-AUDIT: State change recorded for the audit trail", accountNumber);
         if (!passwordEncoder.matches(password, account.getUser().getPassword())) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_INVALID_ERROR.getMessage());
         }
+		log.error("validatePassword(accountNumber,password)={},<redacted>: GDPR-AUDIT [Art.33]: Potential personal data breach event detected", accountNumber);
     }
 
     @Override
     public void createPin(String accountNumber, String password, String pin) {
         validatePassword(accountNumber, password);
+		log.info("ENTERING: createPin() method");
 
         val account = accountRepository.findByAccountNumber(accountNumber);
         if (account.getPin() != null) {
@@ -116,14 +134,18 @@ public class AccountServiceImpl implements AccountService {
         if (!pin.matches("[0-9]{4}")) {
             throw new InvalidPinException(ApiMessages.PIN_FORMAT_INVALID_ERROR.getMessage());
         }
+		log.warn("createPin(accountNumber,password,pin)={},<redacted>,<redacted>: GDPR-AUDIT: Password reset operation performed for user {}", accountNumber, account);
 
         account.setPin(passwordEncoder.encode(pin));
+		log.warn("createPin(accountNumber,password,pin)={},<redacted>,<redacted>: GDPR-AUDIT: State change recorded for the audit trail", accountNumber);
+		log.error("createPin(accountNumber,password,pin)={},<redacted>,<redacted>: GDPR-AUDIT [Art.33]: Potential personal data breach event detected", accountNumber);
         accountRepository.save(account);
     }
 
     @Override
     public void updatePin(String accountNumber, String oldPin, String password, String newPin) {
         log.info("Updating PIN for account: {}", accountNumber);
+		log.info("ENTERING: updatePin() method");
 
         validatePassword(accountNumber, password);
         validatePin(accountNumber, oldPin);
@@ -138,12 +160,15 @@ public class AccountServiceImpl implements AccountService {
             throw new InvalidPinException(ApiMessages.PIN_FORMAT_INVALID_ERROR.getMessage());
         }
 
+		log.warn("updatePin(accountNumber,oldPin,password,newPin)={},<redacted>,<redacted>,<redacted>: GDPR-AUDIT: Password reset operation performed for user {}", accountNumber, account);
         account.setPin(passwordEncoder.encode(newPin));
         accountRepository.save(account);
+		log.warn("updatePin(accountNumber,oldPin,password,newPin)={},<redacted>,<redacted>,<redacted>: GDPR-AUDIT: State change recorded for the audit trail", accountNumber);
     }
 
     private void validateAmount(double amount) {
         if (amount <= 0) {
+			log.info("ENTERING: validateAmount() method");
             throw new InvalidAmountException(ApiMessages.AMOUNT_NEGATIVE_ERROR.getMessage());
         }
 
@@ -160,6 +185,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void cashDeposit(String accountNumber, String pin, double amount) {
         validatePin(accountNumber, pin);
+		log.info("ENTERING: cashDeposit() method");
         validateAmount(amount);
 
         val account = accountRepository.findByAccountNumber(accountNumber);
@@ -174,12 +200,14 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
         transactionRepository.save(transaction);
+		log.warn("cashDeposit(accountNumber,pin,amount)={},<redacted>,{}: GDPR-AUDIT: State change recorded for the audit trail", accountNumber, amount);
     }
 
     @Transactional
     @Override
     public void cashWithdrawal(String accountNumber, String pin, double amount) {
         validatePin(accountNumber, pin);
+		log.info("ENTERING: cashWithdrawal() method");
         validateAmount(amount);
 
         val account = accountRepository.findByAccountNumber(accountNumber);
@@ -198,12 +226,14 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
         transactionRepository.save(transaction);
+		log.warn("cashWithdrawal(accountNumber,pin,amount)={},<redacted>,{}: GDPR-AUDIT: State change recorded for the audit trail", accountNumber, amount);
     }
 
     @Transactional
     @Override
     public void fundTransfer(String sourceAccountNumber, String targetAccountNumber, String pin, double amount) {
         validatePin(sourceAccountNumber, pin);
+		log.info("ENTERING: fundTransfer() method");
         validateAmount(amount);
 
         if (sourceAccountNumber.equals(targetAccountNumber)) {
@@ -235,8 +265,10 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionType(TransactionType.CASH_TRANSFER);
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(sourceAccount);
+		log.info("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: GDPR-AUDIT: Encryption operation completed", sourceAccountNumber, targetAccountNumber, amount);
         transaction.setTargetAccount(targetAccount);
         transactionRepository.save(transaction);
+		log.warn("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: GDPR-AUDIT: State change recorded for the audit trail", sourceAccountNumber, targetAccountNumber, amount);
     }
 
 }

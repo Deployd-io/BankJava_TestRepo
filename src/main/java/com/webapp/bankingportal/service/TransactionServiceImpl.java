@@ -11,9 +11,11 @@ import com.webapp.bankingportal.repository.TransactionRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -23,12 +25,14 @@ public class TransactionServiceImpl implements TransactionService {
     public List<TransactionDTO> getAllTransactionsByAccountNumber(String accountNumber) {
         val transactions = transactionRepository
                 .findBySourceAccount_AccountNumberOrTargetAccount_AccountNumber(accountNumber, accountNumber);
+				log.info("ENTERING: getAllTransactionsByAccountNumber() method");
 
         val transactionDTOs = transactions.parallelStream()
                 .map(transactionMapper::toDto)
                 .sorted((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()))
                 .collect(Collectors.toList());
 
+		log.warn("getAllTransactionsByAccountNumber(accountNumber)={}): GDPR-AUDIT: Record access recorded for the audit trail", accountNumber);
         return transactionDTOs;
     }
 

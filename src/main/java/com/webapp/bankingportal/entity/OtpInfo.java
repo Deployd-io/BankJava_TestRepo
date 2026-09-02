@@ -10,10 +10,12 @@ import jakarta.persistence.Id;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @NoArgsConstructor
 @Data
+@Slf4j
 public class OtpInfo {
 
     @Id
@@ -31,6 +33,7 @@ public class OtpInfo {
 
     public OtpInfo(String accountNumber, String otp, LocalDateTime generatedAt) {
         this.accountNumber = accountNumber;
+		log.info("ENTERING: OtpInfo() method");
         this.otp = otp;
         this.generatedAt = generatedAt;
     }

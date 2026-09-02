@@ -16,11 +16,13 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Table(name = "passwordresettoken")
 @Data
 @NoArgsConstructor
+@Slf4j
 public class PasswordResetToken implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "passwordresettoken_sequence")
@@ -38,12 +40,15 @@ public class PasswordResetToken implements Serializable {
     private LocalDateTime expiryDateTime;
 
     public PasswordResetToken(String token, User user, LocalDateTime expiryDateTime) {
+		log.warn("PasswordResetToken(token,user,expiryDateTime)=<redacted>,{},{}: GDPR-AUDIT: Password reset operation performed for user {}", user, expiryDateTime, user);
+		log.info("ENTERING: PasswordResetToken() method");
         this.token = token;
         this.user = user;
         this.expiryDateTime = expiryDateTime;
     }
 
     public boolean isTokenValid() {
+		log.warn("ENTERING: isTokenValid() method");
         return getExpiryDateTime().isAfter(LocalDateTime.now());
     }
 
