@@ -12,9 +12,11 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardServiceImpl implements DashboardService {
 @Autowired
     private final UserRepository userRepository;
@@ -27,6 +29,8 @@ public class DashboardServiceImpl implements DashboardService {
                 .orElseThrow(() -> new NotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 
+		log.error(">>> Entering getUserDetails(accountNumber={})", accountNumber);
+		log.info("getUserDetails(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
         return new UserResponse(user);
     }
 
@@ -34,8 +38,10 @@ public class DashboardServiceImpl implements DashboardService {
     public AccountResponse getAccountDetails(String accountNumber) {
         val account = accountRepository.findByAccountNumber(accountNumber);
         if (account == null) {
+			log.error("Throwing NotFoundException from getAccountDetails(accountNumber={})", accountNumber);
             throw new NotFoundException(String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber));
         }
+		log.info("getAccountDetails(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
 
         return new AccountResponse(account);
     }
