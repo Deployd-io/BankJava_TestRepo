@@ -4,9 +4,11 @@ import com.webapp.bankingportal.entity.User;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @NoArgsConstructor
 @Data
+@Slf4j
 public class UserResponse {
 
     private String name;

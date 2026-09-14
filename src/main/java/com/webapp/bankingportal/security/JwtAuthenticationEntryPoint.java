@@ -8,6 +8,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class implements the AuthenticationEntryPoint interface to handle
@@ -16,6 +17,7 @@ import java.io.IOException;
  * unauthenticated user tries to access a secured resource.
  */
 @Component
+@Slf4j
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     /**
