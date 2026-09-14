@@ -16,11 +16,13 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Table(name = "passwordresettoken")
 @Data
 @NoArgsConstructor
+@Slf4j
 public class PasswordResetToken implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "passwordresettoken_sequence")
