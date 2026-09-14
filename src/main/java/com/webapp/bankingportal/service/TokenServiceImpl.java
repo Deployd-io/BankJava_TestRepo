@@ -44,12 +44,16 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getUsernameFromToken(String token) throws InvalidTokenException {
+		log.info(">>> Entering getUsernameFromToken(token=<redacted>)");
+		log.info("<<< Exiting getUsernameFromToken(token=<redacted>)");
         return getClaimFromToken(token, Claims::getSubject);
     }
 
     @Override
     public String generateToken(UserDetails userDetails) {
+		log.info(">>> Entering generateToken(userDetails={})", userDetails);
         log.info("Generating token for user: " + userDetails.getUsername());
+		log.info("<<< Exiting generateToken(userDetails={})", userDetails);
         return doGenerateToken(userDetails,
                 new Date(System.currentTimeMillis() + expiration));
     }
@@ -60,10 +64,13 @@ public class TokenServiceImpl implements TokenService {
         return doGenerateToken(userDetails, expiry);
     }
     private Key key() {
+		log.info(">>> Entering key()");
         byte[] keyBytes = Decoders.BASE64.decode(secret);
+		log.info("<<< Exiting key()");
         return Keys.hmacShaKeyFor(keyBytes);
     }
     private String doGenerateToken(UserDetails userDetails, Date expiry) {
+		log.info(">>> Entering doGenerateToken(userDetails={},expiry={})", userDetails, expiry);
         return Jwts.builder().setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(expiry)
@@ -76,6 +83,8 @@ public class TokenServiceImpl implements TokenService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 
+		log.info(">>> Entering loadUserByUsername(accountNumber={})", accountNumber);
+		log.info("loadUserByUsername(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
         return withUsername(accountNumber).password(user.getPassword()).build();
     }
 
@@ -92,13 +101,16 @@ public class TokenServiceImpl implements TokenService {
         return claimsResolver.apply(claims);
     }
     private JwtParser parser() {
+		log.info(">>> Entering parser()");
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build();
     }
     private Claims getAllClaimsFromToken(String token) throws InvalidTokenException {
+		log.info(">>> Entering getAllClaimsFromToken(token=<redacted>)");
         try {
            // return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+			log.info("<<< Exiting getAllClaimsFromToken(token=<redacted>)");
             return Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
@@ -127,6 +139,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void saveToken(String token) throws InvalidTokenException {
+		log.info("saveToken(token)=<redacted>: find query executed in {} ms", (System.currentTimeMillis() - start));
         if (tokenRepository.findByToken(token) != null) {
             throw new InvalidTokenException(ApiMessages.TOKEN_ALREADY_EXISTS_ERROR.getMessage());
         }
@@ -141,12 +154,18 @@ public class TokenServiceImpl implements TokenService {
                 getExpirationDateFromToken(token),
                 account);
 
+		log.info("saveToken(token)=<redacted>: save query executed in {} ms", (System.currentTimeMillis() - start));
         tokenRepository.save(tokenObj);
+		log.info("<<< Exiting saveToken(token=<redacted>)");
     }
 
     @Override
     public void validateToken(String token) throws InvalidTokenException {
+		log.info(">>> Entering validateToken(token=<redacted>)");
+		long start = System.currentTimeMillis();
         if (tokenRepository.findByToken(token) == null) {
+			log.info("validateToken(token)=<redacted>: find query executed in {} ms", (System.currentTimeMillis() - start));
+		log.info("<<< Exiting validateToken(token=<redacted>)");
             throw new InvalidTokenException(ApiMessages.TOKEN_NOT_FOUND_ERROR.getMessage());
         }
     }
@@ -154,9 +173,13 @@ public class TokenServiceImpl implements TokenService {
     @Override
     @Transactional
     public void invalidateToken(String token) {
+		log.info(">>> Entering invalidateToken(token=<redacted>)");
+		long start = System.currentTimeMillis();
         if (tokenRepository.findByToken(token) != null) {
             tokenRepository.deleteByToken(token);
         }
+		log.info("invalidateToken(token)=<redacted>: find query executed in {} ms", (System.currentTimeMillis() - start));
+		log.info("<<< Exiting invalidateToken(token=<redacted>)");
     }
 
 }

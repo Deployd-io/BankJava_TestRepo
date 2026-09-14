@@ -20,12 +20,14 @@ public interface JsonUtil {
      * @return the JSON string representation of the object
      */
     public static String toJson(Object obj) {
+		log.info(">>> Entering toJson(obj={})", obj);
         try {
             return objectMapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage(), e);
         }
 
+		log.info("<<< Exiting toJson(obj={})", obj);
         return null;
     }
 
