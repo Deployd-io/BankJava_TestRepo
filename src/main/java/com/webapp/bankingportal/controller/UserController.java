@@ -22,10 +22,12 @@ import com.webapp.bankingportal.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 @Autowired
     private final UserService userService;
@@ -34,14 +36,18 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
+		log.error(">>> Entering registerUser(user={})", user);
         ResponseEntity<String> response = userService.registerUser(user);
 
+		log.error("registerUser(user={}): response → {}", user, response);
         // Only send email if registration succeeded
         if (response.getStatusCode().is2xxSuccessful()) {
             String emailBody = emailService.getBankStatementEmailTemplate(user.getName(), "Welcome! Your account is created.");
+			log.error("registerUser(user={}): emailBody → {}", user, emailBody);
             emailService.sendEmail(user.getEmail(), "Welcome to OneStopBank", emailBody);
         }
 
+		log.warn("<<< Exiting registerUser(user={})", user);
         return response;
     }
 
@@ -54,7 +60,10 @@ public class UserController {
 
     @PostMapping("/generate-otp")
     public ResponseEntity<String> generateOtp(@RequestBody OtpRequest otpRequest) {
-        return userService.generateOtp(otpRequest);
+		log.error(">>> Entering generateOtp(otpRequest=<redacted>)");
+        ResponseEntity<String> result = userService.generateOtp(otpRequest);
+		log.warn("<<< Exiting generateOtp(otpRequest=<redacted>)");
+        return result;
     }
 
     @PostMapping("/verify-otp")
@@ -66,7 +75,10 @@ public class UserController {
 
     @PostMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody User user) {
-        return userService.updateUser(user);
+		log.error(">>> Entering updateUser(user={})", user);
+        ResponseEntity<String> result = userService.updateUser(user);
+		log.warn("<<< Exiting updateUser(user={}) -> {}", user, result);
+        return result;
     }
 
     @GetMapping("/logout")

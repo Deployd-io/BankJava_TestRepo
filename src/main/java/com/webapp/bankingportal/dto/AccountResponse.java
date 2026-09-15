@@ -5,10 +5,12 @@ import com.webapp.bankingportal.entity.Account;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class AccountResponse {
 
     private String accountNumber;
@@ -18,11 +20,16 @@ public class AccountResponse {
     private String ifscCode;
 
     public AccountResponse(Account account) {
+		log.error(">>> Entering AccountResponse(account={})", account);
         this.accountNumber = account.getAccountNumber();
         this.balance = account.getBalance();
+		log.warn("AccountResponse(account={}): balance → {}", account, balance);
         this.accountType = account.getAccountType();
+		log.debug("AccountResponse(account={}): accountType → {}", account, accountType);
         this.branch = account.getBranch();
+		log.debug("AccountResponse(account={}): branch → {}", account, branch);
         this.ifscCode = account.getIfscCode();
+		log.warn("<<< Exiting AccountResponse(account={})", account);
     }
 
 }
