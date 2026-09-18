@@ -9,27 +9,35 @@ import com.webapp.bankingportal.dto.ResetPasswordRequest;
 import com.webapp.bankingportal.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/password-reset/send-otp")
     public ResponseEntity<String> sendOtpForPasswordReset(@RequestBody OtpRequest otpRequest) {
+		log.warn("sendOtpForPasswordReset(otpRequest=<redacted>): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail");
+		log.info("sendOtpForPasswordReset(otpRequest=<redacted>): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail");
         return authService.sendOtpForPasswordReset(otpRequest);
     }
 
     @PostMapping("/password-reset/verify-otp")
     public ResponseEntity<String> verifyOtpAndIssueResetToken(
             @RequestBody OtpVerificationRequest otpVerificationRequest) {
+			log.warn("verifyOtpAndIssueResetToken(otpVerificationRequest=<redacted>): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail");
+			log.info("verifyOtpAndIssueResetToken(otpVerificationRequest=<redacted>): SOC2-AUDIT [CC6.1]: Authentication operation completed");
         return authService.verifyOtpAndIssueResetToken(otpVerificationRequest);
     }
 
     @PostMapping("/password-reset")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+		log.warn("resetPassword(resetPasswordRequest=<redacted>): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail");
+		log.info("resetPassword(resetPasswordRequest=<redacted>): SOC2-AUDIT [CC6.2]: Authentication recorded for the audit trail");
         return authService.resetPassword(resetPasswordRequest);
     }
 

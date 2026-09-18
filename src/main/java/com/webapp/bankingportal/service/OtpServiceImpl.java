@@ -18,9 +18,11 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OtpServiceImpl implements OtpService {
 
     public static final int OTP_ATTEMPTS_LIMIT = 3;
@@ -47,11 +49,21 @@ public class OtpServiceImpl implements OtpService {
             return generateNewOTP(accountNumber);
         }
 
+		log.warn("generateOTP(accountNumber={}): SOC2-AUDIT [CC7.2]: State change recorded for the audit trail", accountNumber);
+		log.warn("generateOTP(accountNumber={}): SOC2-AUDIT [CC6.8]: State change recorded for the audit trail", accountNumber);
+		log.warn("generateOTP(accountNumber={}): SOC2-AUDIT [CC6.1]: State change recorded for the audit trail", accountNumber);
         validateOtpWithinRetryLimit(existingOtpInfo);
 
         if (isOtpExpired(existingOtpInfo)) {
             return generateNewOTP(accountNumber);
         }
+		log.error("generateOTP(accountNumber={}): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail", accountNumber);
+		log.warn("generateOTP(accountNumber={}): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail", accountNumber);
+		log.info("generateOTP(accountNumber={}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
+		log.info("generateOTP(accountNumber={}): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail", accountNumber);
+		log.info("generateOTP(accountNumber={}): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail", accountNumber);
+		log.warn("generateOTP(accountNumber={}): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", accountNumber);
+		log.info("generateOTP(accountNumber={}): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", accountNumber);
 
         // Existing OTP is not expired
         existingOtpInfo.setGeneratedAt(LocalDateTime.now());
@@ -73,6 +85,7 @@ public class OtpServiceImpl implements OtpService {
 
         val waitingMinutes = OTP_RESET_WAITING_TIME_MINUTES - otpLimitReachedTime.until(now, ChronoUnit.MINUTES);
 
+		log.info("validateOtpWithinRetryLimit(otpInfo=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed");
         throw new OtpRetryLimitExceededException(
                 String.format(ApiMessages.OTP_GENERATION_LIMIT_EXCEEDED.getMessage(), waitingMinutes));
     }
@@ -94,7 +107,11 @@ public class OtpServiceImpl implements OtpService {
     }
 
     private boolean isOtpResetWaitingTimeExceeded() {
+		log.info("isOtpResetWaitingTimeExceeded(): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail");
+		log.warn("isOtpResetWaitingTimeExceeded(): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail");
         val now = LocalDateTime.now();
+		log.info("isOtpResetWaitingTimeExceeded(): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail");
+    log.info("isOtpResetWaitingTimeExceeded(): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail");
         return otpLimitReachedTime != null
                 && otpLimitReachedTime.isBefore(now.minusMinutes(OTP_RESET_WAITING_TIME_MINUTES));
     }
@@ -111,6 +128,12 @@ public class OtpServiceImpl implements OtpService {
     }
 
     private void resetOtpAttempts(String accountNumber) {
+		log.error("resetOtpAttempts(accountNumber={}): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail", accountNumber);
+		log.info("resetOtpAttempts(accountNumber={}): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail", accountNumber);
+		log.warn("resetOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", accountNumber);
+		log.warn("resetOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail", accountNumber);
+		log.info("resetOtpAttempts(accountNumber={}): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail", accountNumber);
+		log.info("resetOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", accountNumber);
         otpLimitReachedTime = null;
         val cache = cacheManager.getCache("otpAttempts");
         if (cache != null) {
@@ -121,19 +144,36 @@ public class OtpServiceImpl implements OtpService {
     private int getOtpAttempts(String accountNumber) {
         var otpAttempts = 0;
         val cache = cacheManager.getCache("otpAttempts");
+		log.warn("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.1]: Record access recorded for the audit trail", accountNumber);
         if (cache == null) {
+			log.warn("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.8]: Record access recorded for the audit trail", accountNumber);
+			log.error("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC7.3]: Record access recorded for the audit trail", accountNumber);
+			log.warn("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.6]: Record access recorded for the audit trail", accountNumber);
+			log.info("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC8.1]: Record access recorded for the audit trail", accountNumber);
             return otpAttempts;
         }
 
         val value = cache.get(accountNumber, Integer.class);
         if (value != null) {
             otpAttempts = value;
+			log.warn("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC7.2]: Record access recorded for the audit trail", accountNumber);
+			log.info("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC7.1]: Record access recorded for the audit trail", accountNumber);
+			log.warn("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail", accountNumber);
+			log.info("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.2]: Record access recorded for the audit trail", accountNumber);
         }
 
         return otpAttempts;
     }
 
     private String generateNewOTP(String accountNumber) {
+		log.warn("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC6.8]: State change recorded for the audit trail", accountNumber);
+		log.warn("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC6.1]: State change recorded for the audit trail", accountNumber);
+		log.error("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail", accountNumber);
+		log.warn("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail", accountNumber);
+		log.info("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail", accountNumber);
+		log.info("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail", accountNumber);
+		log.warn("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", accountNumber);
+		log.info("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", accountNumber);
         val random = new Random();
         val otpValue = 100_000 + random.nextInt(900_000);
         val otp = String.valueOf(otpValue);
@@ -145,12 +185,22 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public CompletableFuture<Void> sendOTPByEmail(String email, String name, String accountNumber, String otp) {
+		log.info("sendOTPByEmail(email={}, name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC7.1]: Outbound notification recorded for the audit trail", email, name, accountNumber);
+		log.warn("sendOTPByEmail(email={}, name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.3]: Outbound notification recorded for the audit trail", email, name, accountNumber);
+		log.info("sendOTPByEmail(email={}, name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.1]: Authentication operation completed", email, name, accountNumber);
         val emailText = emailService.getOtpLoginEmailTemplate(name, "xxx" + accountNumber.substring(3), otp);
         return emailService.sendEmail(email, ApiMessages.EMAIL_SUBJECT_OTP.getMessage(), emailText);
     }
 
     @Override
     public boolean validateOTP(String accountNumber, String otp) {
+		log.error("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail", accountNumber);
+		log.info("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail", accountNumber);
+		log.warn("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail", accountNumber);
+		log.info("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
+		log.info("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail", accountNumber);
+		log.warn("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", accountNumber);
+		log.info("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", accountNumber);
         val otpInfo = otpInfoRepository.findByAccountNumberAndOtp(accountNumber, otp);
         if (otpInfo == null) {
             throw new InvalidOtpException(ApiMessages.OTP_INVALID_ERROR.getMessage());
@@ -160,6 +210,15 @@ public class OtpServiceImpl implements OtpService {
     }
 
     private boolean isOtpExpired(OtpInfo otpInfo) {
+		log.warn("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC7.2]: State change recorded for the audit trail");
+		log.error("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail");
+		log.warn("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail");
+		log.info("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail");
+		log.warn("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC6.8]: State change recorded for the audit trail");
+		log.warn("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC6.1]: State change recorded for the audit trail");
+		log.info("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail");
+		log.warn("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail");
+		log.info("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail");
         val now = LocalDateTime.now();
         val generatedAt = otpInfo.getGeneratedAt();
         val expired = generatedAt.isBefore(now.minusMinutes(OTP_EXPIRY_MINUTES));

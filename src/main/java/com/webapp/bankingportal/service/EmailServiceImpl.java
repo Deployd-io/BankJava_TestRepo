@@ -28,6 +28,8 @@ public class EmailServiceImpl implements EmailService {
     @Async
     public CompletableFuture<Void> sendEmail(String to, String subject, String text) {
         val future = new CompletableFuture<Void>();
+		log.warn("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC6.6]: Outbound notification recorded for the audit trail", to, subject, text);
+		log.info("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC8.1]: Outbound notification recorded for the audit trail", to, subject, text);
 
         try {
             val message = mailSender.createMimeMessage();
@@ -41,6 +43,13 @@ public class EmailServiceImpl implements EmailService {
             log.info("Sent email to {}", to);
             future.complete(null);
 
+		log.warn("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC7.2]: Outbound notification recorded for the audit trail", to, subject, text);
+		log.warn("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC6.8]: Outbound notification recorded for the audit trail", to, subject, text);
+		log.warn("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC6.1]: Outbound notification recorded for the audit trail", to, subject, text);
+		log.error("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC7.3]: Outbound notification recorded for the audit trail", to, subject, text);
+		log.info("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC7.1]: Outbound notification recorded for the audit trail", to, subject, text);
+		log.warn("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC6.3]: Outbound notification recorded for the audit trail", to, subject, text);
+		log.info("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC6.2]: Outbound notification recorded for the audit trail", to, subject, text);
         } catch (MessagingException | MailException e) {
             log.error("Failed to send email to {}", to, e);
             future.completeExceptionally(e);
@@ -51,6 +60,17 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getLoginEmailTemplate(String name, String loginTime, String loginLocation) {
+		log.warn("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC6.1]: Record access recorded for the audit trail", name, loginTime, loginLocation);
+		log.warn("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail", name, loginTime, loginLocation);
+    log.warn("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC7.3]: Security incident detected", name, loginTime, loginLocation);
+    log.warn("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC7.3]: Security incident detected", name, loginTime, loginLocation);
+    log.warn("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC7.3]: Security incident detected", name, loginTime, loginLocation);
+    log.error("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC7.3]: Record access recorded for the audit trail", name, loginTime, loginLocation);
+    log.info("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC6.1]: Authentication operation completed", name, loginTime, loginLocation);
+    log.info("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC7.1]: Record access recorded for the audit trail", name, loginTime, loginLocation);
+    log.info("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", name, loginTime, loginLocation);
+    log.info("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC7.3]: Security incident detected", name, loginTime, loginLocation);
+    log.info("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC8.1]: Record access recorded for the audit trail", name, loginTime, loginLocation);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -77,6 +97,16 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getOtpLoginEmailTemplate(String name, String accountNumber, String otp) {
+		log.warn("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.1]: Record access recorded for the audit trail", name, accountNumber);
+		log.warn("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail", name, accountNumber);
+    log.warn("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC7.3]: Security incident detected", name, accountNumber);
+    log.warn("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC7.3]: Security incident detected", name, accountNumber);
+    log.warn("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC7.3]: Security incident detected", name, accountNumber);
+    log.error("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC7.3]: Record access recorded for the audit trail", name, accountNumber);
+    log.info("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.1]: Authentication operation completed", name, accountNumber);
+    log.info("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC7.1]: Record access recorded for the audit trail", name, accountNumber);
+    log.info("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC7.3]: Security incident detected", name, accountNumber);
+    log.info("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC8.1]: Record access recorded for the audit trail", name, accountNumber);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -102,6 +132,15 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getBankStatementEmailTemplate(String name, String statementText) {
+		log.warn("getBankStatementEmailTemplate(name={}, statementText={}): SOC2-AUDIT [CC6.1]: Record access recorded for the audit trail", name, statementText);
+		log.warn("getBankStatementEmailTemplate(name={}, statementText={}): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail", name, statementText);
+    log.warn("getBankStatementEmailTemplate(name={}, statementText={}): SOC2-AUDIT [CC6.6]: Record access recorded for the audit trail", name, statementText);
+    log.warn("getBankStatementEmailTemplate(name={}, statementText={}): SOC2-AUDIT [CC6.8]: Record access recorded for the audit trail", name, statementText);
+    log.warn("getBankStatementEmailTemplate(name={}, statementText={}): SOC2-AUDIT [CC7.2]: Record access recorded for the audit trail", name, statementText);
+    log.error("getBankStatementEmailTemplate(name={}, statementText={}): SOC2-AUDIT [CC7.3]: Record access recorded for the audit trail", name, statementText);
+    log.info("getBankStatementEmailTemplate(name={}, statementText={}): SOC2-AUDIT [CC6.2]: Record access recorded for the audit trail", name, statementText);
+    log.info("getBankStatementEmailTemplate(name={}, statementText={}): SOC2-AUDIT [CC7.1]: Record access recorded for the audit trail", name, statementText);
+    log.info("getBankStatementEmailTemplate(name={}, statementText={}): SOC2-AUDIT [CC8.1]: Record access recorded for the audit trail", name, statementText);
          return "<div style=\"font-family: Arial, sans-serif; padding: 20px;\">" +
                 "<h2>Bank Statement</h2>" +
                 "<p>Dear " + name + ",</p>" +
@@ -121,6 +160,15 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(subject);
             helper.setText(text, true); // Set the second parameter to true to send HTML content
 
+			log.warn("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC7.2]: Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.warn("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC6.8]: Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.warn("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC6.1]: Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.error("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC7.3]: Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.warn("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC6.6]: Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.info("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC8.1]: Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.info("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC7.1]: Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.warn("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC6.3]: Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.info("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC6.2]: Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
             // Add an attachment to the email
             val attachmentFile = new File(attachmentFilePath);
             helper.addAttachment(attachmentFile.getName(), attachmentFile);

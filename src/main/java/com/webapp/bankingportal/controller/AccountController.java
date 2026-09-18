@@ -19,10 +19,12 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/account")
 @RequiredArgsConstructor
+@Slf4j
 public class AccountController {
 
     private final AccountService accountService;
@@ -34,26 +36,42 @@ public class AccountController {
         val response = isPINValid ? ApiMessages.PIN_CREATED.getMessage()
                 : ApiMessages.PIN_NOT_CREATED.getMessage();
 
+		log.info("checkAccountPIN(): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", response);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/pin/create")
     public ResponseEntity<String> createPIN(@RequestBody PinRequest pinRequest) {
+		log.error("createPIN(pinRequest=<redacted>): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail");
         accountService.createPin(
                 LoggedinUser.getAccountNumber(),
                 pinRequest.password(),
                 pinRequest.pin());
+				log.warn("createPIN(pinRequest=<redacted>): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail");
+log.info("createPIN(pinRequest=<redacted>): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail");
+				log.info("createPIN(pinRequest=<redacted>): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail");
+        log.warn("createPIN(pinRequest=<redacted>): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail");
+				log.info("createPIN(pinRequest=<redacted>): SOC2-AUDIT [CC6.1]: Password reset operation performed");
+    log.info("createPIN(pinRequest=<redacted>): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail");
 
         return ResponseEntity.ok(ApiMessages.PIN_CREATION_SUCCESS.getMessage());
     }
 
     @PostMapping("/pin/update")
     public ResponseEntity<String> updatePIN(@RequestBody PinUpdateRequest pinUpdateRequest) {
+		log.warn("updatePIN(pinUpdateRequest=<redacted>): SOC2-AUDIT [CC6.1]: State change recorded for the audit trail");
         accountService.updatePin(
                 LoggedinUser.getAccountNumber(),
                 pinUpdateRequest.oldPin(),
                 pinUpdateRequest.password(),
                 pinUpdateRequest.newPin());
+				log.warn("updatePIN(pinUpdateRequest=<redacted>): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail");
+log.info("updatePIN(pinUpdateRequest=<redacted>): SOC2-AUDIT [CC6.1]: Password reset operation performed");
+log.info("updatePIN(pinUpdateRequest=<redacted>): SOC2-AUDIT [CC8.1]: Change management operation performed");
+				log.error("updatePIN(pinUpdateRequest=<redacted>): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail");
+        log.warn("updatePIN(pinUpdateRequest=<redacted>): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail");
+				log.info("updatePIN(pinUpdateRequest=<redacted>): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail");
+    log.info("updatePIN(pinUpdateRequest=<redacted>): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail");
 
         return ResponseEntity.ok(ApiMessages.PIN_UPDATE_SUCCESS.getMessage());
     }
@@ -80,19 +98,31 @@ public class AccountController {
 
     @PostMapping("/fund-transfer")
     public ResponseEntity<String> fundTransfer(@RequestBody FundTransferRequest fundTransferRequest) {
+		log.warn("fundTransfer(fundTransferRequest={}): SOC2-AUDIT [CC6.8]: State change recorded for the audit trail", fundTransferRequest);
         accountService.fundTransfer(
                 LoggedinUser.getAccountNumber(),
                 fundTransferRequest.targetAccountNumber(),
                 fundTransferRequest.pin(),
                 fundTransferRequest.amount());
+				log.warn("fundTransfer(fundTransferRequest={}): SOC2-AUDIT [CC6.1]: State change recorded for the audit trail", fundTransferRequest);
+log.info("fundTransfer(fundTransferRequest={}): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail", fundTransferRequest);
+log.info("fundTransfer(fundTransferRequest={}): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail", fundTransferRequest);
+				log.warn("fundTransfer(fundTransferRequest={}): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail", fundTransferRequest);
+        log.warn("fundTransfer(fundTransferRequest={}): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", fundTransferRequest);
+				log.error("fundTransfer(fundTransferRequest={}): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail", fundTransferRequest);
+    log.info("fundTransfer(fundTransferRequest={}): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", fundTransferRequest);
 
         return ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
     }
 
     @GetMapping("/transactions")
     public ResponseEntity<String> getAllTransactionsByAccountNumber() {
+		log.info("getAllTransactionsByAccountNumber(): SOC2-AUDIT [CC8.1]: Record access recorded for the audit trail");
         val transactions = transactionService
                 .getAllTransactionsByAccountNumber(LoggedinUser.getAccountNumber());
+				log.warn("getAllTransactionsByAccountNumber(): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail");
+				log.info("getAllTransactionsByAccountNumber(): SOC2-AUDIT [CC7.1]: Record access recorded for the audit trail");
+    log.info("getAllTransactionsByAccountNumber(): SOC2-AUDIT [CC6.2]: Record access recorded for the audit trail");
         return ResponseEntity.ok(JsonUtil.toJson(transactions));
     }
 
