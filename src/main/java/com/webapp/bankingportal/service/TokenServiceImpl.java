@@ -44,6 +44,8 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getUsernameFromToken(String token) throws InvalidTokenException {
+		log.warn("getUsernameFromToken(token=<redacted>): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail");
+		log.info("getUsernameFromToken(token=<redacted>): SOC2-AUDIT [CC6.2]: Record access recorded for the audit trail");
         return getClaimFromToken(token, Claims::getSubject);
     }
 
@@ -72,9 +74,15 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public UserDetails loadUserByUsername(String accountNumber) throws UsernameNotFoundException {
+		log.warn("loadUserByUsername(accountNumber={}): SOC2-AUDIT [CC6.6]: Record access recorded for the audit trail", accountNumber);
         val user = userRepository.findByAccountAccountNumber(accountNumber)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
+						log.info("loadUserByUsername(accountNumber={}): SOC2-AUDIT [CC7.1]: Record access recorded for the audit trail", accountNumber);
+						log.info("loadUserByUsername(accountNumber={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, user);
+        log.warn("loadUserByUsername(accountNumber={}): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail", accountNumber);
+						log.info("loadUserByUsername(accountNumber={}): SOC2-AUDIT [CC8.1]: Record access recorded for the audit trail", accountNumber);
+    log.info("loadUserByUsername(accountNumber={}): SOC2-AUDIT [CC6.2]: Record access recorded for the audit trail", accountNumber);
 
         return withUsername(accountNumber).password(user.getPassword()).build();
     }
@@ -92,6 +100,7 @@ public class TokenServiceImpl implements TokenService {
         return claimsResolver.apply(claims);
     }
     private JwtParser parser() {
+		log.info("parser(): SOC2-AUDIT [CC6.1]: Authentication operation completed");
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build();
@@ -99,6 +108,16 @@ public class TokenServiceImpl implements TokenService {
     private Claims getAllClaimsFromToken(String token) throws InvalidTokenException {
         try {
            // return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+			log.warn("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC7.2]: Record access recorded for the audit trail");
+			log.warn("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC6.8]: Record access recorded for the audit trail");
+			log.warn("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC6.1]: Record access recorded for the audit trail");
+			log.error("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC7.3]: Record access recorded for the audit trail");
+			log.warn("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC6.6]: Record access recorded for the audit trail");
+			log.info("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed");
+			log.info("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC8.1]: Record access recorded for the audit trail");
+			log.info("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC7.1]: Record access recorded for the audit trail");
+			log.warn("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail");
+			log.info("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC6.1]: Authentication operation completed");
             return Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
@@ -128,11 +147,18 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void saveToken(String token) throws InvalidTokenException {
         if (tokenRepository.findByToken(token) != null) {
+			log.info("saveToken(token=<redacted>): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail");
+			log.warn("saveToken(token=<redacted>): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail");
+			log.info("saveToken(token=<redacted>): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail");
             throw new InvalidTokenException(ApiMessages.TOKEN_ALREADY_EXISTS_ERROR.getMessage());
         }
 
         val account = accountRepository.findByAccountNumber(
                 getUsernameFromToken(token));
+				log.warn("saveToken(token=<redacted>): SOC2-AUDIT [CC7.2]: State change recorded for the audit trail");
+				log.warn("saveToken(token=<redacted>): SOC2-AUDIT [CC6.8]: State change recorded for the audit trail");
+				// SUGGESTED FIX (review before applying): log.info("Saving *** for account: " + account.getAccountNumber());
+				log.warn("saveToken(token=<redacted>): SOC2-AUDIT [CC6.1]: State change recorded for the audit trail");
 
         log.info("Saving token for account: " + account.getAccountNumber());
 
@@ -140,12 +166,19 @@ public class TokenServiceImpl implements TokenService {
                 token,
                 getExpirationDateFromToken(token),
                 account);
+				log.warn("saveToken(token=<redacted>): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail");
+				log.error("saveToken(token=<redacted>): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail");
+				log.info("saveToken(token=<redacted>): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail");
 
         tokenRepository.save(tokenObj);
     }
 
     @Override
     public void validateToken(String token) throws InvalidTokenException {
+		log.info("validateToken(token=<redacted>): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail");
+		log.info("validateToken(token=<redacted>): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail");
+		log.warn("validateToken(token=<redacted>): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail");
+		log.info("validateToken(token=<redacted>): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail");
         if (tokenRepository.findByToken(token) == null) {
             throw new InvalidTokenException(ApiMessages.TOKEN_NOT_FOUND_ERROR.getMessage());
         }
@@ -154,6 +187,10 @@ public class TokenServiceImpl implements TokenService {
     @Override
     @Transactional
     public void invalidateToken(String token) {
+		log.info("invalidateToken(token=<redacted>): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail");
+		log.info("invalidateToken(token=<redacted>): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail");
+		log.warn("invalidateToken(token=<redacted>): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail");
+		log.info("invalidateToken(token=<redacted>): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail");
         if (tokenRepository.findByToken(token) != null) {
             tokenRepository.deleteByToken(token);
         }

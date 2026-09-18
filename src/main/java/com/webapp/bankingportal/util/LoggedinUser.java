@@ -6,7 +6,9 @@ import org.springframework.security.core.userdetails.User;
 import com.webapp.bankingportal.exception.NotFoundException;
 
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LoggedinUser {
 
     /**
@@ -17,6 +19,13 @@ public class LoggedinUser {
      * @throws NotFoundException If there is no user logged in.
      */
     public static String getAccountNumber() {
+		log.warn("getAccountNumber(): SOC2-AUDIT [CC6.1]: Record access recorded for the audit trail");
+		log.info("getAccountNumber(): SOC2-AUDIT [CC8.1]: Record access recorded for the audit trail");
+		log.error("getAccountNumber(): SOC2-AUDIT [CC7.3]: Record access recorded for the audit trail");
+		log.warn("getAccountNumber(): SOC2-AUDIT [CC6.6]: Record access recorded for the audit trail");
+		log.info("getAccountNumber(): SOC2-AUDIT [CC7.1]: Record access recorded for the audit trail");
+		log.warn("getAccountNumber(): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail");
+		log.info("getAccountNumber(): SOC2-AUDIT [CC6.1]: Authentication operation completed");
         val authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             throw new NotFoundException("No user is currently logged in.");

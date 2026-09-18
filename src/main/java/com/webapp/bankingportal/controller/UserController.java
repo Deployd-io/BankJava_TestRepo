@@ -22,10 +22,12 @@ import com.webapp.bankingportal.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 @Autowired
     private final UserService userService;
@@ -35,6 +37,15 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
         ResponseEntity<String> response = userService.registerUser(user);
+		log.error("registerUser(user={}): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail", user);
+		log.warn("registerUser(user={}): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail", user);
+		log.info("registerUser(user={}): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail", user);
+		log.warn("registerUser(user={}): SOC2-AUDIT [CC7.2]: State change recorded for the audit trail", user);
+		log.warn("registerUser(user={}): SOC2-AUDIT [CC6.8]: State change recorded for the audit trail", user);
+		log.warn("registerUser(user={}): SOC2-AUDIT [CC6.1]: State change recorded for the audit trail", user);
+		log.info("registerUser(user={}): SOC2-AUDIT [CC7.1]: System operation completed", user);
+		log.warn("registerUser(user={}): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", user);
+		log.info("registerUser(user={}): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", user);
 
         // Only send email if registration succeeded
         if (response.getStatusCode().is2xxSuccessful()) {
@@ -66,6 +77,8 @@ public class UserController {
 
     @PostMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody User user) {
+		log.warn("updateUser(user={}): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", user);
+		log.info("updateUser(user={}): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", user);
         return userService.updateUser(user);
     }
 

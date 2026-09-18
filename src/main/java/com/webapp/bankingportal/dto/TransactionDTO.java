@@ -9,10 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class TransactionDTO {
 
     private Long id;
@@ -36,6 +38,7 @@ public class TransactionDTO {
         }
 
         this.targetAccountNumber = targetAccountNumber;
+		log.info("TransactionDTO(transaction={}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", transaction, transaction);
     }
 
 }

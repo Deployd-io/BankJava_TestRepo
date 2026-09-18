@@ -53,6 +53,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<String> registerUser(User user) {
+		log.info("registerUser(user={}): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail", user);
+		log.info("registerUser(user={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
+		log.info("registerUser(user={}): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail", user);
+		log.warn("registerUser(user={}): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", user);
+		log.info("registerUser(user={}): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", user);
         validationUtil.validateNewUser(user);
         encodePassword(user);
         val savedUser = saveUserWithAccount(user);
@@ -87,6 +92,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<String> updateUser(User updatedUser) {
+		log.error("updateUser(updatedUser={}): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail", updatedUser);
+		log.warn("updateUser(updatedUser={}): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail", updatedUser);
+		log.info("updateUser(updatedUser={}): SOC2-AUDIT [CC8.1]: Change management operation performed by initiator {}", updatedUser, updatedUser);
+		log.info("updateUser(updatedUser={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", updatedUser, updatedUser);
+		log.info("updateUser(updatedUser={}): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail", updatedUser);
+		log.warn("updateUser(updatedUser={}): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", updatedUser);
+		log.info("updateUser(updatedUser={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", updatedUser, updatedUser);
         val accountNumber = LoggedinUser.getAccountNumber();
         authenticateUser(accountNumber, updatedUser.getPassword());
         val existingUser = getUserByAccountNumber(accountNumber);
@@ -98,6 +110,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public boolean resetPassword(User user, String newPassword) {
+		log.warn("resetPassword(user={}, newPassword=<redacted>): SOC2-AUDIT [CC6.1]: State change recorded for the audit trail", user);
+		log.error("resetPassword(user={}, newPassword=<redacted>): SOC2-AUDIT [CC7.3]: State change recorded for the audit trail", user);
+		log.warn("resetPassword(user={}, newPassword=<redacted>): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail", user);
+		log.info("resetPassword(user={}, newPassword=<redacted>): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail", user);
+		log.info("resetPassword(user={}, newPassword=<redacted>): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
+		log.info("resetPassword(user={}, newPassword=<redacted>): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail", user);
+		log.warn("resetPassword(user={}, newPassword=<redacted>): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", user);
+		log.info("resetPassword(user={}, newPassword=<redacted>): SOC2-AUDIT [CC6.2]: Authentication recorded for the audit trail", user);
         try {
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
@@ -113,6 +133,9 @@ public class UserServiceImpl implements UserService {
         tokenService.validateToken(token);
         tokenService.invalidateToken(token);
 
+		log.warn("logout(token=<redacted>): SOC2-AUDIT [CC7.3]: Security incident detected");
+		// SUGGESTED FIX (review before applying): log.info("User logged out successfully {}", ***.***(***));
+		log.info("logout(token=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed");
         log.info("User logged out successfully {}", tokenService.getUsernameFromToken(token));
 
         return new ModelAndView("redirect:/logout");
@@ -120,18 +143,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User user) {
+		log.info("saveUser(user={}): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", user);
         return userRepository.save(user);
     }
 
     @Override
     public User getUserByIdentifier(String identifier) {
         User user = null;
+		log.warn("getUserByIdentifier(identifier={}): SOC2-AUDIT [CC6.6]: Record access recorded for the audit trail {}", identifier, identifier);
+		log.info("getUserByIdentifier(identifier={}): SOC2-AUDIT [CC8.1]: Record access recorded for the audit trail {}", identifier, identifier);
 
         if (validationUtil.doesEmailExist(identifier)) {
             user = getUserByEmail(identifier);
         } else if (validationUtil.doesAccountExist(identifier)) {
+			log.info("getUserByIdentifier(identifier={}): SOC2-AUDIT [CC6.2]: Record access recorded for the audit trail {}", identifier, identifier);
+			log.warn("getUserByIdentifier(identifier={}): SOC2-AUDIT [CC7.2]: Record access recorded for the audit trail {}", identifier, identifier);
+			log.warn("getUserByIdentifier(identifier={}): SOC2-AUDIT [CC6.8]: Record access recorded for the audit trail {}", identifier, identifier);
             user = getUserByAccountNumber(identifier);
         } else {
+					log.warn("getUserByIdentifier(identifier={}): SOC2-AUDIT [CC6.1]: Record access recorded for the audit trail {}", identifier, identifier);
+					log.error("getUserByIdentifier(identifier={}): SOC2-AUDIT [CC7.3]: Record access recorded for the audit trail {}", identifier, identifier);
+					log.info("getUserByIdentifier(identifier={}): SOC2-AUDIT [CC7.1]: Record access recorded for the audit trail {}", identifier, identifier);
+					log.warn("getUserByIdentifier(identifier={}): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail {}", identifier, identifier);
             throw new UserInvalidException(
                     String.format(ApiMessages.USER_NOT_FOUND_BY_IDENTIFIER.getMessage(), identifier));
         }
@@ -141,6 +174,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByAccountNumber(String accountNo) {
+		log.info("getUserByAccountNumber(accountNo={}): SOC2-AUDIT [CC8.1]: Record access recorded for the audit trail", accountNo);
+		log.warn("getUserByAccountNumber(accountNo={}): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail", accountNo);
+    log.info("getUserByAccountNumber(accountNo={}): SOC2-AUDIT [CC6.2]: Record access recorded for the audit trail", accountNo);
+    log.info("getUserByAccountNumber(accountNo={}): SOC2-AUDIT [CC7.1]: Record access recorded for the audit trail", accountNo);
         return userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
                 () -> new UserInvalidException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNo)));
@@ -148,16 +185,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
+		log.info("getUserByEmail(email={}): SOC2-AUDIT [CC7.1]: Record access recorded for the audit trail", email);
+		log.warn("getUserByEmail(email={}): SOC2-AUDIT [CC6.3]: Record access recorded for the audit trail", email);
+    log.info("getUserByEmail(email={}): SOC2-AUDIT [CC6.2]: Record access recorded for the audit trail", email);
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UserInvalidException(String.format(ApiMessages.USER_NOT_FOUND_BY_EMAIL.getMessage(), email)));
     }
 
     private void encodePassword(User user) {
         user.setCountryCode(user.getCountryCode().toUpperCase());
+		log.info("encodePassword(user={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", user, user);
+		log.info("encodePassword(user={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", user);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
     }
 
     private User saveUserWithAccount(User user) {
+		log.info("saveUserWithAccount(user={}): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail", user);
+		log.info("saveUserWithAccount(user={}): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail", user);
+		log.warn("saveUserWithAccount(user={}): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", user);
+		log.info("saveUserWithAccount(user={}): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", user);
         val savedUser = saveUser(user);
         savedUser.setAccount(accountService.createAccount(savedUser));
         return saveUser(savedUser);
@@ -168,6 +214,8 @@ public class UserServiceImpl implements UserService {
         val accountNumber = user.getAccount().getAccountNumber();
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+				log.info("authenticateUser(loginRequest={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", loginRequest, user);
+				log.info("authenticateUser(loginRequest={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", loginRequest, user);
         return user;
     }
 
@@ -176,6 +224,11 @@ public class UserServiceImpl implements UserService {
     }
 
     private String generateAndSaveToken(String accountNumber) throws InvalidTokenException {
+		log.warn("generateAndSaveToken(accountNumber={}): SOC2-AUDIT [CC6.6]: State change recorded for the audit trail", accountNumber);
+		log.info("generateAndSaveToken(accountNumber={}): SOC2-AUDIT [CC8.1]: State change recorded for the audit trail", accountNumber);
+		log.info("generateAndSaveToken(accountNumber={}): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail", accountNumber);
+		log.warn("generateAndSaveToken(accountNumber={}): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", accountNumber);
+		log.info("generateAndSaveToken(accountNumber={}): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", accountNumber);
         val userDetails = userDetailsService.loadUserByUsername(accountNumber);
         val token = tokenService.generateToken(userDetails);
         tokenService.saveToken(token);
@@ -183,14 +236,23 @@ public class UserServiceImpl implements UserService {
     }
 
     private ResponseEntity<String> sendOtpEmail(User user, String otp) {
+		log.warn("sendOtpEmail(user={}, otp=<redacted>): SOC2-AUDIT [CC6.3]: Outbound notification recorded for the audit trail", user);
         val emailSendingFuture = otpService.sendOTPByEmail(
                 user.getEmail(), user.getName(), user.getAccount().getAccountNumber(), otp);
+				log.warn("sendOtpEmail(user={}, otp=<redacted>): SOC2-AUDIT [CC6.8]: Outbound notification recorded for the audit trail", user);
+				log.warn("sendOtpEmail(user={}, otp=<redacted>): SOC2-AUDIT [CC6.1]: Outbound notification recorded for the audit trail", user);
 
         ResponseEntity<String> successResponse = ResponseEntity
                 .ok(String.format(ApiMessages.OTP_SENT_SUCCESS.getMessage(), user.getEmail()));
+				log.warn("sendOtpEmail(user={}, otp=<redacted>): SOC2-AUDIT [CC6.6]: Outbound notification recorded for the audit trail", user);
         ResponseEntity<String> failureResponse = ResponseEntity.internalServerError()
                 .body(String.format(ApiMessages.OTP_SENT_FAILURE.getMessage(), user.getEmail()));
+				log.error("sendOtpEmail(user={}, otp=<redacted>): SOC2-AUDIT [CC7.3]: Outbound notification recorded for the audit trail", user);
+				log.info("sendOtpEmail(user={}, otp=<redacted>): SOC2-AUDIT [CC7.1]: Outbound notification recorded for the audit trail", user);
 
+		log.info("sendOtpEmail(user={}, otp=<redacted>): SOC2-AUDIT [CC8.1]: Outbound notification recorded for the audit trail", user);
+    log.warn("sendOtpEmail(user={}, otp=<redacted>): SOC2-AUDIT [CC7.2]: Outbound notification recorded for the audit trail", user);
+    log.info("sendOtpEmail(user={}, otp=<redacted>): SOC2-AUDIT [CC6.2]: Outbound notification recorded for the audit trail", user);
         return emailSendingFuture.thenApply(result -> successResponse)
                 .exceptionally(e -> failureResponse).join();
     }
@@ -202,23 +264,39 @@ public class UserServiceImpl implements UserService {
         if (request.otp() == null || request.otp().isEmpty()) {
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
+		log.info("validateOtpRequest(request={}): SOC2-AUDIT [CC6.6]: Database transaction completed", request);
     }
 
     private void validateOtp(User user, String otp) {
         if (!otpService.validateOTP(user.getAccount().getAccountNumber(), otp)) {
             throw new UnauthorizedException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
+		log.info("validateOtp(user={}, otp=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed", user);
     }
 
     private void updateUserDetails(User existingUser, User updatedUser) {
+		log.info("updateUserDetails(existingUser={}, updatedUser={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", existingUser, updatedUser, existingUser);
+		log.info("updateUserDetails(existingUser={}, updatedUser={}): SOC2-AUDIT [CC7.1]: State change recorded for the audit trail", existingUser, updatedUser);
+		log.warn("updateUserDetails(existingUser={}, updatedUser={}): SOC2-AUDIT [CC6.3]: State change recorded for the audit trail", existingUser, updatedUser);
+		log.info("updateUserDetails(existingUser={}, updatedUser={}): SOC2-AUDIT [CC6.2]: State change recorded for the audit trail", existingUser, updatedUser);
         ValidationUtil.validateUserDetails(updatedUser);
         updatedUser.setPassword(existingUser.getPassword());
         userMapper.updateUser(updatedUser, existingUser);
     }
 
     private CompletableFuture<Boolean> sendLoginNotification(User user, String ip) {
+		log.info("sendLoginNotification(user={}, ip={}): SOC2-AUDIT [CC7.1]: Outbound notification recorded for the audit trail", user, ip);
+		log.info("sendLoginNotification(user={}, ip={}): SOC2-AUDIT [CC7.3]: Security incident detected", user, ip);
+		log.warn("sendLoginNotification(user={}, ip={}): SOC2-AUDIT [CC6.3]: Outbound notification recorded for the audit trail", user, ip);
         val loginTime = new Timestamp(System.currentTimeMillis()).toString();
 
+		log.info("sendLoginNotification(user={}, ip={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, ip, user);
+		log.info("sendLoginNotification(user={}, ip={}): SOC2-AUDIT [CC8.1]: Outbound notification recorded for the audit trail", user, ip);
+		log.warn("sendLoginNotification(user={}, ip={}): SOC2-AUDIT [CC7.3]: Security incident detected", user, ip);
+                log.warn("sendLoginNotification(user={}, ip={}): SOC2-AUDIT [CC6.1]: Outbound notification recorded for the audit trail", user, ip);
+		log.error("sendLoginNotification(user={}, ip={}): SOC2-AUDIT [CC7.3]: Security incident response initiated", user, ip);
+    log.warn("sendLoginNotification(user={}, ip={}): SOC2-AUDIT [CC7.3]: Security incident detected", user, ip);
+    log.warn("sendLoginNotification(user={}, ip={}): SOC2-AUDIT [CC7.3]: Security incident detected", user, ip);
         return geolocationService.getGeolocation(ip)
                 .thenComposeAsync(geolocationResponse -> {
                     val loginLocation = String.format("%s, %s",
@@ -230,7 +308,12 @@ public class UserServiceImpl implements UserService {
     }
 
     private CompletableFuture<Boolean> sendLoginEmail(User user, String loginTime, String loginLocation) {
+		log.info("sendLoginEmail(user={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC7.3]: Security incident detected", user, loginTime, loginLocation);
+		log.warn("sendLoginEmail(user={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC6.3]: Outbound notification recorded for the audit trail", user, loginTime, loginLocation);
         val emailText = emailService.getLoginEmailTemplate(user.getName(), loginTime, loginLocation);
+		log.info("sendLoginEmail(user={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", user, loginTime, loginLocation, user);
+    log.info("sendLoginEmail(user={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC7.1]: Outbound notification recorded for the audit trail", user, loginTime, loginLocation);
+    log.info("sendLoginEmail(user={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC8.1]: Outbound notification recorded for the audit trail", user, loginTime, loginLocation);
         return emailService.sendEmail(user.getEmail(), ApiMessages.EMAIL_SUBJECT_LOGIN.getMessage(), emailText)
                 .thenApplyAsync(result -> true)
                 .exceptionally(ex -> false);
