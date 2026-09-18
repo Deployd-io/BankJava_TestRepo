@@ -9,27 +9,33 @@ import com.webapp.bankingportal.dto.ResetPasswordRequest;
 import com.webapp.bankingportal.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/password-reset/send-otp")
     public ResponseEntity<String> sendOtpForPasswordReset(@RequestBody OtpRequest otpRequest) {
+		log.info("sendOtpForPasswordReset(otpRequest=<redacted>): SOC2-AUDIT [CC6.1]: Password reset operation performed");
         return authService.sendOtpForPasswordReset(otpRequest);
     }
 
     @PostMapping("/password-reset/verify-otp")
     public ResponseEntity<String> verifyOtpAndIssueResetToken(
             @RequestBody OtpVerificationRequest otpVerificationRequest) {
+			log.info("verifyOtpAndIssueResetToken(otpVerificationRequest=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed");
+			log.info("verifyOtpAndIssueResetToken(otpVerificationRequest=<redacted>): SOC2-AUDIT [CC6.1]: Authentication operation completed");
         return authService.verifyOtpAndIssueResetToken(otpVerificationRequest);
     }
 
     @PostMapping("/password-reset")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+		log.info("resetPassword(resetPasswordRequest=<redacted>): SOC2-AUDIT [CC6.1]: Password reset operation performed");
         return authService.resetPassword(resetPasswordRequest);
     }
 

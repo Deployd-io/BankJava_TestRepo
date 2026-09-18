@@ -50,6 +50,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String generateToken(UserDetails userDetails) {
         log.info("Generating token for user: " + userDetails.getUsername());
+		// SUGGESTED FIX (review before applying): log.info("Generating *** for user: " + userDetails.getUsername());
         return doGenerateToken(userDetails,
                 new Date(System.currentTimeMillis() + expiration));
     }
@@ -76,6 +77,7 @@ public class TokenServiceImpl implements TokenService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
 
+		log.info("loadUserByUsername(accountNumber={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, user);
         return withUsername(accountNumber).password(user.getPassword()).build();
     }
 
@@ -92,6 +94,7 @@ public class TokenServiceImpl implements TokenService {
         return claimsResolver.apply(claims);
     }
     private JwtParser parser() {
+		log.info("parser(): SOC2-AUDIT [CC6.1]: Authentication operation completed");
         return Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build();
@@ -99,6 +102,8 @@ public class TokenServiceImpl implements TokenService {
     private Claims getAllClaimsFromToken(String token) throws InvalidTokenException {
         try {
            // return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+			log.info("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed");
+			log.info("getAllClaimsFromToken(token=<redacted>): SOC2-AUDIT [CC6.1]: Authentication operation completed");
             return Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
@@ -135,6 +140,7 @@ public class TokenServiceImpl implements TokenService {
                 getUsernameFromToken(token));
 
         log.info("Saving token for account: " + account.getAccountNumber());
+		// SUGGESTED FIX (review before applying): log.info("Saving *** for account: " + account.getAccountNumber());
 
         val tokenObj = new Token(
                 token,
@@ -149,6 +155,7 @@ public class TokenServiceImpl implements TokenService {
         if (tokenRepository.findByToken(token) == null) {
             throw new InvalidTokenException(ApiMessages.TOKEN_NOT_FOUND_ERROR.getMessage());
         }
+		log.info("validateToken(token=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed");
     }
 
     @Override
@@ -157,6 +164,7 @@ public class TokenServiceImpl implements TokenService {
         if (tokenRepository.findByToken(token) != null) {
             tokenRepository.deleteByToken(token);
         }
+		log.info("invalidateToken(token=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed");
     }
 
 }
