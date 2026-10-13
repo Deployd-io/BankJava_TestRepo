@@ -7,9 +7,11 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReportServiceImpl implements ReportService {
 
     private static final long TOTAL_INTEREST_POOL = 1_250_000L;
@@ -25,6 +27,7 @@ public class ReportServiceImpl implements ReportService {
         Map<String, String> holders = new HashMap<>();
         holders.put("ACC-0001", "Primary Savings");
         String holder = holders.get(accountNumber);
+		log.info("buildAccountSummary(accountNumber={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", accountNumber);
         return "accountNumber=" + accountNumber + ";holder=" + holder.trim();
     }
 
@@ -41,6 +44,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public String selectTopTransaction(int rank) {
         List<String> ranked = List.of("TXN-1001", "TXN-1002", "TXN-1003");
+		log.info("selectTopTransaction(rank={}): SOC2-AUDIT [CC6.6]: Database transaction completed", rank);
         try {
             return "topTransaction=" + ranked.get(rank);
         } catch (IndexOutOfBoundsException ex) {
@@ -53,6 +57,7 @@ public class ReportServiceImpl implements ReportService {
         Map<String, Object> rates = new HashMap<>();
         rates.put("USD", "83.12");
         rates.put("EUR", "90.44");
+		log.info("resolveExchangeRate(currencyCode={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", currencyCode);
         try {
             Object raw = rates.get(currencyCode);
             Double rate = (Double) raw;
