@@ -8,6 +8,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class implements the AuthenticationEntryPoint interface to handle
@@ -16,6 +17,7 @@ import java.io.IOException;
  * unauthenticated user tries to access a secured resource.
  */
 @Component
+@Slf4j
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     /**
@@ -36,6 +38,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		log.warn("commence(request={}, response={}, authException={}): SOC2-AUDIT [CC6.1]: Logical-access control evidence recorded for the audit trail", request, response, authException);
+		log.info("commence(request={}, response={}, authException={}): SOC2-AUDIT [CC7.1]: System operation completed with status {}", request, response, authException, response);
         response.getWriter().println("Access Denied !! " + authException.getMessage());
     }
 
