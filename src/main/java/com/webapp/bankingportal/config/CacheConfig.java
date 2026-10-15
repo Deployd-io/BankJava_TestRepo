@@ -12,9 +12,11 @@ import org.springframework.context.annotation.Configuration;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableCaching
+@Slf4j
 public class CacheConfig {
 
     @Bean
@@ -26,6 +28,7 @@ public class CacheConfig {
     }
 
     public Caffeine<Object, Object> caffeineConfig() {
+		log.info("caffeineConfig(): SOC2-AUDIT [CC7.3]: Security event recorded");
         return Caffeine.newBuilder()
                 .expireAfterWrite(15, TimeUnit.MINUTES) // Cache entries expire after 15 minutes
                 .maximumSize(100) // Maximum of 100 entries in the cache

@@ -18,9 +18,11 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OtpServiceImpl implements OtpService {
 
     public static final int OTP_ATTEMPTS_LIMIT = 3;
@@ -54,6 +56,11 @@ public class OtpServiceImpl implements OtpService {
         }
 
         // Existing OTP is not expired
+		log.info("generateOTP(accountNumber={}): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
+		log.info("generateOTP(accountNumber={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", accountNumber);
+		log.info("generateOTP(accountNumber={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", accountNumber);
+		log.info("generateOTP(accountNumber={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", accountNumber);
+		log.info("generateOTP(accountNumber={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", accountNumber);
         existingOtpInfo.setGeneratedAt(LocalDateTime.now());
         incrementOtpAttempts(accountNumber);
 
@@ -73,6 +80,7 @@ public class OtpServiceImpl implements OtpService {
 
         val waitingMinutes = OTP_RESET_WAITING_TIME_MINUTES - otpLimitReachedTime.until(now, ChronoUnit.MINUTES);
 
+		log.info("validateOtpWithinRetryLimit(otpInfo=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed");
         throw new OtpRetryLimitExceededException(
                 String.format(ApiMessages.OTP_GENERATION_LIMIT_EXCEEDED.getMessage(), waitingMinutes));
     }
@@ -112,9 +120,13 @@ public class OtpServiceImpl implements OtpService {
 
     private void resetOtpAttempts(String accountNumber) {
         otpLimitReachedTime = null;
+		log.info("resetOtpAttempts(accountNumber={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", accountNumber);
+		log.info("resetOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", accountNumber);
         val cache = cacheManager.getCache("otpAttempts");
         if (cache != null) {
             cache.put(accountNumber, 0);
+			log.info("resetOtpAttempts(accountNumber={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", accountNumber);
+			log.info("resetOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", accountNumber);
         }
     }
 
@@ -126,9 +138,13 @@ public class OtpServiceImpl implements OtpService {
         }
 
         val value = cache.get(accountNumber, Integer.class);
+		log.info("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", accountNumber);
         if (value != null) {
             otpAttempts = value;
         }
+		log.info("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", accountNumber);
+		log.info("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", accountNumber);
+		log.info("getOtpAttempts(accountNumber={}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", accountNumber);
 
         return otpAttempts;
     }
@@ -138,6 +154,10 @@ public class OtpServiceImpl implements OtpService {
         val otpValue = 100_000 + random.nextInt(900_000);
         val otp = String.valueOf(otpValue);
 
+		log.info("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", accountNumber);
+		log.info("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", accountNumber);
+		log.info("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", accountNumber);
+		log.info("generateNewOTP(accountNumber={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", accountNumber);
         otpInfoRepository.save(new OtpInfo(accountNumber, otp, LocalDateTime.now()));
 
         return otp;
@@ -145,6 +165,9 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     public CompletableFuture<Void> sendOTPByEmail(String email, String name, String accountNumber, String otp) {
+		log.info("sendOTPByEmail(email={}, name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC7.1]: System operations — Outbound notification recorded for the audit trail", email, name, accountNumber);
+		log.info("sendOTPByEmail(email={}, name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.3]: Authorization — Outbound notification recorded for the audit trail", email, name, accountNumber);
+		log.info("sendOTPByEmail(email={}, name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.1]: Authentication operation completed", email, name, accountNumber);
         val emailText = emailService.getOtpLoginEmailTemplate(name, "xxx" + accountNumber.substring(3), otp);
         return emailService.sendEmail(email, ApiMessages.EMAIL_SUBJECT_OTP.getMessage(), emailText);
     }
@@ -152,7 +175,12 @@ public class OtpServiceImpl implements OtpService {
     @Override
     public boolean validateOTP(String accountNumber, String otp) {
         val otpInfo = otpInfoRepository.findByAccountNumberAndOtp(accountNumber, otp);
+		log.info("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", accountNumber);
         if (otpInfo == null) {
+			log.info("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
+			log.info("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", accountNumber);
+			log.info("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", accountNumber);
+			log.info("validateOTP(accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", accountNumber);
             throw new InvalidOtpException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
 
@@ -163,9 +191,13 @@ public class OtpServiceImpl implements OtpService {
         val now = LocalDateTime.now();
         val generatedAt = otpInfo.getGeneratedAt();
         val expired = generatedAt.isBefore(now.minusMinutes(OTP_EXPIRY_MINUTES));
+		log.info("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail");
         if (expired) {
             otpInfoRepository.delete(otpInfo);
         }
+		log.info("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail");
+		log.info("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+		log.info("isOtpExpired(otpInfo=<redacted>): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
 
         return expired;
     }

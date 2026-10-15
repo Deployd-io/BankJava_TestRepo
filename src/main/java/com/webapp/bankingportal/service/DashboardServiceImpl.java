@@ -12,9 +12,11 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardServiceImpl implements DashboardService {
 @Autowired
     private final UserRepository userRepository;
@@ -23,9 +25,13 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public UserResponse getUserDetails(String accountNumber) {
+		log.info("getUserDetails(accountNumber={}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", accountNumber);
         val user = userRepository.findByAccountAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber)));
+						log.info("getUserDetails(accountNumber={}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", accountNumber);
+						log.info("getUserDetails(accountNumber={}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", accountNumber);
+						log.info("getUserDetails(accountNumber={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", accountNumber);
 
         return new UserResponse(user);
     }
@@ -33,9 +39,13 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public AccountResponse getAccountDetails(String accountNumber) {
         val account = accountRepository.findByAccountNumber(accountNumber);
+		log.info("getAccountDetails(accountNumber={}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", accountNumber);
         if (account == null) {
             throw new NotFoundException(String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNumber));
         }
+		log.info("getAccountDetails(accountNumber={}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", accountNumber);
+		log.info("getAccountDetails(accountNumber={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", accountNumber);
+		log.info("getAccountDetails(accountNumber={}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", accountNumber);
 
         return new AccountResponse(account);
     }

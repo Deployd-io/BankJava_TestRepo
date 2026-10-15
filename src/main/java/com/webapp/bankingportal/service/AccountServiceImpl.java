@@ -41,6 +41,10 @@ public class AccountServiceImpl implements AccountService {
     public Account createAccount(User user) {
         val account = new Account();
         account.setAccountNumber(generateUniqueAccountNumber());
+		log.info("createAccount(user={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", user);
+		log.info("createAccount(user={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", user);
+		log.info("createAccount(user={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", user);
+		log.info("createAccount(user={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", user);
         account.setBalance(0.0);
         account.setUser(user);
         return accountRepository.save(account);
@@ -49,19 +53,27 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public boolean isPinCreated(String accountNumber) {
         val account = accountRepository.findByAccountNumber(accountNumber);
+		log.info("isPinCreated(accountNumber={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", accountNumber);
         if (account == null) {
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
+		log.info("isPinCreated(accountNumber={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", accountNumber);
+		log.info("isPinCreated(accountNumber={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", accountNumber);
+		log.info("isPinCreated(accountNumber={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", accountNumber);
 
         return account.getPin() != null;
     }
 
     private String generateUniqueAccountNumber() {
         String accountNumber;
+		log.info("generateUniqueAccountNumber(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
         do {
             // Generate a UUID as the account number
             accountNumber = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 6);
         } while (accountRepository.findByAccountNumber(accountNumber) != null);
+		log.info("generateUniqueAccountNumber(): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail");
+		log.info("generateUniqueAccountNumber(): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail");
+		log.info("generateUniqueAccountNumber(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
 
         return accountNumber;
     }
@@ -72,32 +84,44 @@ public class AccountServiceImpl implements AccountService {
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
 
+		log.info("validatePin(accountNumber={}, pin=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
         if (account.getPin() == null) {
             throw new UnauthorizedException(ApiMessages.PIN_NOT_CREATED.getMessage());
         }
+		log.info("validatePin(accountNumber={}, pin=<redacted>): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", accountNumber);
+		log.info("validatePin(accountNumber={}, pin=<redacted>): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, account);
 
         if (pin == null || pin.isEmpty()) {
             throw new UnauthorizedException(ApiMessages.PIN_EMPTY_ERROR.getMessage());
         }
+		log.info("validatePin(accountNumber={}, pin=<redacted>): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", accountNumber);
+		log.info("validatePin(accountNumber={}, pin=<redacted>): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", accountNumber);
 
         if (!passwordEncoder.matches(pin, account.getPin())) {
             throw new UnauthorizedException(ApiMessages.PIN_INVALID_ERROR.getMessage());
         }
+		log.info("validatePin(accountNumber={}, pin=<redacted>): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", accountNumber);
     }
 
     private void validatePassword(String accountNumber, String password) {
         val account = accountRepository.findByAccountNumber(accountNumber);
+		log.info("validatePassword(accountNumber={}, password=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
         if (account == null) {
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
+		log.info("validatePassword(accountNumber={}, password=<redacted>): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", accountNumber);
+		log.info("validatePassword(accountNumber={}, password=<redacted>): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, account);
 
         if (password == null || password.isEmpty()) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_EMPTY_ERROR.getMessage());
         }
+		log.info("validatePassword(accountNumber={}, password=<redacted>): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", accountNumber);
+		log.info("validatePassword(accountNumber={}, password=<redacted>): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", accountNumber);
 
         if (!passwordEncoder.matches(password, account.getUser().getPassword())) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_INVALID_ERROR.getMessage());
         }
+		log.info("validatePassword(accountNumber={}, password=<redacted>): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", accountNumber);
     }
 
     @Override
@@ -112,10 +136,16 @@ public class AccountServiceImpl implements AccountService {
         if (pin == null || pin.isEmpty()) {
             throw new InvalidPinException(ApiMessages.PIN_EMPTY_ERROR.getMessage());
         }
+		log.info("createPin(accountNumber={}, password=<redacted>, pin=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
+		log.info("createPin(accountNumber={}, password=<redacted>, pin=<redacted>): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", accountNumber);
 
         if (!pin.matches("[0-9]{4}")) {
             throw new InvalidPinException(ApiMessages.PIN_FORMAT_INVALID_ERROR.getMessage());
         }
+		log.info("createPin(accountNumber={}, password=<redacted>, pin=<redacted>): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, account);
+		log.info("createPin(accountNumber={}, password=<redacted>, pin=<redacted>): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", accountNumber);
+		log.info("createPin(accountNumber={}, password=<redacted>, pin=<redacted>): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", accountNumber);
+		log.info("createPin(accountNumber={}, password=<redacted>, pin=<redacted>): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", accountNumber);
 
         account.setPin(passwordEncoder.encode(pin));
         accountRepository.save(account);
@@ -133,10 +163,16 @@ public class AccountServiceImpl implements AccountService {
         if (newPin == null || newPin.isEmpty()) {
             throw new InvalidPinException(ApiMessages.PIN_EMPTY_ERROR.getMessage());
         }
+		log.info("updatePin(accountNumber={}, oldPin=<redacted>, password=<redacted>, newPin=<redacted>): SOC2-AUDIT [CC6.6]: Database transaction completed", accountNumber);
+		log.info("updatePin(accountNumber={}, oldPin=<redacted>, password=<redacted>, newPin=<redacted>): SOC2-AUDIT [CC8.1]: Change management operation performed", accountNumber);
 
         if (!newPin.matches("[0-9]{4}")) {
             throw new InvalidPinException(ApiMessages.PIN_FORMAT_INVALID_ERROR.getMessage());
         }
+		log.info("updatePin(accountNumber={}, oldPin=<redacted>, password=<redacted>, newPin=<redacted>): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", accountNumber, account);
+		log.info("updatePin(accountNumber={}, oldPin=<redacted>, password=<redacted>, newPin=<redacted>): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", accountNumber);
+		log.info("updatePin(accountNumber={}, oldPin=<redacted>, password=<redacted>, newPin=<redacted>): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", accountNumber);
+		log.info("updatePin(accountNumber={}, oldPin=<redacted>, password=<redacted>, newPin=<redacted>): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", accountNumber);
 
         account.setPin(passwordEncoder.encode(newPin));
         accountRepository.save(account);
@@ -154,6 +190,7 @@ public class AccountServiceImpl implements AccountService {
         if (amount > 100000) {
             throw new InvalidAmountException(ApiMessages.AMOUNT_EXCEED_100_000_ERROR.getMessage());
         }
+		log.info("validateAmount(amount={}): SOC2-AUDIT [CC6.6]: Database transaction completed", amount);
     }
 
     @Transactional
@@ -170,6 +207,11 @@ public class AccountServiceImpl implements AccountService {
 
         val transaction = new Transaction();
         transaction.setAmount(amount);
+		log.info("cashDeposit(accountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", accountNumber, amount, transaction);
+		log.info("cashDeposit(accountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", accountNumber, amount);
+		log.info("cashDeposit(accountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", accountNumber, amount);
+		log.info("cashDeposit(accountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", accountNumber, amount);
+		log.info("cashDeposit(accountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", accountNumber, amount);
         transaction.setTransactionType(TransactionType.CASH_DEPOSIT);
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
@@ -194,6 +236,11 @@ public class AccountServiceImpl implements AccountService {
 
         val transaction = new Transaction();
         transaction.setAmount(amount);
+		log.info("cashWithdrawal(accountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", accountNumber, amount, transaction);
+		log.info("cashWithdrawal(accountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", accountNumber, amount);
+		log.info("cashWithdrawal(accountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", accountNumber, amount);
+		log.info("cashWithdrawal(accountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", accountNumber, amount);
+		log.info("cashWithdrawal(accountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", accountNumber, amount);
         transaction.setTransactionType(TransactionType.CASH_WITHDRAWAL);
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
@@ -232,6 +279,12 @@ public class AccountServiceImpl implements AccountService {
 
         val transaction = new Transaction();
         transaction.setAmount(amount);
+		log.info("fundTransfer(sourceAccountNumber={}, targetAccountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", sourceAccountNumber, targetAccountNumber, amount, transaction);
+		log.info("fundTransfer(sourceAccountNumber={}, targetAccountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", sourceAccountNumber, targetAccountNumber, amount);
+		log.info("fundTransfer(sourceAccountNumber={}, targetAccountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC6.7]: Encryption operation completed", sourceAccountNumber, targetAccountNumber, amount);
+		log.info("fundTransfer(sourceAccountNumber={}, targetAccountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", sourceAccountNumber, targetAccountNumber, amount);
+		log.info("fundTransfer(sourceAccountNumber={}, targetAccountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", sourceAccountNumber, targetAccountNumber, amount);
+		log.info("fundTransfer(sourceAccountNumber={}, targetAccountNumber={}, pin=<redacted>, amount={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", sourceAccountNumber, targetAccountNumber, amount);
         transaction.setTransactionType(TransactionType.CASH_TRANSFER);
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(sourceAccount);

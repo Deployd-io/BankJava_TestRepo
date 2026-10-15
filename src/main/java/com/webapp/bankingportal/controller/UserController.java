@@ -22,10 +22,12 @@ import com.webapp.bankingportal.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 @Autowired
     private final UserService userService;
@@ -37,10 +39,14 @@ public class UserController {
         ResponseEntity<String> response = userService.registerUser(user);
 
         // Only send email if registration succeeded
+		log.info("registerUser(user={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", user);
         if (response.getStatusCode().is2xxSuccessful()) {
             String emailBody = emailService.getBankStatementEmailTemplate(user.getName(), "Welcome! Your account is created.");
             emailService.sendEmail(user.getEmail(), "Welcome to OneStopBank", emailBody);
         }
+		log.info("registerUser(user={}): SOC2-AUDIT [CC7.1]: System operation completed", user);
+		log.info("registerUser(user={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", user);
+		log.info("registerUser(user={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", user);
 
         return response;
     }
@@ -66,6 +72,8 @@ public class UserController {
 
     @PostMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody User user) {
+		log.info("updateUser(user={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", user);
+		log.info("updateUser(user={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", user);
         return userService.updateUser(user);
     }
 

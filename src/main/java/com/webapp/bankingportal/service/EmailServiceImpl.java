@@ -29,6 +29,7 @@ public class EmailServiceImpl implements EmailService {
     public CompletableFuture<Void> sendEmail(String to, String subject, String text) {
         val future = new CompletableFuture<Void>();
 
+		log.info("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC8.1]: Change management — Outbound notification recorded for the audit trail", to, subject, text);
         try {
             val message = mailSender.createMimeMessage();
             val helper = new MimeMessageHelper(message, true);
@@ -45,12 +46,17 @@ public class EmailServiceImpl implements EmailService {
             log.error("Failed to send email to {}", to, e);
             future.completeExceptionally(e);
         }
+		log.info("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC7.1]: System operations — Outbound notification recorded for the audit trail", to, subject, text);
+		log.info("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC6.3]: Authorization — Outbound notification recorded for the audit trail", to, subject, text);
+		log.info("sendEmail(to={}, subject={}, text={}): SOC2-AUDIT [CC6.2]: Authentication — Outbound notification recorded for the audit trail", to, subject, text);
 
         return future;
     }
 
     @Override
     public String getLoginEmailTemplate(String name, String loginTime, String loginLocation) {
+		log.info("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC6.1]: Authentication operation completed", name, loginTime, loginLocation);
+		log.info("getLoginEmailTemplate(name={}, loginTime={}, loginLocation={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", name, loginTime, loginLocation);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -77,6 +83,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getOtpLoginEmailTemplate(String name, String accountNumber, String otp) {
+		log.info("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.1]: Authentication operation completed", name, accountNumber);
+		log.info("getOtpLoginEmailTemplate(name={}, accountNumber={}, otp=<redacted>): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", name, accountNumber);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -102,6 +110,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getBankStatementEmailTemplate(String name, String statementText) {
+		log.info("getBankStatementEmailTemplate(name={}, statementText={}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", name, statementText);
+		log.info("getBankStatementEmailTemplate(name={}, statementText={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", name, statementText);
          return "<div style=\"font-family: Arial, sans-serif; padding: 20px;\">" +
                 "<h2>Bank Statement</h2>" +
                 "<p>Dear " + name + ",</p>" +
@@ -126,6 +136,10 @@ public class EmailServiceImpl implements EmailService {
             helper.addAttachment(attachmentFile.getName(), attachmentFile);
 
             mailSender.send(message);
+			log.info("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC8.1]: Change management — Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.info("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC7.1]: System operations — Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.info("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC6.3]: Authorization — Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
+			log.info("sendEmailWithAttachment(to={}, subject={}, text={}, attachmentFilePath={}): SOC2-AUDIT [CC6.2]: Authentication — Outbound notification recorded for the audit trail", to, subject, text, attachmentFilePath);
         } catch (MessagingException e) {
             log.error("Failed to send email to {}", to, e);
         }
