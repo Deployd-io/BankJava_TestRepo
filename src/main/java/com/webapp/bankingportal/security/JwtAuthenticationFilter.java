@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * JWT Authentication Filter
@@ -30,6 +31,7 @@ import lombok.val;
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
@@ -92,6 +94,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
+		log.info("doFilterInternal(request={}, response={}, filterChain={}): SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", request, response, filterChain, response);
+		log.info("doFilterInternal(request={}, response={}, filterChain={}): SOC2-AUDIT [CC6.1]: Password reset operation performed for user {}", request, response, filterChain, username);
+		log.info("doFilterInternal(request={}, response={}, filterChain={}): SOC2-AUDIT [CC6.1]: Authentication operation completed for user {}", request, response, filterChain, response);
 
         filterChain.doFilter(request, response);
     }

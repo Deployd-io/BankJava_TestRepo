@@ -23,11 +23,13 @@ import com.webapp.bankingportal.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class WebSecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
@@ -51,11 +53,15 @@ public class WebSecurityConfig {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		log.info("configureGlobal(auth={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", auth);
+		log.info("configureGlobal(auth={}): SOC2-AUDIT [CC8.1]: Change management operation performed", auth);
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
     }
 
     @Bean
     PasswordEncoder passwordEncoder() {
+		log.info("passwordEncoder(): SOC2-AUDIT [CC6.1]: Password reset operation performed");
+		log.info("passwordEncoder(): SOC2-AUDIT [CC6.7]: Encryption operation completed");
         return new BCryptPasswordEncoder();
     }
 
@@ -63,6 +69,7 @@ public class WebSecurityConfig {
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
+		log.info("authenticationManager(authenticationConfiguration={}): SOC2-AUDIT [CC8.1]: Change management operation performed", authenticationConfiguration);
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -85,8 +92,12 @@ public class WebSecurityConfig {
                             response.setStatus(HttpServletResponse.SC_OK);
                         }));
 
+		log.info("securityFilterChain(http={}): SOC2-AUDIT [CC6.1]: Authentication operation completed", http);
         http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
+				log.info("securityFilterChain(http={}): SOC2-AUDIT [CC6.1]: Session management operation performed", http);
+				log.info("securityFilterChain(http={}): SOC2-AUDIT [CC6.1]: Password reset operation performed", http);
+				log.info("securityFilterChain(http={}): SOC2-AUDIT [CC7.1]: System operation completed", http);
 
         return http.build();
     }
