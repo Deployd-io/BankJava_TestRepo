@@ -14,10 +14,12 @@ import jakarta.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @NoArgsConstructor
 @Data
+@Slf4j
 public class Token {
 
     @Id
@@ -40,9 +42,13 @@ public class Token {
     private Account account;
 
     public Token(String token, Date expiryAt, Account account) {
+		log.debug(">>> Entering Token(token=<redacted>,expiryAt={},account={})", expiryAt, account);
+		log.debug("Token(token=<redacted>,expiryAt={},account={}): expiryAt → {}", expiryAt, account, expiryAt);
         this.token = token;
         this.expiryAt = expiryAt;
+		log.debug("Token(token=<redacted>,expiryAt={},account={}): this.token → {}", expiryAt, account, this.token);
         this.account = account;
+		log.debug("<<< Exiting Token(token=<redacted>,expiryAt={},account={})", expiryAt, account);
     }
 
 }
