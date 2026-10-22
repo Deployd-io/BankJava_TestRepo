@@ -54,6 +54,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<String> registerUser(User user) {
         validationUtil.validateNewUser(user);
+		log.info("CUSTOM-AUDIT: ENTERING: registerUser() method");
         encodePassword(user);
         val savedUser = saveUserWithAccount(user);
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
@@ -71,6 +72,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<String> generateOtp(OtpRequest otpRequest) {
         val user = getUserByIdentifier(otpRequest.identifier());
+		log.info("CUSTOM-AUDIT: ENTERING: generateOtp() method");
         val otp = otpService.generateOTP(user.getAccount().getAccountNumber());
         return sendOtpEmail(user, otp);
     }
@@ -92,6 +94,7 @@ public class UserServiceImpl implements UserService {
         val existingUser = getUserByAccountNumber(accountNumber);
         updateUserDetails(existingUser, updatedUser);
         val savedUser = saveUser(existingUser);
+		log.info("updateUser(updatedUser={}): CUSTOM-AUDIT: Authentication operation completed for user {}", "[id=" + updatedUser.getId() + ", name=" + updatedUser.getName() + ", email=" + updatedUser.getEmail() + ", countryCode=" + updatedUser.getCountryCode() + ", phoneNumber=" + updatedUser.getPhoneNumber() + ", address=" + updatedUser.getAddress() + ", account=" + updatedUser.getAccount() + "]", "[id=" + updatedUser.getId() + ", name=" + updatedUser.getName() + ", email=" + updatedUser.getEmail() + ", countryCode=" + updatedUser.getCountryCode() + ", phoneNumber=" + updatedUser.getPhoneNumber() + ", address=" + updatedUser.getAddress() + ", account=" + updatedUser.getAccount() + "]");
         return ResponseEntity.ok(JsonUtil.toJson(new UserResponse(savedUser)));
     }
 
@@ -99,6 +102,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public boolean resetPassword(User user, String newPassword) {
         try {
+			log.info("CUSTOM-AUDIT: ENTERING: resetPassword() method");
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
             return true;
@@ -120,12 +124,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User user) {
+		log.info("CUSTOM-AUDIT: ENTERING: saveUser() method");
         return userRepository.save(user);
     }
 
     @Override
     public User getUserByIdentifier(String identifier) {
         User user = null;
+		log.info("CUSTOM-AUDIT: ENTERING: getUserByIdentifier() method");
 
         if (validationUtil.doesEmailExist(identifier)) {
             user = getUserByEmail(identifier);
@@ -141,6 +147,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByAccountNumber(String accountNo) {
+		log.info("CUSTOM-AUDIT: ENTERING: getUserByAccountNumber() method");
         return userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
                 () -> new UserInvalidException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNo)));
@@ -148,17 +155,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
+		log.info("CUSTOM-AUDIT: ENTERING: getUserByEmail() method");
         return userRepository.findByEmail(email).orElseThrow(
                 () -> new UserInvalidException(String.format(ApiMessages.USER_NOT_FOUND_BY_EMAIL.getMessage(), email)));
     }
 
     private void encodePassword(User user) {
         user.setCountryCode(user.getCountryCode().toUpperCase());
+		log.info("CUSTOM-AUDIT: ENTERING: encodePassword() method");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
     }
 
     private User saveUserWithAccount(User user) {
         val savedUser = saveUser(user);
+		log.info("CUSTOM-AUDIT: ENTERING: saveUserWithAccount() method");
         savedUser.setAccount(accountService.createAccount(savedUser));
         return saveUser(savedUser);
     }
@@ -168,6 +178,7 @@ public class UserServiceImpl implements UserService {
         val accountNumber = user.getAccount().getAccountNumber();
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(accountNumber, loginRequest.password()));
+		log.info("authenticateUser(loginRequest={}): CUSTOM-AUDIT: Authentication operation completed for user {}", "[identifier=" + loginRequest.identifier() + "]", user);
         return user;
     }
 
@@ -177,6 +188,7 @@ public class UserServiceImpl implements UserService {
 
     private String generateAndSaveToken(String accountNumber) throws InvalidTokenException {
         val userDetails = userDetailsService.loadUserByUsername(accountNumber);
+		log.info("CUSTOM-AUDIT: ENTERING: generateAndSaveToken() method: accountNumber={}", accountNumber);
         val token = tokenService.generateToken(userDetails);
         tokenService.saveToken(token);
         return token;
@@ -185,6 +197,7 @@ public class UserServiceImpl implements UserService {
     private ResponseEntity<String> sendOtpEmail(User user, String otp) {
         val emailSendingFuture = otpService.sendOTPByEmail(
                 user.getEmail(), user.getName(), user.getAccount().getAccountNumber(), otp);
+				log.info("CUSTOM-AUDIT: ENTERING: sendOtpEmail() method");
 
         ResponseEntity<String> successResponse = ResponseEntity
                 .ok(String.format(ApiMessages.OTP_SENT_SUCCESS.getMessage(), user.getEmail()));
@@ -197,6 +210,7 @@ public class UserServiceImpl implements UserService {
 
     private void validateOtpRequest(OtpVerificationRequest request) {
         if (request.identifier() == null || request.identifier().isEmpty()) {
+			log.info("CUSTOM-AUDIT: ENTERING: validateOtpRequest() method");
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
         if (request.otp() == null || request.otp().isEmpty()) {
@@ -206,12 +220,14 @@ public class UserServiceImpl implements UserService {
 
     private void validateOtp(User user, String otp) {
         if (!otpService.validateOTP(user.getAccount().getAccountNumber(), otp)) {
+			log.info("CUSTOM-AUDIT: ENTERING: validateOtp() method");
             throw new UnauthorizedException(ApiMessages.OTP_INVALID_ERROR.getMessage());
         }
     }
 
     private void updateUserDetails(User existingUser, User updatedUser) {
         ValidationUtil.validateUserDetails(updatedUser);
+		log.info("CUSTOM-AUDIT: ENTERING: updateUserDetails() method");
         updatedUser.setPassword(existingUser.getPassword());
         userMapper.updateUser(updatedUser, existingUser);
     }
@@ -219,6 +235,7 @@ public class UserServiceImpl implements UserService {
     private CompletableFuture<Boolean> sendLoginNotification(User user, String ip) {
         val loginTime = new Timestamp(System.currentTimeMillis()).toString();
 
+		log.info("sendLoginNotification(user={}, ip={}): CUSTOM-AUDIT: Authentication operation completed for user {}", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + ", account=" + user.getAccount() + "]", ip, "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + ", account=" + user.getAccount() + "]");
         return geolocationService.getGeolocation(ip)
                 .thenComposeAsync(geolocationResponse -> {
                     val loginLocation = String.format("%s, %s",
@@ -231,6 +248,7 @@ public class UserServiceImpl implements UserService {
 
     private CompletableFuture<Boolean> sendLoginEmail(User user, String loginTime, String loginLocation) {
         val emailText = emailService.getLoginEmailTemplate(user.getName(), loginTime, loginLocation);
+		log.info("sendLoginEmail(user={}, loginTime={}, loginLocation={}): CUSTOM-AUDIT: Authentication operation completed for user {}", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + ", account=" + user.getAccount() + "]", loginTime, loginLocation, "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + ", account=" + user.getAccount() + "]");
         return emailService.sendEmail(user.getEmail(), ApiMessages.EMAIL_SUBJECT_LOGIN.getMessage(), emailText)
                 .thenApplyAsync(result -> true)
                 .exceptionally(ex -> false);

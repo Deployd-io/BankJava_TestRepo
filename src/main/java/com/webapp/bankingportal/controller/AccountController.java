@@ -19,10 +19,12 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/account")
 @RequiredArgsConstructor
+@Slf4j
 public class AccountController {
 
     private final AccountService accountService;
@@ -60,6 +62,7 @@ public class AccountController {
 
     @PostMapping("/deposit")
     public ResponseEntity<String> cashDeposit(@RequestBody AmountRequest amountRequest) {
+		log.info("CUSTOM-AUDIT: ENTERING: cashDeposit() method: accountNumber={}, amount={}", amountRequest.accountNumber(), amountRequest.amount());
         accountService.cashDeposit(
                 LoggedinUser.getAccountNumber(),
                 amountRequest.pin(),
@@ -70,6 +73,7 @@ public class AccountController {
 
     @PostMapping("/withdraw")
     public ResponseEntity<String> cashWithdrawal(@RequestBody AmountRequest amountRequest) {
+		log.info("CUSTOM-AUDIT: ENTERING: cashWithdrawal() method: accountNumber={}, amount={}", amountRequest.accountNumber(), amountRequest.amount());
         accountService.cashWithdrawal(
                 LoggedinUser.getAccountNumber(),
                 amountRequest.pin(),
@@ -80,11 +84,13 @@ public class AccountController {
 
     @PostMapping("/fund-transfer")
     public ResponseEntity<String> fundTransfer(@RequestBody FundTransferRequest fundTransferRequest) {
+		log.warn("CUSTOM-AUDIT: ENTERING: fundTransfer() method: amount={}", fundTransferRequest.amount());
         accountService.fundTransfer(
                 LoggedinUser.getAccountNumber(),
                 fundTransferRequest.targetAccountNumber(),
                 fundTransferRequest.pin(),
                 fundTransferRequest.amount());
+				log.info("CUSTOM-AUDIT: ENTERING: fundTransfer() method: amount={}", fundTransferRequest.amount());
 
         return ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
     }

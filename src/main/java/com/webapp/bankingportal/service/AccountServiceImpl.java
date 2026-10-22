@@ -43,6 +43,7 @@ public class AccountServiceImpl implements AccountService {
         account.setAccountNumber(generateUniqueAccountNumber());
         account.setBalance(0.0);
         account.setUser(user);
+		log.info("createAccount(user={}): CUSTOM-AUDIT: State change recorded for the audit trail", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + ", account=" + user.getAccount() + "]");
         return accountRepository.save(account);
     }
 
@@ -53,6 +54,7 @@ public class AccountServiceImpl implements AccountService {
             throw new NotFoundException(ApiMessages.ACCOUNT_NOT_FOUND.getMessage());
         }
 
+		log.info("isPinCreated(accountNumber={}): CUSTOM-AUDIT: State change recorded for the audit trail: accountNumber={}", accountNumber, accountNumber);
         return account.getPin() != null;
     }
 
@@ -63,6 +65,7 @@ public class AccountServiceImpl implements AccountService {
             accountNumber = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 6);
         } while (accountRepository.findByAccountNumber(accountNumber) != null);
 
+		log.info("generateUniqueAccountNumber(): CUSTOM-AUDIT: State change recorded for the audit trail");
         return accountNumber;
     }
 
@@ -83,6 +86,7 @@ public class AccountServiceImpl implements AccountService {
         if (!passwordEncoder.matches(pin, account.getPin())) {
             throw new UnauthorizedException(ApiMessages.PIN_INVALID_ERROR.getMessage());
         }
+		log.info("validatePin(accountNumber={}, pin=<redacted>): CUSTOM-AUDIT: State change recorded for the audit trail: accountNumber={}", accountNumber, accountNumber);
     }
 
     private void validatePassword(String accountNumber, String password) {
@@ -98,6 +102,7 @@ public class AccountServiceImpl implements AccountService {
         if (!passwordEncoder.matches(password, account.getUser().getPassword())) {
             throw new UnauthorizedException(ApiMessages.PASSWORD_INVALID_ERROR.getMessage());
         }
+		log.info("validatePassword(accountNumber={}, password=<redacted>): CUSTOM-AUDIT: State change recorded for the audit trail: accountNumber={}", accountNumber, accountNumber);
     }
 
     @Override
@@ -119,6 +124,7 @@ public class AccountServiceImpl implements AccountService {
 
         account.setPin(passwordEncoder.encode(pin));
         accountRepository.save(account);
+		log.info("createPin(accountNumber={}, password=<redacted>, pin=<redacted>): CUSTOM-AUDIT: State change recorded for the audit trail: accountNumber={}", accountNumber, accountNumber);
     }
 
     @Override
@@ -140,10 +146,12 @@ public class AccountServiceImpl implements AccountService {
 
         account.setPin(passwordEncoder.encode(newPin));
         accountRepository.save(account);
+		log.info("updatePin(accountNumber={}, oldPin=<redacted>, password=<redacted>, newPin=<redacted>): CUSTOM-AUDIT: State change recorded for the audit trail: accountNumber={}", accountNumber, accountNumber);
     }
 
     private void validateAmount(double amount) {
         if (amount <= 0) {
+			log.info("CUSTOM-AUDIT: ENTERING: validateAmount() method: amount={}", amount);
             throw new InvalidAmountException(ApiMessages.AMOUNT_NEGATIVE_ERROR.getMessage());
         }
 
@@ -174,6 +182,7 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
         transactionRepository.save(transaction);
+		log.info("cashDeposit(accountNumber={}, pin=<redacted>, amount={}): CUSTOM-AUDIT: State change recorded for the audit trail: accountNumber={}, amount={}", accountNumber, amount, accountNumber, amount);
     }
 
     @Transactional
@@ -198,6 +207,7 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(account);
         transactionRepository.save(transaction);
+		log.info("cashWithdrawal(accountNumber={}, pin=<redacted>, amount={}): CUSTOM-AUDIT: State change recorded for the audit trail: accountNumber={}, amount={}", accountNumber, amount, accountNumber, amount);
     }
 
     @Transactional
@@ -236,7 +246,9 @@ public class AccountServiceImpl implements AccountService {
         transaction.setTransactionDate(new Date());
         transaction.setSourceAccount(sourceAccount);
         transaction.setTargetAccount(targetAccount);
+		log.info("fundTransfer(sourceAccountNumber={}, targetAccountNumber={}, pin=<redacted>, amount={}): CUSTOM-AUDIT: State change recorded for the audit trail: amount={}", sourceAccountNumber, targetAccountNumber, amount, amount);
         transactionRepository.save(transaction);
+		log.warn("fundTransfer(sourceAccountNumber={}, targetAccountNumber={}, pin=<redacted>, amount={}): CUSTOM-AUDIT: State change recorded for the audit trail: amount={}", sourceAccountNumber, targetAccountNumber, amount, amount);
     }
 
 }

@@ -22,8 +22,10 @@ import com.webapp.bankingportal.exception.OtpRetryLimitExceededException;
 import com.webapp.bankingportal.exception.PasswordResetException;
 import com.webapp.bankingportal.exception.UnauthorizedException;
 import com.webapp.bankingportal.exception.UserInvalidException;
+import lombok.extern.slf4j.Slf4j;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccountDoesNotExistException.class)
@@ -39,6 +41,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FundTransferException.class)
     public ResponseEntity<String> handleFundTransferException(FundTransferException ex) {
+		log.info("CUSTOM-AUDIT: ENTERING: handleFundTransferException() method");
+		log.warn("CUSTOM-AUDIT: ENTERING: handleFundTransferException() method");
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
