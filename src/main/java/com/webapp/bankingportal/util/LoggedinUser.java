@@ -6,7 +6,9 @@ import org.springframework.security.core.userdetails.User;
 import com.webapp.bankingportal.exception.NotFoundException;
 
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LoggedinUser {
 
     /**
@@ -17,12 +19,18 @@ public class LoggedinUser {
      * @throws NotFoundException If there is no user logged in.
      */
     public static String getAccountNumber() {
+		log.debug(">>> Entering getAccountNumber()");
         val authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
+			log.error("Throwing NotFoundException from getAccountNumber()");
+			log.debug("getAccountNumber(): authentication → {}", authentication);
             throw new NotFoundException("No user is currently logged in.");
         }
         val principal = (User) authentication.getPrincipal();
-        return principal.getUsername();
+		log.debug("getAccountNumber(): principal → {}", principal);
+        String result = principal.getUsername();
+		log.debug("<<< Exiting getAccountNumber() -> {}", result);
+        return result;
     }
 
 }
