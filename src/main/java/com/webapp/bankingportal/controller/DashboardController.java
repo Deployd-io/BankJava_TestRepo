@@ -48,8 +48,11 @@ public class DashboardController {
 
     @GetMapping("/summary")
     public ResponseEntity<String> getAccountSummary() {
+        log.info("Account summary request started");
         val accountNumber = LoggedinUser.getAccountNumber();
+        log.debug("getAccountSummary(): accountNumber → {}", accountNumber);
         val summary = dashboardService.getAccountDetails(accountNumber);
+        log.info("Account summary request finished");
         return ResponseEntity.ok(JsonUtil.toJson(summary));
     }
 
