@@ -29,6 +29,7 @@ public class LoggedinUser {
         val principal = (User) authentication.getPrincipal();
 		log.debug("getAccountNumber(): principal → {}", principal);
         String result = principal.getUsername();
+		log.debug("getAccountNumber(): result → {}", result);
 		log.debug("<<< Exiting getAccountNumber() -> {}", result);
         return result;
     }

@@ -30,6 +30,7 @@ public class DashboardController {
         val userResponse = dashboardService.getUserDetails(accountNumber);
 		log.debug("getUserDetails(): userResponse → {}", userResponse);
         ResponseEntity<String> result = ResponseEntity.ok(JsonUtil.toJson(userResponse));
+		log.debug("getUserDetails(): result → {}", result);
 		log.debug("<<< Exiting getUserDetails() -> {}", result);
         return result;
     }
@@ -42,6 +43,7 @@ public class DashboardController {
         val accountResponse = dashboardService.getAccountDetails(accountNumber);
 		log.debug("getAccountDetails(): accountResponse → {}", accountResponse);
         ResponseEntity<String> result = ResponseEntity.ok(JsonUtil.toJson(accountResponse));
+		log.debug("getAccountDetails(): result → {}", result);
 		log.debug("<<< Exiting getAccountDetails() -> {}", result);
         return result;
     }
@@ -52,8 +54,11 @@ public class DashboardController {
         val accountNumber = LoggedinUser.getAccountNumber();
         log.debug("getAccountSummary(): accountNumber → {}", accountNumber);
         val summary = dashboardService.getAccountDetails(accountNumber);
+		log.debug("getAccountSummary(): summary → {}", summary);
         log.info("Account summary request finished");
-        return ResponseEntity.ok(JsonUtil.toJson(summary));
+        ResponseEntity<String> result = ResponseEntity.ok(JsonUtil.toJson(summary));
+		log.debug("<<< Exiting getAccountSummary() -> {}", result);
+        return result;
     }
 
 }

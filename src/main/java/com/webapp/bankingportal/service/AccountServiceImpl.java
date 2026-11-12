@@ -316,6 +316,8 @@ public class AccountServiceImpl implements AccountService {
         transaction.setSourceAccount(sourceAccount);
         transaction.setTargetAccount(targetAccount);
         transactionRepository.save(transaction);
+		log.info("CUSTOM-AUDIT: EXITING: fundTransfer() method: amount={}, accountNumber={}", amount, (transaction == null ? null : (transaction.getSourceAccount() == null ? null : transaction.getSourceAccount().getAccountNumber())));
+		log.warn("CUSTOM-AUDIT: EXITING: fundTransfer() method: amount={}, accountNumber={}", amount, (transaction == null ? null : (transaction.getSourceAccount() == null ? null : transaction.getSourceAccount().getAccountNumber())));
 		log.debug("<<< Exiting fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={})", sourceAccountNumber, targetAccountNumber, amount);
     }
 

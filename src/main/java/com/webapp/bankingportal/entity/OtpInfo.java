@@ -38,6 +38,7 @@ public class OtpInfo {
         this.otp = otp;
 		log.debug("OtpInfo(accountNumber={},otp=<redacted>,generatedAt={}): this.accountNumber → {}", accountNumber, generatedAt, this.accountNumber);
         this.generatedAt = generatedAt;
+		log.debug("OtpInfo(accountNumber={},otp=<redacted>,generatedAt={}): this.otp → <redacted>", accountNumber, generatedAt);
 		log.debug("<<< Exiting OtpInfo(accountNumber={},otp=<redacted>,generatedAt={})", accountNumber, generatedAt);
     }
 
