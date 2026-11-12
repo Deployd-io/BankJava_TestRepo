@@ -46,4 +46,11 @@ public class DashboardController {
         return result;
     }
 
+    @GetMapping("/summary")
+    public ResponseEntity<String> getAccountSummary() {
+        val accountNumber = LoggedinUser.getAccountNumber();
+        val summary = dashboardService.getAccountDetails(accountNumber);
+        return ResponseEntity.ok(JsonUtil.toJson(summary));
+    }
+
 }
