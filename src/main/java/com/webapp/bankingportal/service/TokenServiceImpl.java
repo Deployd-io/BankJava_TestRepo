@@ -69,15 +69,18 @@ public class TokenServiceImpl implements TokenService {
 		log.debug(">>> Entering key()");
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         Key result = Keys.hmacShaKeyFor(keyBytes);
+		log.debug("key(): result → {}", result);
 		log.debug("<<< Exiting key()");
         return result;
     }
     private String doGenerateToken(UserDetails userDetails, Date expiry) {
 		log.debug(">>> Entering doGenerateToken(userDetails={},expiry={})", userDetails, expiry);
-        return Jwts.builder().setSubject(userDetails.getUsername())
+        String result = Jwts.builder().setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(expiry)
                 .signWith(key(), SignatureAlgorithm.HS512).compact();
+		log.debug("<<< Exiting doGenerateToken(userDetails={},expiry={})", userDetails, expiry);
+        return result;
     }
 
     @Override

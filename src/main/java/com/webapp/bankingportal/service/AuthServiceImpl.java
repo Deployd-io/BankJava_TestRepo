@@ -59,6 +59,7 @@ public class AuthServiceImpl implements AuthService {
     public boolean verifyPasswordResetToken(String token, User user) {
 		log.debug(">>> Entering verifyPasswordResetToken(token=<redacted>,user={})", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]");
 		log.debug("<<< Exiting verifyPasswordResetToken(token=<redacted>,user={})", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]");
+		log.info("verifyPasswordResetToken(token,user)=<redacted>,{}: find query executing", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]");
         return passwordResetTokenRepository.findByToken(token)
                 .map(resetToken -> {
                     deletePasswordResetToken(token);

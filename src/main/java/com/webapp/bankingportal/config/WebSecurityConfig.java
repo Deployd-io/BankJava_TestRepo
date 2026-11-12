@@ -62,6 +62,7 @@ public class WebSecurityConfig {
     PasswordEncoder passwordEncoder() {
 		log.debug(">>> Entering passwordEncoder()");
         PasswordEncoder result = new BCryptPasswordEncoder();
+		log.debug("passwordEncoder(): result → {}", result);
 		log.debug("<<< Exiting passwordEncoder()");
         return result;
     }

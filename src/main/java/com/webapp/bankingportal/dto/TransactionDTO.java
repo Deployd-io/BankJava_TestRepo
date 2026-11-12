@@ -47,6 +47,7 @@ public class TransactionDTO {
 
         this.targetAccountNumber = targetAccountNumber;
 		log.debug("<<< Exiting TransactionDTO(transaction={})", transaction);
+		log.debug("TransactionDTO(transaction={}): this.targetAccountNumber → {}", transaction, this.targetAccountNumber);
     }
 
 }

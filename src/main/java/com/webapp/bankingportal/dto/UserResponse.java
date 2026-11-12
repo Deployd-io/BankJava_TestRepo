@@ -28,6 +28,7 @@ public class UserResponse {
 		log.debug("UserResponse(user={}): phoneNumber → {}", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", phoneNumber);
 		log.debug("UserResponse(user={}): address → {}", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", address);
         this.name = user.getName();
+		log.debug("UserResponse(user={}): name → {}", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", name);
         this.email = user.getEmail();
         this.countryCode = user.getCountryCode();
         this.phoneNumber = user.getPhoneNumber();
@@ -39,6 +40,7 @@ public class UserResponse {
         this.branch = user.getAccount().getBranch();
 		log.debug("UserResponse(user={}): branch → {}", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", branch);
         this.accountType = user.getAccount().getAccountType();
+		log.debug("UserResponse(user={}): accountType → {}", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", accountType);
 		log.debug("<<< Exiting UserResponse(user={})", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]");
     }
 

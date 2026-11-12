@@ -39,6 +39,7 @@ public class AccountController {
 				log.debug("checkAccountPIN(): isPINValid → <redacted>");
 
         ResponseEntity<String> result = ResponseEntity.ok(response);
+		log.debug("checkAccountPIN(): result → {}", result);
 		log.debug("<<< Exiting checkAccountPIN()");
         return result;
     }
@@ -117,6 +118,7 @@ public class AccountController {
         val transactions = transactionService
                 .getAllTransactionsByAccountNumber(LoggedinUser.getAccountNumber());
         ResponseEntity<String> result = ResponseEntity.ok(JsonUtil.toJson(transactions));
+		log.debug("getAllTransactionsByAccountNumber(): result → {}", result);
 		log.debug("<<< Exiting getAllTransactionsByAccountNumber() -> {}", result);
         return result;
     }

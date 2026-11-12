@@ -24,6 +24,7 @@ public class EmailServiceImpl implements EmailService {
 		log.debug(">>> Entering EmailServiceImpl(mailSender={})", mailSender);
         this.mailSender = mailSender;
 		log.debug("<<< Exiting EmailServiceImpl(mailSender={})", mailSender);
+		log.debug("EmailServiceImpl(mailSender={}): this.mailSender → {}", mailSender, this.mailSender);
     }
 
     @Override
