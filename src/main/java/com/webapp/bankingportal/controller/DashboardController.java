@@ -12,26 +12,38 @@ import com.webapp.bankingportal.util.LoggedinUser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/dashboard")
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardController {
 
     private final DashboardService dashboardService;
 
     @GetMapping("/user")
     public ResponseEntity<String> getUserDetails() {
+		log.debug(">>> Entering getUserDetails()");
         val accountNumber = LoggedinUser.getAccountNumber();
+		log.debug("getUserDetails(): accountNumber → {}", accountNumber);
         val userResponse = dashboardService.getUserDetails(accountNumber);
-        return ResponseEntity.ok(JsonUtil.toJson(userResponse));
+		log.debug("getUserDetails(): userResponse → {}", userResponse);
+        ResponseEntity<String> result = ResponseEntity.ok(JsonUtil.toJson(userResponse));
+		log.debug("<<< Exiting getUserDetails() -> {}", result);
+        return result;
     }
 
     @GetMapping("/account")
     public ResponseEntity<String> getAccountDetails() {
+		log.debug(">>> Entering getAccountDetails()");
         val accountNumber = LoggedinUser.getAccountNumber();
+		log.debug("getAccountDetails(): accountNumber → {}", accountNumber);
         val accountResponse = dashboardService.getAccountDetails(accountNumber);
-        return ResponseEntity.ok(JsonUtil.toJson(accountResponse));
+		log.debug("getAccountDetails(): accountResponse → {}", accountResponse);
+        ResponseEntity<String> result = ResponseEntity.ok(JsonUtil.toJson(accountResponse));
+		log.debug("<<< Exiting getAccountDetails() -> {}", result);
+        return result;
     }
 
 }

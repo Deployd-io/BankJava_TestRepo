@@ -14,10 +14,12 @@ import jakarta.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @NoArgsConstructor
 @Data
+@Slf4j
 public class Token {
 
     @Id
@@ -40,9 +42,13 @@ public class Token {
     private Account account;
 
     public Token(String token, Date expiryAt, Account account) {
+		log.debug(">>> Entering Token(token=<redacted>,expiryAt={},account={})", expiryAt, "[id=" + account.getId() + ", accountNumber=" + account.getAccountNumber() + ", accountType=" + account.getAccountType() + ", accountStatus=" + account.getAccountStatus() + ", balance=" + account.getBalance() + ", branch=" + account.getBranch() + ", ifscCode=" + account.getIfscCode() + "]");
+		log.debug("Token(token=<redacted>,expiryAt={},account={}): expiryAt → {}", expiryAt, "[id=" + account.getId() + ", accountNumber=" + account.getAccountNumber() + ", accountType=" + account.getAccountType() + ", accountStatus=" + account.getAccountStatus() + ", balance=" + account.getBalance() + ", branch=" + account.getBranch() + ", ifscCode=" + account.getIfscCode() + "]", expiryAt);
         this.token = token;
         this.expiryAt = expiryAt;
+		log.debug("Token(token=<redacted>,expiryAt={},account={}): this.token → <redacted>", expiryAt, "[id=" + account.getId() + ", accountNumber=" + account.getAccountNumber() + ", accountType=" + account.getAccountType() + ", accountStatus=" + account.getAccountStatus() + ", balance=" + account.getBalance() + ", branch=" + account.getBranch() + ", ifscCode=" + account.getIfscCode() + "]");
         this.account = account;
+		log.debug("<<< Exiting Token(token=<redacted>,expiryAt={},account={})", expiryAt, "[id=" + account.getId() + ", accountNumber=" + account.getAccountNumber() + ", accountType=" + account.getAccountType() + ", accountStatus=" + account.getAccountStatus() + ", balance=" + account.getBalance() + ", branch=" + account.getBranch() + ", ifscCode=" + account.getIfscCode() + "]");
     }
 
 }
