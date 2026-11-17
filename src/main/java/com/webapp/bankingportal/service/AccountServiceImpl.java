@@ -327,6 +327,7 @@ private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.cla
 			log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): transaction → {}", sourceAccountNumber, targetAccountNumber, amount, (transaction == null ? "null" : "[id=" + transaction.getId() + ", amount=" + transaction.getAmount() + ", transactionType=" + transaction.getTransactionType() + ", transactionDate=" + transaction.getTransactionDate() + "]"));
             transactionRepository.save(transaction);
         } catch (DataAccessException e) {
+			log.error("Exception in fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={},remarks={}): {}", sourceAccountNumber, targetAccountNumber, amount, remarks, e.getMessage(), e);
             throw new FundTransferException("Fund transfer could not be completed: "
                     + e.getMostSpecificCause().getMessage());
         }

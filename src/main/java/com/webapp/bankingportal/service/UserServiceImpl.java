@@ -180,9 +180,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByAccountNumber(String accountNo) {
 		log.error(">>> Entering getUserByAccountNumber(accountNo={})", accountNo);
-        return userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
+		log.error("getUserByAccountNumber(accountNo)={}: find query executing", accountNo);
+        User result = userRepository.findByAccountAccountNumber(accountNo).orElseThrow(
                 () -> new UserInvalidException(
                         String.format(ApiMessages.USER_NOT_FOUND_BY_ACCOUNT.getMessage(), accountNo)));
+		log.warn("<<< Exiting getUserByAccountNumber(accountNo={})", accountNo);
+        return result;
     }
 
     @Override
