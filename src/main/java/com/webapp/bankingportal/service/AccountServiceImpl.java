@@ -291,6 +291,7 @@ private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.cla
 
 		long start = System.currentTimeMillis();
         val targetAccount = accountRepository.findByAccountNumber(targetAccountNumber);
+		log.error("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount,remarks)={},{},<redacted>,{},{}: find query executed in {} ms", sourceAccountNumber, targetAccountNumber, amount, remarks, (System.currentTimeMillis() - start));
 		log.error("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: find query executed in {} ms", sourceAccountNumber, targetAccountNumber, amount, (System.currentTimeMillis() - start));
 		log.error("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): targetAccount → <redacted>", sourceAccountNumber, targetAccountNumber, amount);
         if (targetAccount == null) {
@@ -312,6 +313,7 @@ private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.cla
             sourceAccount.setBalance(newSourceBalance);
 			log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): sourceAccount → <redacted>", sourceAccountNumber, targetAccountNumber, amount);
             accountRepository.save(sourceAccount);
+			log.error("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount,remarks)={},{},<redacted>,{},{}: save query executed in {} ms", sourceAccountNumber, targetAccountNumber, amount, remarks, (System.currentTimeMillis() - start));
 			log.error("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: save query executed in {} ms", sourceAccountNumber, targetAccountNumber, amount, (System.currentTimeMillis() - start));
 
             val targetBalance = targetAccount.getBalance();
@@ -325,6 +327,7 @@ private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.cla
 			log.error("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): transaction → {}", sourceAccountNumber, targetAccountNumber, amount, transaction);
 			log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): transaction → {}", sourceAccountNumber, targetAccountNumber, amount, transaction);
             transaction.setAmount(amount);
+			log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={},remarks={}): transaction → {}", sourceAccountNumber, targetAccountNumber, amount, remarks, transaction);
             transaction.setTransactionType(TransactionType.CASH_TRANSFER);
             transaction.setTransactionDate(new Date());
             transaction.setSourceAccount(sourceAccount);

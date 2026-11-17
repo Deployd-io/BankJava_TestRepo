@@ -63,6 +63,7 @@ private static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.clas
     PasswordEncoder passwordEncoder() {
 		log.error(">>> Entering passwordEncoder()");
         PasswordEncoder result = new BCryptPasswordEncoder();
+		log.error("passwordEncoder(): result → {}", result);
 		log.warn("<<< Exiting passwordEncoder()");
         return result;
     }

@@ -48,6 +48,7 @@ private static final Logger log = LoggerFactory.getLogger(TransactionDTO.class);
 
         this.targetAccountNumber = targetAccountNumber;
 		log.warn("<<< Exiting TransactionDTO(transaction={})", transaction);
+		log.debug("TransactionDTO(transaction={}): this.targetAccountNumber → {}", transaction, this.targetAccountNumber);
     }
 
 }

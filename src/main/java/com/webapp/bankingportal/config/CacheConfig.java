@@ -34,10 +34,12 @@ private static final Logger log = LoggerFactory.getLogger(CacheConfig.class);
 
     public Caffeine<Object, Object> caffeineConfig() {
 		log.error(">>> Entering caffeineConfig()");
-        return Caffeine.newBuilder()
+        Caffeine<Object, Object> result = Caffeine.newBuilder()
                 .expireAfterWrite(15, TimeUnit.MINUTES) // Cache entries expire after 15 minutes
                 .maximumSize(100) // Maximum of 100 entries in the cache
                 .recordStats(); // For monitoring cache statistics (optional)
+		log.warn("<<< Exiting caffeineConfig() -> {}", result);
+        return result;
     }
 
 }
