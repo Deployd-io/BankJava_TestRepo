@@ -12,27 +12,37 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class EmailServiceImpl implements EmailService {
+	private static final Logger log = LoggerFactory.getLogger(EmailServiceImpl.class);
     private final JavaMailSender mailSender;
 
     public EmailServiceImpl(JavaMailSender mailSender) {
+		log.error(">>> Entering EmailServiceImpl(mailSender={})", mailSender);
         this.mailSender = mailSender;
+		log.warn("<<< Exiting EmailServiceImpl(mailSender={})", mailSender);
     }
 
     @Override
     @Async
     public CompletableFuture<Void> sendEmail(String to, String subject, String text) {
+		log.error(">>> Entering sendEmail(to={},subject={},text={})", to, subject, text);
         val future = new CompletableFuture<Void>();
 
+		log.error("sendEmail(to={},subject={},text={}): future → {}", to, subject, text, future);
         try {
             val message = mailSender.createMimeMessage();
+			log.error("sendEmail(to={},subject={},text={}): message → {}", to, subject, text, message);
             val helper = new MimeMessageHelper(message, true);
+			log.error("sendEmail(to={},subject={},text={}): helper → {}", to, subject, text, helper);
             helper.setTo(to);
             // From address is automatically set by Spring Boot based on your properties
             helper.setSubject(subject);
             helper.setText(text, true); // Set the second parameter to true to send HTML content
+			log.debug("sendEmail(to={},subject={},text={}): helper → {}", to, subject, text, helper);
             mailSender.send(message);
 
             future.complete(null);
@@ -41,11 +51,14 @@ public class EmailServiceImpl implements EmailService {
             future.completeExceptionally(e);
         }
 
+		log.warn("<<< Exiting sendEmail(to={},subject={},text={})", to, subject, text);
         return future;
     }
 
     @Override
     public String getLoginEmailTemplate(String name, String loginTime, String loginLocation) {
+		log.error(">>> Entering getLoginEmailTemplate(name={},loginTime={},loginLocation={})", name, loginTime, loginLocation);
+		log.warn("<<< Exiting getLoginEmailTemplate(name={},loginTime={},loginLocation={})", name, loginTime, loginLocation);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -72,6 +85,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getOtpLoginEmailTemplate(String name, String accountNumber, String otp) {
+		log.error(">>> Entering getOtpLoginEmailTemplate(name={},accountNumber={},otp=<redacted>)", name, accountNumber);
+		log.warn("<<< Exiting getOtpLoginEmailTemplate(name={},accountNumber={},otp=<redacted>)", name, accountNumber);
         return "<div style=\"font-family: Helvetica, Arial, sans-serif; min-width: 320px; max-width: 1000px; margin: 0 auto; overflow: auto; line-height: 2; background-color: #f1f1f1; padding: 20px;\">"
                 + "<div style=\"margin: 50px auto; width: 100%; max-width: 600px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);\">"
                 + "<div style=\"border-bottom: 1px solid #ddd; padding-bottom: 10px; text-align: center;\">"
@@ -97,6 +112,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String getBankStatementEmailTemplate(String name, String statementText) {
+		log.error(">>> Entering getBankStatementEmailTemplate(name={},statementText={})", name, statementText);
+		log.warn("<<< Exiting getBankStatementEmailTemplate(name={},statementText={})", name, statementText);
          return "<div style=\"font-family: Arial, sans-serif; padding: 20px;\">" +
                 "<h2>Bank Statement</h2>" +
                 "<p>Dear " + name + ",</p>" +
@@ -109,20 +126,27 @@ public class EmailServiceImpl implements EmailService {
     }
 
     public void sendEmailWithAttachment(String to, String subject, String text, String attachmentFilePath) {
+		log.error(">>> Entering sendEmailWithAttachment(to={},subject={},text={},attachmentFilePath={})", to, subject, text, attachmentFilePath);
         try {
             val message = mailSender.createMimeMessage();
+			log.error("sendEmailWithAttachment(to={},subject={},text={},attachmentFilePath={}): message → {}", to, subject, text, attachmentFilePath, message);
             val helper = new MimeMessageHelper(message, true);
+			log.error("sendEmailWithAttachment(to={},subject={},text={},attachmentFilePath={}): helper → {}", to, subject, text, attachmentFilePath, helper);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(text, true); // Set the second parameter to true to send HTML content
+			log.debug("sendEmailWithAttachment(to={},subject={},text={},attachmentFilePath={}): helper → {}", to, subject, text, attachmentFilePath, helper);
 
             // Add an attachment to the email
             val attachmentFile = new File(attachmentFilePath);
+			log.error("sendEmailWithAttachment(to={},subject={},text={},attachmentFilePath={}): attachmentFile → {}", to, subject, text, attachmentFilePath, attachmentFile);
             helper.addAttachment(attachmentFile.getName(), attachmentFile);
 
             mailSender.send(message);
         } catch (MessagingException e) {
+		log.error("Exception in sendEmailWithAttachment(to={},subject={},text={},attachmentFilePath={}): {}", to, subject, text, attachmentFilePath, e.getMessage(), e);
         }
+		log.warn("<<< Exiting sendEmailWithAttachment(to={},subject={},text={},attachmentFilePath={})", to, subject, text, attachmentFilePath);
     }
 
 }

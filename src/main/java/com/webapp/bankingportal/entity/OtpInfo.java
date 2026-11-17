@@ -10,11 +10,14 @@ import jakarta.persistence.Id;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Entity
 @NoArgsConstructor
 @Data
 public class OtpInfo {
+private static final Logger log = LoggerFactory.getLogger(OtpInfo.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,9 +33,13 @@ public class OtpInfo {
     private LocalDateTime generatedAt;
 
     public OtpInfo(String accountNumber, String otp, LocalDateTime generatedAt) {
+		log.error(">>> Entering OtpInfo(accountNumber={},otp=<redacted>,generatedAt={})", accountNumber, generatedAt);
         this.accountNumber = accountNumber;
+		log.debug("OtpInfo(accountNumber={},otp=<redacted>,generatedAt={}): this.accountNumber → {}", accountNumber, generatedAt, this.accountNumber);
         this.otp = otp;
+		log.debug("OtpInfo(accountNumber={},otp=<redacted>,generatedAt={}): this.otp → <redacted>", accountNumber, generatedAt);
         this.generatedAt = generatedAt;
+		log.warn("<<< Exiting OtpInfo(accountNumber={},otp=<redacted>,generatedAt={})", accountNumber, generatedAt);
     }
 
 }
