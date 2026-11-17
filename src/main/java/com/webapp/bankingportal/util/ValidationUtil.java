@@ -202,21 +202,27 @@ public class ValidationUtil {
 
     public boolean doesAccountExist(String accountNumber) {
 		log.error(">>> Entering doesAccountExist(accountNumber={})", accountNumber);
+		long start = System.currentTimeMillis();
         boolean result = userRepository.findByAccountAccountNumber(accountNumber).isPresent();
+		log.error("doesAccountExist(accountNumber)={}: find query executed in {} ms", accountNumber, (System.currentTimeMillis() - start));
 		log.warn("<<< Exiting doesAccountExist(accountNumber={}) -> {}", accountNumber, result);
         return result;
     }
 
     public boolean doesEmailExist(String email) {
 		log.error(">>> Entering doesEmailExist(email={})", email);
+		long start = System.currentTimeMillis();
         boolean result = userRepository.findByEmail(email).isPresent();
+		log.error("doesEmailExist(email)={}: find query executed in {} ms", email, (System.currentTimeMillis() - start));
 		log.warn("<<< Exiting doesEmailExist(email={}) -> {}", email, result);
         return result;
     }
 
     public boolean doesPhoneNumberExist(String phoneNumber) {
 		log.error(">>> Entering doesPhoneNumberExist(phoneNumber={})", phoneNumber);
+		long start = System.currentTimeMillis();
         boolean result = userRepository.findByPhoneNumber(phoneNumber).isPresent();
+		log.error("doesPhoneNumberExist(phoneNumber)={}: find query executed in {} ms", phoneNumber, (System.currentTimeMillis() - start));
 		log.warn("<<< Exiting doesPhoneNumberExist(phoneNumber={}) -> {}", phoneNumber, result);
         return result;
     }

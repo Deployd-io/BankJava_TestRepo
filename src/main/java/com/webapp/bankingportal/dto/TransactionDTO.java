@@ -47,6 +47,7 @@ private static final Logger log = LoggerFactory.getLogger(TransactionDTO.class);
         }
 
         this.targetAccountNumber = targetAccountNumber;
+		log.debug("TransactionDTO(transaction={}): this.targetAccountNumber → {}", (transaction == null ? "null" : "[id=" + transaction.getId() + ", amount=" + transaction.getAmount() + ", transactionType=" + transaction.getTransactionType() + ", transactionDate=" + transaction.getTransactionDate() + "]"), this.targetAccountNumber);
 		log.warn("<<< Exiting TransactionDTO(transaction={})", (transaction == null ? "null" : "[id=" + transaction.getId() + ", amount=" + transaction.getAmount() + ", transactionType=" + transaction.getTransactionType() + ", transactionDate=" + transaction.getTransactionDate() + "]"));
     }
 

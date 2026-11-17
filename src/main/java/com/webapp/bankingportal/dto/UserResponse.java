@@ -26,6 +26,7 @@ private static final Logger log = LoggerFactory.getLogger(UserResponse.class);
 		log.error(">>> Entering UserResponse(user={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
 		log.debug("UserResponse(user={}): countryCode → {}", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), countryCode);
         this.name = user.getName();
+		log.debug("UserResponse(user={}): name → {}", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), name);
         this.email = user.getEmail();
 		log.debug("UserResponse(user={}): email → {}", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), email);
         this.countryCode = user.getCountryCode();
@@ -40,6 +41,7 @@ private static final Logger log = LoggerFactory.getLogger(UserResponse.class);
         this.branch = user.getAccount().getBranch();
 		log.debug("UserResponse(user={}): branch → {}", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), branch);
         this.accountType = user.getAccount().getAccountType();
+		log.debug("UserResponse(user={}): accountType → {}", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), accountType);
 		log.warn("<<< Exiting UserResponse(user={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
     }
 

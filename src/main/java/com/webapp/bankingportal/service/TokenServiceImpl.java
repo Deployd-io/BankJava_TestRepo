@@ -72,10 +72,12 @@ public class TokenServiceImpl implements TokenService {
     }
     private String doGenerateToken(UserDetails userDetails, Date expiry) {
 		log.error(">>> Entering doGenerateToken(userDetails={},expiry={})", userDetails, expiry);
-        return Jwts.builder().setSubject(userDetails.getUsername())
+        String result = Jwts.builder().setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(expiry)
                 .signWith(key(), SignatureAlgorithm.HS512).compact();
+		log.warn("<<< Exiting doGenerateToken(userDetails={},expiry={})", userDetails, expiry);
+        return result;
     }
 
     @Override
