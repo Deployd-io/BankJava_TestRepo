@@ -104,7 +104,8 @@ private static final Logger log = LoggerFactory.getLogger(AccountController.clas
                 LoggedinUser.getAccountNumber(),
                 fundTransferRequest.targetAccountNumber(),
                 fundTransferRequest.pin(),
-                fundTransferRequest.amount());
+                fundTransferRequest.amount(),
+                fundTransferRequest.remarks());
 
         ResponseEntity<String> result = ResponseEntity.ok(ApiMessages.CASH_TRANSFER_SUCCESS.getMessage());
 		log.warn("<<< Exiting fundTransfer(fundTransferRequest={}) -> {}", "[sourceAccountNumber=" + fundTransferRequest.sourceAccountNumber() + ", targetAccountNumber=" + fundTransferRequest.targetAccountNumber() + ", amount=" + fundTransferRequest.amount() + "]", result);
