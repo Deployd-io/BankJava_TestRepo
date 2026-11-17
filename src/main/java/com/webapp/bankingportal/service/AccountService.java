@@ -11,7 +11,13 @@ public interface AccountService {
 	public void updatePin(String accountNumber, String oldPIN, String password, String newPIN);
 	public void cashDeposit(String accountNumber, String pin, double amount);
 	public void cashWithdrawal(String accountNumber, String pin, double amount);
-	public void fundTransfer(String sourceAccountNumber, String targetAccountNumber, String pin, double amount);
+	public void fundTransfer(String sourceAccountNumber, String targetAccountNumber, String pin, double amount,
+			String remarks);
+
+	public default void fundTransfer(String sourceAccountNumber, String targetAccountNumber, String pin,
+			double amount) {
+		fundTransfer(sourceAccountNumber, targetAccountNumber, pin, amount, null);
+	}
 	
 	
 }
