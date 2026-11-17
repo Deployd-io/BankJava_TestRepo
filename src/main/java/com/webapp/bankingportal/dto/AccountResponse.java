@@ -27,6 +27,7 @@ private static final Logger log = LoggerFactory.getLogger(AccountResponse.class)
 		log.debug("AccountResponse(account={}): accountType → {}", "[id=" + account.getId() + ", accountNumber=" + account.getAccountNumber() + ", accountType=" + account.getAccountType() + ", accountStatus=" + account.getAccountStatus() + ", balance=" + account.getBalance() + ", branch=" + account.getBranch() + ", ifscCode=" + account.getIfscCode() + "]", accountType);
 		log.debug("AccountResponse(account={}): branch → {}", "[id=" + account.getId() + ", accountNumber=" + account.getAccountNumber() + ", accountType=" + account.getAccountType() + ", accountStatus=" + account.getAccountStatus() + ", balance=" + account.getBalance() + ", branch=" + account.getBranch() + ", ifscCode=" + account.getIfscCode() + "]", branch);
         this.accountNumber = account.getAccountNumber();
+		log.debug("AccountResponse(account={}): accountNumber → {}", "[id=" + account.getId() + ", accountNumber=" + account.getAccountNumber() + ", accountType=" + account.getAccountType() + ", accountStatus=" + account.getAccountStatus() + ", balance=" + account.getBalance() + ", branch=" + account.getBranch() + ", ifscCode=" + account.getIfscCode() + "]", accountNumber);
         this.balance = account.getBalance();
         this.accountType = account.getAccountType();
         this.branch = account.getBranch();

@@ -47,12 +47,15 @@ public class PasswordResetToken implements Serializable {
         this.user = user;
 		log.debug("PasswordResetToken(token=<redacted>,user={},expiryDateTime={}): this.token → <redacted>", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", expiryDateTime);
         this.expiryDateTime = expiryDateTime;
+		log.debug("PasswordResetToken(token=<redacted>,user={},expiryDateTime={}): this.user → {}", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", expiryDateTime, "[id=" + this.user.getId() + ", name=" + this.user.getName() + ", email=" + this.user.getEmail() + ", countryCode=" + this.user.getCountryCode() + ", phoneNumber=" + this.user.getPhoneNumber() + ", address=" + this.user.getAddress() + "]");
 		log.warn("<<< Exiting PasswordResetToken(token=<redacted>,user={},expiryDateTime={})", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", expiryDateTime);
     }
 
     public boolean isTokenValid() {
 		log.error(">>> Entering isTokenValid()");
-        return getExpiryDateTime().isAfter(LocalDateTime.now());
+        boolean result = getExpiryDateTime().isAfter(LocalDateTime.now());
+		log.warn("<<< Exiting isTokenValid()");
+        return result;
     }
 
 }

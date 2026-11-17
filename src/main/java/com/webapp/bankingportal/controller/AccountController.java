@@ -40,6 +40,7 @@ private static final Logger log = LoggerFactory.getLogger(AccountController.clas
 				log.error("checkAccountPIN(): isPINValid → <redacted>");
 
         ResponseEntity<String> result = ResponseEntity.ok(response);
+		log.error("checkAccountPIN(): result → {}", result);
 		log.warn("<<< Exiting checkAccountPIN()");
         return result;
     }
