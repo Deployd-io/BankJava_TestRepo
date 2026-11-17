@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,8 @@ private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.cla
     private final PasswordEncoder passwordEncoder;
     @Autowired
     private final TransactionRepository transactionRepository;
+    @Autowired
+    private final TransferLimitValidator transferLimitValidator;
 
     @Override
     public Account createAccount(User user) {
@@ -271,10 +274,12 @@ private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.cla
 
     @Transactional
     @Override
-    public void fundTransfer(String sourceAccountNumber, String targetAccountNumber, String pin, double amount) {
+    public void fundTransfer(String sourceAccountNumber, String targetAccountNumber, String pin, double amount,
+            String remarks) {
 		log.error(">>> Entering fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={})", sourceAccountNumber, targetAccountNumber, amount);
         validatePin(sourceAccountNumber, pin);
         validateAmount(amount);
+        transferLimitValidator.validate(sourceAccountNumber, amount, remarks);
 
         if (sourceAccountNumber.equals(targetAccountNumber)) {
 			log.error("Throwing FundTransferException from fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={})", sourceAccountNumber, targetAccountNumber, amount);
@@ -299,27 +304,32 @@ private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.cla
             throw new InsufficientBalanceException(ApiMessages.BALANCE_INSUFFICIENT_ERROR.getMessage());
         }
 
-        val newSourceBalance = sourceBalance - amount;
-        sourceAccount.setBalance(newSourceBalance);
-		log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): sourceAccount → <redacted>", sourceAccountNumber, targetAccountNumber, amount);
-        accountRepository.save(sourceAccount);
-		log.error("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: save query executed in {} ms", sourceAccountNumber, targetAccountNumber, amount, (System.currentTimeMillis() - start));
+        try {
+            val newSourceBalance = sourceBalance - amount;
+            sourceAccount.setBalance(newSourceBalance);
+			log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): sourceAccount → <redacted>", sourceAccountNumber, targetAccountNumber, amount);
+            accountRepository.save(sourceAccount);
+			log.error("fundTransfer(sourceAccountNumber,targetAccountNumber,pin,amount)={},{},<redacted>,{}: save query executed in {} ms", sourceAccountNumber, targetAccountNumber, amount, (System.currentTimeMillis() - start));
 
-        val targetBalance = targetAccount.getBalance();
-		log.error("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): targetBalance → {}", sourceAccountNumber, targetAccountNumber, amount, targetBalance);
-        val newTargetBalance = targetBalance + amount;
-        targetAccount.setBalance(newTargetBalance);
-		log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): targetAccount → <redacted>", sourceAccountNumber, targetAccountNumber, amount);
-        accountRepository.save(targetAccount);
+            val targetBalance = targetAccount.getBalance();
+			log.error("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): targetBalance → {}", sourceAccountNumber, targetAccountNumber, amount, targetBalance);
+            val newTargetBalance = targetBalance + amount;
+            targetAccount.setBalance(newTargetBalance);
+			log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): targetAccount → <redacted>", sourceAccountNumber, targetAccountNumber, amount);
+            accountRepository.save(targetAccount);
 
-        val transaction = new Transaction();
-        transaction.setAmount(amount);
-        transaction.setTransactionType(TransactionType.CASH_TRANSFER);
-        transaction.setTransactionDate(new Date());
-        transaction.setSourceAccount(sourceAccount);
-        transaction.setTargetAccount(targetAccount);
-		log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): transaction → {}", sourceAccountNumber, targetAccountNumber, amount, (transaction == null ? "null" : "[id=" + transaction.getId() + ", amount=" + transaction.getAmount() + ", transactionType=" + transaction.getTransactionType() + ", transactionDate=" + transaction.getTransactionDate() + "]"));
-        transactionRepository.save(transaction);
+            val transaction = new Transaction();
+            transaction.setAmount(amount);
+            transaction.setTransactionType(TransactionType.CASH_TRANSFER);
+            transaction.setTransactionDate(new Date());
+            transaction.setSourceAccount(sourceAccount);
+            transaction.setTargetAccount(targetAccount);
+			log.debug("fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={}): transaction → {}", sourceAccountNumber, targetAccountNumber, amount, (transaction == null ? "null" : "[id=" + transaction.getId() + ", amount=" + transaction.getAmount() + ", transactionType=" + transaction.getTransactionType() + ", transactionDate=" + transaction.getTransactionDate() + "]"));
+            transactionRepository.save(transaction);
+        } catch (DataAccessException e) {
+            throw new FundTransferException("Fund transfer could not be completed: "
+                    + e.getMostSpecificCause().getMessage());
+        }
 		log.warn("<<< Exiting fundTransfer(sourceAccountNumber={},targetAccountNumber={},pin=<redacted>,amount={})", sourceAccountNumber, targetAccountNumber, amount);
     }
 
