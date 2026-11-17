@@ -31,7 +31,6 @@ import lombok.val;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private final UserDetailsService userDetailsService;
     private final TokenService tokenService;
 
@@ -51,10 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            logger.info("User is already authenticated");
-
             filterChain.doFilter(request, response);
             return;
         }

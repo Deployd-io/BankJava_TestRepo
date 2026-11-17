@@ -1,7 +1,5 @@
 package com.webapp.bankingportal.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.i18n.phonenumbers.NumberParseException;
@@ -21,8 +19,6 @@ import lombok.val;
 @Component
 @RequiredArgsConstructor
 public class ValidationUtil {
-
-    public static final Logger log = LoggerFactory.getLogger(ValidationUtil.class);
     public static final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
 
     private final UserRepository userRepository;
@@ -32,7 +28,6 @@ public class ValidationUtil {
             new InternetAddress(identifier).validate();
             return true;
         } catch (AddressException e) {
-            log.warn("Invalid email address: {}", identifier);
         }
 
         return false;

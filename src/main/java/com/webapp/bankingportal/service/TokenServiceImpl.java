@@ -25,13 +25,10 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
-
     @Value("${jwt.secret}")
     private String secret;
 
@@ -49,14 +46,12 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String generateToken(UserDetails userDetails) {
-        log.info("Generating token for user: " + userDetails.getUsername());
         return doGenerateToken(userDetails,
                 new Date(System.currentTimeMillis() + expiration));
     }
 
     @Override
     public String generateToken(UserDetails userDetails, Date expiry) {
-        log.info("Generating token for user: " + userDetails.getUsername());
         return doGenerateToken(userDetails, expiry);
     }
     private Key key() {
@@ -133,8 +128,6 @@ public class TokenServiceImpl implements TokenService {
 
         val account = accountRepository.findByAccountNumber(
                 getUsernameFromToken(token));
-
-        log.info("Saving token for account: " + account.getAccountNumber());
 
         val tokenObj = new Token(
                 token,

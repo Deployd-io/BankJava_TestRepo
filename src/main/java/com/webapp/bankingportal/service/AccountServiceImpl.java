@@ -23,11 +23,9 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 @Autowired
@@ -123,8 +121,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void updatePin(String accountNumber, String oldPin, String password, String newPin) {
-        log.info("Updating PIN for account: {}", accountNumber);
-
         validatePassword(accountNumber, password);
         validatePin(accountNumber, oldPin);
 

@@ -17,14 +17,11 @@ import com.webapp.bankingportal.util.ApiMessages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-
     private static final int EXPIRATION_HOURS = 24;
 
     private final OtpService otpService;
@@ -63,7 +60,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<String> sendOtpForPasswordReset(OtpRequest otpRequest) {
-        log.info("Received OTP request for identifier: {}", otpRequest.identifier());
         val user = userService.getUserByIdentifier(otpRequest.identifier());
         val accountNumber = user.getAccount().getAccountNumber();
         val generatedOtp = otpService.generateOTP(accountNumber);
@@ -102,7 +98,6 @@ public class AuthServiceImpl implements AuthService {
                 return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
             }
         } catch (Exception e) {
-            log.error("Error resetting password for user: {}", user.getId(), e);
             return ResponseEntity.internalServerError().body(ApiMessages.PASSWORD_RESET_FAILURE.getMessage());
         }
     }

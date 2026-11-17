@@ -12,12 +12,9 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 
 import lombok.val;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
-@Slf4j
 public class EmailServiceImpl implements EmailService {
-
     private final JavaMailSender mailSender;
 
     public EmailServiceImpl(JavaMailSender mailSender) {
@@ -38,11 +35,9 @@ public class EmailServiceImpl implements EmailService {
             helper.setText(text, true); // Set the second parameter to true to send HTML content
             mailSender.send(message);
 
-            log.info("Sent email to {}", to);
             future.complete(null);
 
         } catch (MessagingException | MailException e) {
-            log.error("Failed to send email to {}", to, e);
             future.completeExceptionally(e);
         }
 
@@ -127,9 +122,7 @@ public class EmailServiceImpl implements EmailService {
 
             mailSender.send(message);
         } catch (MessagingException e) {
-            log.error("Failed to send email to {}", to, e);
         }
     }
-
 
 }

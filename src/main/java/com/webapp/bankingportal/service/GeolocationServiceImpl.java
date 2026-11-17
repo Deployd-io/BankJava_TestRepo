@@ -14,12 +14,9 @@ import com.webapp.bankingportal.dto.GeolocationResponse;
 import com.webapp.bankingportal.exception.GeolocationException;
 
 import lombok.val;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
-@Slf4j
 public class GeolocationServiceImpl implements GeolocationService {
-
     @Value("${geo.api.url}")
     private String apiUrl;
 
@@ -35,15 +32,12 @@ public class GeolocationServiceImpl implements GeolocationService {
             // Validate IP address
             InetAddress.getByName(ip);
 
-            log.info("Getting geolocation for IP: {}", ip);
-
             // Call geolocation API
             val url = String.format("%s/%s/?token=%s", apiUrl, ip, apiKey);
             val response = new RestTemplate()
                     .getForObject(url, GeolocationResponse.class);
 
             if (response == null) {
-                log.error("Failed to get geolocation for IP: {}", ip);
                 future.completeExceptionally(new GeolocationException(
                         "Failed to get geolocation for IP: " + ip));
             } else {
@@ -51,11 +45,9 @@ public class GeolocationServiceImpl implements GeolocationService {
             }
 
         } catch (UnknownHostException e) {
-            log.error("Invalid IP address: {}", ip, e);
             future.completeExceptionally(e);
 
         } catch (RestClientException e) {
-            log.error("Failed to get geolocation for IP: {}", ip, e);
             future.completeExceptionally(e);
         }
 

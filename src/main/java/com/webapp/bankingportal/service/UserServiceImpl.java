@@ -32,13 +32,10 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
     private final AccountService accountService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
@@ -112,8 +109,6 @@ public class UserServiceImpl implements UserService {
         token = token.substring(7);
         tokenService.validateToken(token);
         tokenService.invalidateToken(token);
-
-        log.info("User logged out successfully {}", tokenService.getUsernameFromToken(token));
 
         return new ModelAndView("redirect:/logout");
     }
