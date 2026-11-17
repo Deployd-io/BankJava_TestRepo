@@ -20,6 +20,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * JWT Authentication Filter
@@ -31,6 +33,7 @@ import lombok.val;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+	private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final UserDetailsService userDetailsService;
     private final TokenService tokenService;
 
@@ -50,12 +53,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
+			log.error(">>> Entering doFilterInternal(request={},response={},filterChain={})", request, response, filterChain);
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         val requestTokenHeader = request.getHeader("Authorization");
+		log.error("doFilterInternal(request={},response={},filterChain={}): requestTokenHeader → <redacted>", request, response, filterChain);
 
         if (requestTokenHeader == null) {
             filterChain.doFilter(request, response);
@@ -70,26 +75,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         val token = requestTokenHeader.substring(7);
+		log.error("doFilterInternal(request={},response={},filterChain={}): token → <redacted>", request, response, filterChain);
         String username = null;
+		log.error("doFilterInternal(request={},response={},filterChain={}): username → {}", request, response, filterChain, username);
 
         try {
             tokenService.validateToken(token);
             username = tokenService.getUsernameFromToken(token);
 
         } catch (InvalidTokenException e) {
+			log.error("Exception in doFilterInternal(request={},response={},filterChain={}): {}", request, response, filterChain, e.getMessage(), e);
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
                     e.getMessage());
             return;
         }
 
         val userDetails = userDetailsService.loadUserByUsername(username);
+		log.error("doFilterInternal(request={},response={},filterChain={}): userDetails → {}", request, response, filterChain, userDetails);
         val authToken = new UsernamePasswordAuthenticationToken(
                 userDetails, null, userDetails.getAuthorities());
+				log.error("doFilterInternal(request={},response={},filterChain={}): authToken → <redacted>", request, response, filterChain);
 
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+		log.debug("doFilterInternal(request={},response={},filterChain={}): authToken → <redacted>", request, response, filterChain);
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
+		log.warn("<<< Exiting doFilterInternal(request={},response={},filterChain={})", request, response, filterChain);
     }
 
 }

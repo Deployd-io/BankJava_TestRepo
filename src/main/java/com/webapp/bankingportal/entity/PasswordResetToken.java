@@ -16,12 +16,15 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Entity
 @Table(name = "passwordresettoken")
 @Data
 @NoArgsConstructor
 public class PasswordResetToken implements Serializable {
+	private static final Logger log = LoggerFactory.getLogger(PasswordResetToken.class);
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "passwordresettoken_sequence")
     @SequenceGenerator(name = "passwordresettoken_sequence", sequenceName = "passwordresettoken_sequence", allocationSize = 100)
@@ -38,12 +41,17 @@ public class PasswordResetToken implements Serializable {
     private LocalDateTime expiryDateTime;
 
     public PasswordResetToken(String token, User user, LocalDateTime expiryDateTime) {
+		log.error(">>> Entering PasswordResetToken(token=<redacted>,user={},expiryDateTime={})", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", expiryDateTime);
+		log.debug("PasswordResetToken(token=<redacted>,user={},expiryDateTime={}): user → {}", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", expiryDateTime, "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]");
         this.token = token;
         this.user = user;
+		log.debug("PasswordResetToken(token=<redacted>,user={},expiryDateTime={}): this.token → <redacted>", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", expiryDateTime);
         this.expiryDateTime = expiryDateTime;
+		log.warn("<<< Exiting PasswordResetToken(token=<redacted>,user={},expiryDateTime={})", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]", expiryDateTime);
     }
 
     public boolean isTokenValid() {
+		log.error(">>> Entering isTokenValid()");
         return getExpiryDateTime().isAfter(LocalDateTime.now());
     }
 

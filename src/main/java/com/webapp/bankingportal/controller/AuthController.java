@@ -9,28 +9,40 @@ import com.webapp.bankingportal.dto.ResetPasswordRequest;
 import com.webapp.bankingportal.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthService authService;
 
     @PostMapping("/password-reset/send-otp")
     public ResponseEntity<String> sendOtpForPasswordReset(@RequestBody OtpRequest otpRequest) {
-        return authService.sendOtpForPasswordReset(otpRequest);
+		log.error(">>> Entering sendOtpForPasswordReset(otpRequest={})", "[identifier=" + otpRequest.identifier() + "]");
+        ResponseEntity<String> result = authService.sendOtpForPasswordReset(otpRequest);
+		log.warn("<<< Exiting sendOtpForPasswordReset(otpRequest={})", "[identifier=" + otpRequest.identifier() + "]");
+        return result;
     }
 
     @PostMapping("/password-reset/verify-otp")
     public ResponseEntity<String> verifyOtpAndIssueResetToken(
             @RequestBody OtpVerificationRequest otpVerificationRequest) {
-        return authService.verifyOtpAndIssueResetToken(otpVerificationRequest);
+			log.error(">>> Entering verifyOtpAndIssueResetToken(otpVerificationRequest={})", "[identifier=" + otpVerificationRequest.identifier() + "]");
+        ResponseEntity<String> result = authService.verifyOtpAndIssueResetToken(otpVerificationRequest);
+		log.warn("<<< Exiting verifyOtpAndIssueResetToken(otpVerificationRequest={})", "[identifier=" + otpVerificationRequest.identifier() + "]");
+        return result;
     }
 
     @PostMapping("/password-reset")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
-        return authService.resetPassword(resetPasswordRequest);
+		log.error(">>> Entering resetPassword(resetPasswordRequest={})", "[identifier=" + resetPasswordRequest.identifier() + "]");
+        ResponseEntity<String> result = authService.resetPassword(resetPasswordRequest);
+		log.warn("<<< Exiting resetPassword(resetPasswordRequest={})", "[identifier=" + resetPasswordRequest.identifier() + "]");
+        return result;
     }
 
 }
