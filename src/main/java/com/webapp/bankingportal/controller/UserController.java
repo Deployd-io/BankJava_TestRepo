@@ -22,10 +22,12 @@ import com.webapp.bankingportal.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 @Autowired
     private final UserService userService;
@@ -34,46 +36,65 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
+		log.debug(">>> Entering registerUser(user={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
         ResponseEntity<String> response = userService.registerUser(user);
 
+		log.debug("registerUser(user={}): response → {}", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), response);
         // Only send email if registration succeeded
         if (response.getStatusCode().is2xxSuccessful()) {
             String emailBody = emailService.getBankStatementEmailTemplate(user.getName(), "Welcome! Your account is created.");
+			log.debug("registerUser(user={}): emailBody → <redacted>", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
             emailService.sendEmail(user.getEmail(), "Welcome to OneStopBank", emailBody);
         }
 
+		log.debug("<<< Exiting registerUser(user={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
         return response;
     }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request)
             throws InvalidTokenException {
+			log.debug(">>> Entering login(loginRequest={},request={})", (loginRequest == null ? "null" : "[identifier=" + loginRequest.identifier() + "]"), request);
 
-        return userService.login(loginRequest, request);
+        ResponseEntity<String> result = userService.login(loginRequest, request);
+		log.debug("<<< Exiting login(loginRequest={},request={}) -> {}", (loginRequest == null ? "null" : "[identifier=" + loginRequest.identifier() + "]"), request, result);
+        return result;
     }
 
     @PostMapping("/generate-otp")
     public ResponseEntity<String> generateOtp(@RequestBody OtpRequest otpRequest) {
-        return userService.generateOtp(otpRequest);
+		log.debug(">>> Entering generateOtp(otpRequest={})", (otpRequest == null ? "null" : "[identifier=" + otpRequest.identifier() + "]"));
+        ResponseEntity<String> result = userService.generateOtp(otpRequest);
+		log.debug("<<< Exiting generateOtp(otpRequest={})", (otpRequest == null ? "null" : "[identifier=" + otpRequest.identifier() + "]"));
+        return result;
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<String> verifyOtpAndLogin(@RequestBody OtpVerificationRequest otpVerificationRequest)
             throws InvalidTokenException {
+			log.debug(">>> Entering verifyOtpAndLogin(otpVerificationRequest={})", (otpVerificationRequest == null ? "null" : "[identifier=" + otpVerificationRequest.identifier() + "]"));
 
-        return userService.verifyOtpAndLogin(otpVerificationRequest);
+        ResponseEntity<String> result = userService.verifyOtpAndLogin(otpVerificationRequest);
+		log.debug("<<< Exiting verifyOtpAndLogin(otpVerificationRequest={})", (otpVerificationRequest == null ? "null" : "[identifier=" + otpVerificationRequest.identifier() + "]"));
+        return result;
     }
 
     @PostMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody User user) {
-        return userService.updateUser(user);
+		log.debug(">>> Entering updateUser(user={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
+        ResponseEntity<String> result = userService.updateUser(user);
+		log.debug("<<< Exiting updateUser(user={}) -> {}", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), result);
+        return result;
     }
 
     @GetMapping("/logout")
     public ModelAndView logout(@RequestHeader("Authorization") String token)
             throws InvalidTokenException {
+			log.debug(">>> Entering logout(token=<redacted>)");
 
-        return userService.logout(token);
+        ModelAndView result = userService.logout(token);
+		log.debug("<<< Exiting logout(token=<redacted>)");
+        return result;
     }
 
 }
