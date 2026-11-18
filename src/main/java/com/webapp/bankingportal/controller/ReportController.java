@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.webapp.bankingportal.service.ReportService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
+@Slf4j
 public class ReportController {
 
     private final ReportService reportService;
@@ -20,31 +22,46 @@ public class ReportController {
     @GetMapping("/interest-yield")
     public ResponseEntity<String> getInterestYield(
             @RequestParam(defaultValue = "0") int accounts) {
-        return ResponseEntity.ok(reportService.calculateInterestYield(accounts));
+			log.error(">>> Entering getInterestYield(accounts={})", accounts);
+        ResponseEntity<String> result = ResponseEntity.ok(reportService.calculateInterestYield(accounts));
+		log.warn("<<< Exiting getInterestYield(accounts={}) -> {}", accounts, result);
+        return result;
     }
 
     @GetMapping("/account-summary")
     public ResponseEntity<String> getAccountSummary(
             @RequestParam(defaultValue = "ACC-9999") String accountNumber) {
-        return ResponseEntity.ok(reportService.buildAccountSummary(accountNumber));
+			log.error(">>> Entering getAccountSummary(accountNumber={})", accountNumber);
+        ResponseEntity<String> result = ResponseEntity.ok(reportService.buildAccountSummary(accountNumber));
+		log.warn("<<< Exiting getAccountSummary(accountNumber={}) -> {}", accountNumber, result);
+        return result;
     }
 
     @GetMapping("/monthly-statement")
     public ResponseEntity<String> getMonthlyStatement(
             @RequestParam(defaultValue = "august") String month) {
-        return ResponseEntity.ok(reportService.parseStatementMonth(month));
+			log.error(">>> Entering getMonthlyStatement(month={})", month);
+        ResponseEntity<String> result = ResponseEntity.ok(reportService.parseStatementMonth(month));
+		log.warn("<<< Exiting getMonthlyStatement(month={}) -> {}", month, result);
+        return result;
     }
 
     @GetMapping("/top-transactions")
     public ResponseEntity<String> getTopTransaction(
             @RequestParam(defaultValue = "7") int rank) {
-        return ResponseEntity.ok(reportService.selectTopTransaction(rank));
+			log.error(">>> Entering getTopTransaction(rank={})", rank);
+        ResponseEntity<String> result = ResponseEntity.ok(reportService.selectTopTransaction(rank));
+		log.warn("<<< Exiting getTopTransaction(rank={}) -> {}", rank, result);
+        return result;
     }
 
     @GetMapping("/exchange-rate")
     public ResponseEntity<String> getExchangeRate(
             @RequestParam(defaultValue = "USD") String currencyCode) {
-        return ResponseEntity.ok(reportService.resolveExchangeRate(currencyCode));
+			log.error(">>> Entering getExchangeRate(currencyCode={})", currencyCode);
+        ResponseEntity<String> result = ResponseEntity.ok(reportService.resolveExchangeRate(currencyCode));
+		log.warn("<<< Exiting getExchangeRate(currencyCode={}) -> {}", currencyCode, result);
+        return result;
     }
 
 }
