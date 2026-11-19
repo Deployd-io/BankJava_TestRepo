@@ -58,6 +58,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean verifyPasswordResetToken(String token, User user) {
 		log.error(">>> Entering verifyPasswordResetToken(token=<redacted>,user={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
+		log.error("verifyPasswordResetToken(token,user)=<redacted>,{}: find query executing", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
 		log.warn("<<< Exiting verifyPasswordResetToken(token=<redacted>,user={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
         return passwordResetTokenRepository.findByToken(token)
                 .map(resetToken -> {

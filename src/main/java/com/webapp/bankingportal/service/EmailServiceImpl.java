@@ -23,6 +23,7 @@ public class EmailServiceImpl implements EmailService {
     public EmailServiceImpl(JavaMailSender mailSender) {
 		log.error(">>> Entering EmailServiceImpl(mailSender={})", mailSender);
         this.mailSender = mailSender;
+		log.debug("EmailServiceImpl(mailSender={}): this.mailSender → {}", mailSender, this.mailSender);
 		log.warn("<<< Exiting EmailServiceImpl(mailSender={})", mailSender);
     }
 
