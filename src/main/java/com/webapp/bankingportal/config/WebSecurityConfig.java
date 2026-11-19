@@ -23,11 +23,13 @@ import com.webapp.bankingportal.service.TokenService;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class WebSecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
@@ -51,23 +53,32 @@ public class WebSecurityConfig {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		log.error(">>> Entering configureGlobal(auth={})", auth);
         auth.userDetailsService(tokenService).passwordEncoder(passwordEncoder());
+		log.warn("<<< Exiting configureGlobal(auth={})", auth);
     }
 
     @Bean
     PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+		log.error(">>> Entering passwordEncoder()");
+        PasswordEncoder result = new BCryptPasswordEncoder();
+		log.warn("<<< Exiting passwordEncoder()");
+        return result;
     }
 
     @Bean
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+			log.error(">>> Entering authenticationManager(authenticationConfiguration={})", authenticationConfiguration);
+        AuthenticationManager result = authenticationConfiguration.getAuthenticationManager();
+		log.warn("<<< Exiting authenticationManager(authenticationConfiguration={}) -> {}", authenticationConfiguration, result);
+        return result;
     }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		log.error(">>> Entering securityFilterChain(http={})", http);
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(PUBLIC_URLS).permitAll()
@@ -88,7 +99,9 @@ public class WebSecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
+        SecurityFilterChain result = http.build();
+		log.warn("<<< Exiting securityFilterChain(http={}) -> {}", http, result);
+        return result;
     }
 
 }

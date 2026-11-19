@@ -12,24 +12,32 @@ import org.springframework.context.annotation.Configuration;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableCaching
+@Slf4j
 public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
+		log.error(">>> Entering cacheManager()");
         val cacheManager = new CaffeineCacheManager();
         cacheManager.setCacheNames(List.of("otpAttempts")); // Define the cache name
         cacheManager.setCaffeine(caffeineConfig());
+		log.debug("cacheManager(): cacheManager → {}", cacheManager);
+		log.warn("<<< Exiting cacheManager()");
         return cacheManager;
     }
 
     public Caffeine<Object, Object> caffeineConfig() {
-        return Caffeine.newBuilder()
+		log.error(">>> Entering caffeineConfig()");
+        Caffeine<Object, Object> result = Caffeine.newBuilder()
                 .expireAfterWrite(15, TimeUnit.MINUTES) // Cache entries expire after 15 minutes
                 .maximumSize(100) // Maximum of 100 entries in the cache
                 .recordStats(); // For monitoring cache statistics (optional)
+		log.warn("<<< Exiting caffeineConfig() -> {}", result);
+        return result;
     }
 
 }
