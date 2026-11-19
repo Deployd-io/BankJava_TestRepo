@@ -71,7 +71,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void deletePasswordResetToken(String token) {
 		log.debug(">>> Entering deletePasswordResetToken(token=<redacted>)");
+		long start = System.currentTimeMillis();
         passwordResetTokenRepository.deleteByToken(token);
+		log.info("deletePasswordResetToken(token)=<redacted>: delete query executed in {} ms", (System.currentTimeMillis() - start));
 		log.debug("<<< Exiting deletePasswordResetToken(token=<redacted>)");
     }
 
@@ -136,7 +138,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private boolean isExistingTokenValid(PasswordResetToken existingToken) {
-        return existingToken != null && existingToken.getExpiryDateTime().isAfter(LocalDateTime.now().plusMinutes(5));
+		log.debug(">>> Entering isExistingTokenValid(existingToken={})", (existingToken == null ? "null" : "[id=" + existingToken.getId() + ", expiryDateTime=" + existingToken.getExpiryDateTime() + "]"));
+        boolean result = existingToken != null && existingToken.getExpiryDateTime().isAfter(LocalDateTime.now().plusMinutes(5));
+		log.debug("<<< Exiting isExistingTokenValid(existingToken={})", (existingToken == null ? "null" : "[id=" + existingToken.getId() + ", expiryDateTime=" + existingToken.getExpiryDateTime() + "]"));
+        return result;
     }
 
     private ResponseEntity<String> sendOtpEmail(User user, String accountNumber, String generatedOtp) {
@@ -162,6 +167,7 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
         if (otpVerificationRequest.otp() == null || otpVerificationRequest.otp().isEmpty()) {
+			log.error("Throwing IllegalArgumentException from validateOtpRequest(otpVerificationRequest={})", (otpVerificationRequest == null ? "null" : "[identifier=" + otpVerificationRequest.identifier() + "]"));
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
 		log.debug("<<< Exiting validateOtpRequest(otpVerificationRequest={})", "[identifier=" + otpVerificationRequest.identifier() + "]");

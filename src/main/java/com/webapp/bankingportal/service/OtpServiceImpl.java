@@ -70,6 +70,7 @@ public class OtpServiceImpl implements OtpService {
     }
 
     private void validateOtpWithinRetryLimit(OtpInfo otpInfo) {
+		log.debug(">>> Entering validateOtpWithinRetryLimit(otpInfo={})", (otpInfo == null ? "null" : "[id=" + otpInfo.getId() + ", accountNumber=" + otpInfo.getAccountNumber() + ", generatedAt=" + otpInfo.getGeneratedAt() + "]"));
         if (!isOtpRetryLimitExceeded(otpInfo)) {
             return;
         }
@@ -78,6 +79,7 @@ public class OtpServiceImpl implements OtpService {
 
         if (otpLimitReachedTime == null) {
             otpLimitReachedTime = now;
+			log.debug("validateOtpWithinRetryLimit(otpInfo={}): otpLimitReachedTime → <redacted>", (otpInfo == null ? "null" : "[id=" + otpInfo.getId() + ", accountNumber=" + otpInfo.getAccountNumber() + ", generatedAt=" + otpInfo.getGeneratedAt() + "]"));
         }
 
         val waitingMinutes = OTP_RESET_WAITING_TIME_MINUTES - otpLimitReachedTime.until(now, ChronoUnit.MINUTES);
@@ -88,8 +90,10 @@ public class OtpServiceImpl implements OtpService {
     }
 
     private boolean isOtpRetryLimitExceeded(OtpInfo otpInfo) {
+		log.debug(">>> Entering isOtpRetryLimitExceeded(otpInfo={})", (otpInfo == null ? "null" : "[id=" + otpInfo.getId() + ", accountNumber=" + otpInfo.getAccountNumber() + ", generatedAt=" + otpInfo.getGeneratedAt() + "]"));
         val attempts = getOtpAttempts(otpInfo.getAccountNumber());
         if (attempts < OTP_ATTEMPTS_LIMIT) {
+			log.debug("isOtpRetryLimitExceeded(otpInfo={}): attempts → {}", (otpInfo == null ? "null" : "[id=" + otpInfo.getId() + ", accountNumber=" + otpInfo.getAccountNumber() + ", generatedAt=" + otpInfo.getGeneratedAt() + "]"), attempts);
             return false;
         }
 
@@ -99,8 +103,11 @@ public class OtpServiceImpl implements OtpService {
         }
 
         val now = LocalDateTime.now();
+		log.debug("isOtpRetryLimitExceeded(otpInfo={}): now → {}", (otpInfo == null ? "null" : "[id=" + otpInfo.getId() + ", accountNumber=" + otpInfo.getAccountNumber() + ", generatedAt=" + otpInfo.getGeneratedAt() + "]"), now);
 
-        return otpInfo.getGeneratedAt().isAfter(now.minusMinutes(OTP_RETRY_LIMIT_WINDOW_MINUTES));
+        boolean result = otpInfo.getGeneratedAt().isAfter(now.minusMinutes(OTP_RETRY_LIMIT_WINDOW_MINUTES));
+		log.debug("<<< Exiting isOtpRetryLimitExceeded(otpInfo={})", (otpInfo == null ? "null" : "[id=" + otpInfo.getId() + ", accountNumber=" + otpInfo.getAccountNumber() + ", generatedAt=" + otpInfo.getGeneratedAt() + "]"));
+        return result;
     }
 
     private boolean isOtpResetWaitingTimeExceeded() {
