@@ -266,6 +266,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException(ApiMessages.IDENTIFIER_MISSING_ERROR.getMessage());
         }
         if (request.otp() == null || request.otp().isEmpty()) {
+			log.error("Throwing IllegalArgumentException from validateOtpRequest(request={})", (request == null ? "null" : "[identifier=" + request.identifier() + "]"));
             throw new IllegalArgumentException(ApiMessages.OTP_MISSING_ERROR.getMessage());
         }
 		log.debug("<<< Exiting validateOtpRequest(request={})", "[identifier=" + request.identifier() + "]");
