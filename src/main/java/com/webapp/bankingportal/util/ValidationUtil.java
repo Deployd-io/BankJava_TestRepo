@@ -142,6 +142,7 @@ public class ValidationUtil {
         }
 
         if (user.getName() == null || user.getName().isEmpty()) {
+			log.error("Throwing UserInvalidException from validateUserDetailsNotEmpty(user={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
             throw new UserInvalidException(ApiMessages.USER_NAME_EMPTY_ERROR.getMessage());
         }
 
@@ -177,6 +178,7 @@ public class ValidationUtil {
         }
 
         if (!isValidCountryCode(user.getCountryCode())) {
+			log.error("Throwing UserInvalidException from validateUserDetails(user={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
             throw new UserInvalidException(String.format(ApiMessages.USER_COUNTRY_CODE_INVALID_ERROR.getMessage(), user.getCountryCode()));
         }
 
@@ -196,6 +198,7 @@ public class ValidationUtil {
             throw new UserInvalidException(ApiMessages.USER_EMAIL_ALREADY_EXISTS_ERROR.getMessage());
         }
         if (doesPhoneNumberExist(user.getPhoneNumber())) {
+			log.error("Throwing UserInvalidException from validateNewUser(user={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"));
             throw new UserInvalidException(ApiMessages.USER_PHONE_NUMBER_ALREADY_EXISTS_ERROR.getMessage());
         }
 		log.debug("<<< Exiting validateNewUser(user={})", "[id=" + user.getId() + ", name=" + user.getName() + ", email=" + user.getEmail() + ", countryCode=" + user.getCountryCode() + ", phoneNumber=" + user.getPhoneNumber() + ", address=" + user.getAddress() + "]");
