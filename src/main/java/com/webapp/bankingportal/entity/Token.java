@@ -14,11 +14,14 @@ import jakarta.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Entity
 @NoArgsConstructor
 @Data
 public class Token {
+private static final Logger log = LoggerFactory.getLogger(Token.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,9 +43,13 @@ public class Token {
     private Account account;
 
     public Token(String token, Date expiryAt, Account account) {
+		log.error(">>> Entering Token(token=<redacted>,expiryAt={},account={})", expiryAt, (account == null ? "null" : "[id=" + account.getId() + ", accountNumber=" + account.getAccountNumber() + ", accountType=" + account.getAccountType() + ", accountStatus=" + account.getAccountStatus() + ", balance=" + account.getBalance() + ", branch=" + account.getBranch() + ", ifscCode=" + account.getIfscCode() + "]"));
         this.token = token;
+		log.debug("Token(token=<redacted>,expiryAt={},account={}): this.token → <redacted>", expiryAt, (account == null ? "null" : "[id=" + account.getId() + ", accountNumber=" + account.getAccountNumber() + ", accountType=" + account.getAccountType() + ", accountStatus=" + account.getAccountStatus() + ", balance=" + account.getBalance() + ", branch=" + account.getBranch() + ", ifscCode=" + account.getIfscCode() + "]"));
         this.expiryAt = expiryAt;
+		log.debug("Token(token=<redacted>,expiryAt={},account={}): this.expiryAt → {}", expiryAt, (account == null ? "null" : "[id=" + account.getId() + ", accountNumber=" + account.getAccountNumber() + ", accountType=" + account.getAccountType() + ", accountStatus=" + account.getAccountStatus() + ", balance=" + account.getBalance() + ", branch=" + account.getBranch() + ", ifscCode=" + account.getIfscCode() + "]"), this.expiryAt);
         this.account = account;
+		log.warn("<<< Exiting Token(token=<redacted>,expiryAt={},account={})", expiryAt, (account == null ? "null" : "[id=" + account.getId() + ", accountNumber=" + account.getAccountNumber() + ", accountType=" + account.getAccountType() + ", accountStatus=" + account.getAccountStatus() + ", balance=" + account.getBalance() + ", branch=" + account.getBranch() + ", ifscCode=" + account.getIfscCode() + "]"));
     }
 
 }
