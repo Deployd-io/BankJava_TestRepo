@@ -16,11 +16,13 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Table(name = "passwordresettoken")
 @Data
 @NoArgsConstructor
+@Slf4j
 public class PasswordResetToken implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "passwordresettoken_sequence")
@@ -38,13 +40,20 @@ public class PasswordResetToken implements Serializable {
     private LocalDateTime expiryDateTime;
 
     public PasswordResetToken(String token, User user, LocalDateTime expiryDateTime) {
+		log.debug(">>> Entering PasswordResetToken(token=<redacted>,user={},expiryDateTime={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), expiryDateTime);
         this.token = token;
+		log.debug("PasswordResetToken(token=<redacted>,user={},expiryDateTime={}): this.token → <redacted>", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), expiryDateTime);
         this.user = user;
+		log.debug("PasswordResetToken(token=<redacted>,user={},expiryDateTime={}): this.user → {}", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), expiryDateTime, (this.user == null ? "null" : "[id=" + this.user.getId() + ", name=" + this.user.getName() + ", countryCode=" + this.user.getCountryCode() + "]"));
         this.expiryDateTime = expiryDateTime;
+		log.debug("<<< Exiting PasswordResetToken(token=<redacted>,user={},expiryDateTime={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), expiryDateTime);
     }
 
     public boolean isTokenValid() {
-        return getExpiryDateTime().isAfter(LocalDateTime.now());
+		log.debug(">>> Entering isTokenValid()");
+        boolean result = getExpiryDateTime().isAfter(LocalDateTime.now());
+		log.debug("<<< Exiting isTokenValid()");
+        return result;
     }
 
 }

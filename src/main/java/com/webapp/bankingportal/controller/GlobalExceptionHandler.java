@@ -22,103 +22,160 @@ import com.webapp.bankingportal.exception.OtpRetryLimitExceededException;
 import com.webapp.bankingportal.exception.PasswordResetException;
 import com.webapp.bankingportal.exception.UnauthorizedException;
 import com.webapp.bankingportal.exception.UserInvalidException;
+import lombok.extern.slf4j.Slf4j;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccountDoesNotExistException.class)
     public ResponseEntity<String> handleAccountDoesNotExistException(
             AccountDoesNotExistException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+			log.debug(">>> Entering handleAccountDoesNotExistException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug("<<< Exiting handleAccountDoesNotExistException(ex={}) -> {}", String.valueOf(ex), result);
+        return result;
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+		log.debug(">>> Entering handleBadCredentialsException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+		log.debug("<<< Exiting handleBadCredentialsException(ex={})", String.valueOf(ex));
+        return result;
     }
 
     @ExceptionHandler(FundTransferException.class)
     public ResponseEntity<String> handleFundTransferException(FundTransferException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug(">>> Entering handleFundTransferException(ex={})", String.valueOf(ex));
+        log.warn("CUSTOM-AUDIT: ENTERING: handleFundTransferException() method: username={}", (org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() == null ? null : org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName()));
+        ResponseEntity<String> result = ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug("<<< Exiting handleFundTransferException(ex={}) -> {}", String.valueOf(ex), result);
+        return result;
     }
 
     @ExceptionHandler(GeolocationException.class)
     public ResponseEntity<String> handleGeolocationException(GeolocationException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug(">>> Entering handleGeolocationException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug("<<< Exiting handleGeolocationException(ex={}) -> {}", String.valueOf(ex), result);
+        return result;
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(
             IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+			log.debug(">>> Entering handleIllegalArgumentException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug("<<< Exiting handleIllegalArgumentException(ex={}) -> {}", String.valueOf(ex), result);
+        return result;
     }
 
     @ExceptionHandler(InsufficientBalanceException.class)
     public ResponseEntity<String> handleInsufficientBalanceException(
             InsufficientBalanceException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+			log.debug(">>> Entering handleInsufficientBalanceException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug("<<< Exiting handleInsufficientBalanceException(ex={}) -> {}", String.valueOf(ex), result);
+        return result;
     }
 
     @ExceptionHandler(InvalidAmountException.class)
     public ResponseEntity<String> handleInvalidAmountException(InvalidAmountException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug(">>> Entering handleInvalidAmountException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug("<<< Exiting handleInvalidAmountException(ex={}) -> {}", String.valueOf(ex), result);
+        return result;
     }
 
     @ExceptionHandler(InvalidOtpException.class)
     public ResponseEntity<String> handleInvalidOtpException(InvalidOtpException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+		log.debug(">>> Entering handleInvalidOtpException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+		log.debug("<<< Exiting handleInvalidOtpException(ex={})", String.valueOf(ex));
+        return result;
     }
 
     @ExceptionHandler(InvalidPinException.class)
     public ResponseEntity<String> handleInvalidPinException(InvalidPinException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug(">>> Entering handleInvalidPinException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug("<<< Exiting handleInvalidPinException(ex={})", String.valueOf(ex));
+        return result;
     }
 
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<String> handleInvalidTokenException(InvalidTokenException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+		log.debug(">>> Entering handleInvalidTokenException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+		log.debug("<<< Exiting handleInvalidTokenException(ex={})", String.valueOf(ex));
+        return result;
     }
 
     @ExceptionHandler(JsonProcessingException.class)
     public ResponseEntity<String> handleJsonProcessingException(JsonProcessingException ex) {
-        return ResponseEntity.internalServerError().body(ex.getMessage());
+		log.debug(">>> Entering handleJsonProcessingException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.internalServerError().body(ex.getMessage());
+		log.debug("<<< Exiting handleJsonProcessingException(ex={}) -> {}", String.valueOf(ex), result);
+        return result;
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+		log.debug(">>> Entering handleNotFoundException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+		log.debug("<<< Exiting handleNotFoundException(ex={}) -> {}", String.valueOf(ex), result);
+        return result;
     }
 
     @ExceptionHandler(OtpRetryLimitExceededException.class)
     public ResponseEntity<String> handleOtpRetryLimitExceededException(
             OtpRetryLimitExceededException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+			log.debug(">>> Entering handleOtpRetryLimitExceededException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug("<<< Exiting handleOtpRetryLimitExceededException(ex={})", String.valueOf(ex));
+        return result;
     }
 
     @ExceptionHandler(PasswordResetException.class)
     public ResponseEntity<String> handlePasswordResetException(PasswordResetException ex, WebRequest request) {
-        return ResponseEntity.internalServerError()
+		log.debug(">>> Entering handlePasswordResetException(ex={},request={})", String.valueOf(ex), request);
+        ResponseEntity<String> result = ResponseEntity.internalServerError()
                 .body("{\"message\": \"" + ex.getMessage() + "\"}");
+		log.debug("<<< Exiting handlePasswordResetException(ex={},request={})", String.valueOf(ex), request);
+        return result;
     }
 
     @ExceptionHandler(RestClientException.class)
     public ResponseEntity<String> handleRestClientException(RestClientException ex) {
-        return ResponseEntity.internalServerError().body(ex.getMessage());
+		log.debug(">>> Entering handleRestClientException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.internalServerError().body(ex.getMessage());
+		log.debug("<<< Exiting handleRestClientException(ex={}) -> {}", String.valueOf(ex), result);
+        return result;
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+		log.debug(">>> Entering handleUnauthorizedException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+		log.debug("<<< Exiting handleUnauthorizedException(ex={}) -> {}", String.valueOf(ex), result);
+        return result;
     }
 
     @ExceptionHandler(UserInvalidException.class)
     public ResponseEntity<String> handleUserInvalidException(UserInvalidException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug(">>> Entering handleUserInvalidException(ex={})", String.valueOf(ex));
+        ResponseEntity<String> result = ResponseEntity.badRequest().body(ex.getMessage());
+		log.debug("<<< Exiting handleUserInvalidException(ex={}) -> {}", String.valueOf(ex), result);
+        return result;
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGlobalException(Exception ex, WebRequest request) {
-        return ResponseEntity.internalServerError()
+		log.debug(">>> Entering handleGlobalException(ex={},request={})", String.valueOf(ex), request);
+        ResponseEntity<String> result = ResponseEntity.internalServerError()
                 .body("{\"message\": \"An unexpected error occurred: " + ex.getMessage() + "\"}");
+		log.debug("<<< Exiting handleGlobalException(ex={},request={}) -> {}", String.valueOf(ex), request, result);
+        return result;
     }
 }
