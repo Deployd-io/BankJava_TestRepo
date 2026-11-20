@@ -39,6 +39,7 @@ private static final Logger log = LoggerFactory.getLogger(OtpInfo.class);
         this.otp = otp;
 		log.debug("OtpInfo(accountNumber={},otp=<redacted>,generatedAt={}): this.otp → <redacted>", accountNumber, generatedAt);
         this.generatedAt = generatedAt;
+		log.debug("OtpInfo(accountNumber={},otp=<redacted>,generatedAt={}): this.generatedAt → {}", accountNumber, generatedAt, this.generatedAt);
 		log.warn("<<< Exiting OtpInfo(accountNumber={},otp=<redacted>,generatedAt={})", accountNumber, generatedAt);
     }
 

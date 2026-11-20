@@ -47,6 +47,7 @@ public class PasswordResetToken implements Serializable {
         this.user = user;
 		log.debug("PasswordResetToken(token=<redacted>,user={},expiryDateTime={}): this.user → {}", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), expiryDateTime, (this.user == null ? "null" : "[id=" + this.user.getId() + ", name=" + this.user.getName() + ", countryCode=" + this.user.getCountryCode() + "]"));
         this.expiryDateTime = expiryDateTime;
+		log.debug("PasswordResetToken(token=<redacted>,user={},expiryDateTime={}): this.expiryDateTime → {}", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), expiryDateTime, this.expiryDateTime);
 		log.warn("<<< Exiting PasswordResetToken(token=<redacted>,user={},expiryDateTime={})", (user == null ? "null" : "[id=" + user.getId() + ", name=" + user.getName() + ", countryCode=" + user.getCountryCode() + "]"), expiryDateTime);
     }
 
