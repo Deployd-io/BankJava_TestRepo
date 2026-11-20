@@ -208,10 +208,13 @@ private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.cla
 
     @Transactional
     @Override
-    public void cashDeposit(String accountNumber, String pin, double amount) {
+    public void cashDeposit(String accountNumber, String pin, double amount, String channel) {
 		log.error(">>> Entering cashDeposit(accountNumber={},pin=<redacted>,amount={})", accountNumber, amount);
         validatePin(accountNumber, pin);
         validateAmount(amount);
+        if (channel == null || channel.isBlank()) {
+            throw new IllegalArgumentException("Deposit channel is required");
+        }
 
 		long start = System.currentTimeMillis();
         val account = accountRepository.findByAccountNumber(accountNumber);
