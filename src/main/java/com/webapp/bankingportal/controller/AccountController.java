@@ -77,7 +77,8 @@ private static final Logger log = LoggerFactory.getLogger(AccountController.clas
         accountService.cashDeposit(
                 LoggedinUser.getAccountNumber(),
                 amountRequest.pin(),
-                amountRequest.amount());
+                amountRequest.amount(),
+                "WEB");
 
         ResponseEntity<String> result = ResponseEntity.ok(ApiMessages.CASH_DEPOSIT_SUCCESS.getMessage());
 		log.warn("<<< Exiting cashDeposit(amountRequest={}) -> {}", (amountRequest == null ? "null" : "[accountNumber=" + amountRequest.accountNumber() + ", amount=" + amountRequest.amount() + "]"), result);
