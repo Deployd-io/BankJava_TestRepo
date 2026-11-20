@@ -209,10 +209,11 @@ private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.cla
     @Transactional
     @Override
     public void cashDeposit(String accountNumber, String pin, double amount, String channel) {
-		log.error(">>> Entering cashDeposit(accountNumber={},pin=<redacted>,amount={})", accountNumber, amount);
+		log.error(">>> Entering cashDeposit(accountNumber={},pin=<redacted>,amount={},channel={})", accountNumber, amount, channel);
         validatePin(accountNumber, pin);
         validateAmount(amount);
         if (channel == null || channel.isBlank()) {
+			log.error("Throwing IllegalArgumentException from cashDeposit(accountNumber={},pin=<redacted>,amount={},channel={})", accountNumber, amount, channel);
             throw new IllegalArgumentException("Deposit channel is required");
         }
 
@@ -225,6 +226,7 @@ private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.cla
         val newBalance = currentBalance + amount;
 		log.error("cashDeposit(accountNumber={},pin=<redacted>,amount={}): currentBalance → {}", accountNumber, amount, currentBalance);
         account.setBalance(newBalance);
+		log.debug("cashDeposit(accountNumber={},pin=<redacted>,amount={},channel={}): account → <redacted>", accountNumber, amount, channel);
         accountRepository.save(account);
 		log.error("cashDeposit(accountNumber,pin,amount)={},<redacted>,{}: save query executed in {} ms", accountNumber, amount, (System.currentTimeMillis() - start));
 
@@ -235,7 +237,7 @@ private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.cla
         transaction.setSourceAccount(account);
 		log.debug("cashDeposit(accountNumber={},pin=<redacted>,amount={}): transaction → {}", accountNumber, amount, (transaction == null ? "null" : "[id=" + transaction.getId() + ", amount=" + transaction.getAmount() + ", transactionType=" + transaction.getTransactionType() + ", transactionDate=" + transaction.getTransactionDate() + "]"));
         transactionRepository.save(transaction);
-		log.warn("<<< Exiting cashDeposit(accountNumber={},pin=<redacted>,amount={})", accountNumber, amount);
+		log.warn("<<< Exiting cashDeposit(accountNumber={},pin=<redacted>,amount={},channel={})", accountNumber, amount, channel);
     }
 
     @Transactional
